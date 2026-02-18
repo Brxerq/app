@@ -23,6 +23,7 @@ const experiences = [
     tech: ['React', 'TypeScript', 'LLMs', 'CRM Integrations', 'Automation'],
     color: '#22c55e',
     icon: Brain,
+    logo: '/aerlou.png',
   },
   {
     id: 2,
@@ -42,6 +43,7 @@ const experiences = [
     tech: ['React', 'TypeScript', 'RTK Query', 'Django/DRF', 'PostgreSQL', 'Docker'],
     color: '#06b6d4',
     icon: Code2,
+    logo: '/nashaa.png',
   },
   {
     id: 3,
@@ -257,10 +259,18 @@ export default function Experience() {
                     >
                       <div className={`flex items-center gap-4 mb-4 ${isLeft ? 'lg:justify-end' : ''}`}>
                         <div
-                          className="w-14 h-14 rounded-xl flex items-center justify-center"
+                          className="w-14 h-14 rounded-xl flex items-center justify-center overflow-hidden"
                           style={{ background: `linear-gradient(135deg, ${exp.color}40, ${exp.color}20)` }}
                         >
-                          <Icon className="w-7 h-7" style={{ color: exp.color }} />
+                          {'logo' in exp && exp.logo ? (
+                            <img
+                              src={exp.logo}
+                              alt={`${exp.company} logo`}
+                              className="w-10 h-10 object-contain"
+                            />
+                          ) : (
+                            <Icon className="w-7 h-7" style={{ color: exp.color }} />
+                          )}
                         </div>
                         <div
                           className="px-4 py-2 rounded-full font-orbitron font-bold text-sm"
