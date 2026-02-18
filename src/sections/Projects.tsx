@@ -329,7 +329,7 @@ export default function Projects() {
             href="https://github.com/Brxerq"
             target="_blank"
             rel="noopener noreferrer"
-            className="btn-holo inline-flex items-center gap-3 px-8 py-4 glass rounded-xl font-orbitron font-bold text-white hover:bg-purple-500/20 transition-all duration-300 group"
+            className="btn-holo inline-flex items-center gap-3 px-8 py-4 glass rounded-xl font-orbitron font-bold text-white hover:bg-fuchsia-500/20 transition-all duration-300 group"
           >
             <Github className="w-5 h-5" />
             <span>VIEW ALL QUESTS</span>

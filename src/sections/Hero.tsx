@@ -146,7 +146,7 @@ export default function Hero() {
 
             {/* Title */}
             <div className="hero-text-line mb-6">
-              <span className="font-orbitron text-xl sm:text-2xl text-slate-300 tracking-[0.2em]">
+              <span className="font-orbitron text-xl sm:text-2xl text-slate-300 tracking-[0.08em]">
                 AI-DRIVEN SOFTWARE DEVELOPER
               </span>
             </div>
