@@ -142,7 +142,7 @@ export default function Skills() {
               <h3 className="font-orbitron font-bold text-2xl text-cyan-400 mb-4">
                 CLASS SPECIALIZATION
               </h3>
-              <p className="text-slate-300 leading-relaxed mb-6">
+              <p className="text-slate-200/95 leading-8 mb-6">
                 Core stack from resume: Python, TypeScript, TensorFlow, PyTorch,
                 OpenCV, React, Django/DRF, Flutter, PostgreSQL, MySQL, and Docker.
                 Strong focus on LLM-powered product features and production ML delivery.

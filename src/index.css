@@ -1,4 +1,4 @@
-﻿@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap');
+﻿@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -48,7 +48,7 @@
   
   body {
     @apply bg-background text-foreground;
-    font-family: 'Rajdhani', sans-serif;
+    font-family: 'Space Grotesk', 'Rajdhani', sans-serif;
     overflow-x: hidden;
     min-height: 100vh;
     background:
@@ -58,10 +58,23 @@
     color-scheme: dark;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
+    line-height: 1.7;
+    letter-spacing: 0.01em;
   }
   
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Orbitron', sans-serif;
+    line-height: 1.12;
+    letter-spacing: 0.025em;
+  }
+
+  p {
+    line-height: 1.75;
+  }
+
+  ::selection {
+    background: rgba(34, 211, 238, 0.28);
+    color: #ffffff;
   }
 }
 
@@ -71,7 +84,7 @@
   }
   
   .font-rajdhani {
-    font-family: 'Rajdhani', sans-serif;
+    font-family: 'Space Grotesk', 'Rajdhani', sans-serif;
   }
   
   .text-glow-purple {
@@ -239,7 +252,7 @@
   }
   
   .terminal-cursor::after {
-    content: 'â–ˆ';
+    content: '|';
     animation: blink 1s step-end infinite;
     color: var(--cyan);
   }
@@ -346,3 +359,4 @@
 ::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(var(--cyan), var(--purple));
 }
+

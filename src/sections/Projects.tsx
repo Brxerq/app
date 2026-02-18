@@ -143,7 +143,7 @@ export default function Projects() {
             </h2>
           </div>
           <div className="h-1 w-32 bg-gradient-to-r from-orange-500 to-purple-500 rounded-full mb-4" />
-          <p className="text-slate-400 max-w-2xl">
+          <p className="text-slate-300/95 max-w-2xl leading-8">
             Resume-aligned project set with AI/ML systems, computer vision builds,
             and game engineering work delivered across 2023-2024.
           </p>
@@ -299,7 +299,7 @@ export default function Projects() {
                   </div>
 
                   <div className="text-xs text-slate-500 mb-2 font-orbitron">{project.date}</div>
-                  <p className="text-slate-400 text-sm mb-4">
+                  <p className="text-slate-300/90 text-sm leading-7 mb-4">
                     {project.description}
                   </p>
 

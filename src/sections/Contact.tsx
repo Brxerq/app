@@ -142,7 +142,7 @@ export default function Contact() {
             </h2>
           </div>
           <div className="h-1 w-32 bg-gradient-to-r from-green-500 to-cyan-500 rounded-full mx-auto mb-4" />
-          <p className="text-slate-400 max-w-xl mx-auto">
+          <p className="text-slate-300/95 max-w-xl mx-auto leading-8">
             Ready to collaborate on AI-driven product engineering? Send a message and
             I will respond with implementation details and next steps.
           </p>
