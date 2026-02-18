@@ -121,7 +121,7 @@ export default function Skills() {
     <section
       ref={sectionRef}
       id="skills"
-      className="relative min-h-screen py-24 overflow-hidden"
+      className="section-shell relative min-h-screen py-24 overflow-hidden"
     >
       <div className="container mx-auto px-6">
         <div className="mb-16">
@@ -133,7 +133,7 @@ export default function Skills() {
               THE <span className="text-gradient">ARSENAL</span>
             </h2>
           </div>
-          <div className="h-1 w-32 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-full" />
+          <div className="neon-divider w-32" />
         </div>
 
         <div className="grid lg:grid-cols-5 gap-12">

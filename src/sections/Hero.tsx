@@ -109,7 +109,7 @@ export default function Hero() {
     <section
       ref={sectionRef}
       id="hero"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20"
+      className="section-shell relative min-h-screen flex items-center justify-center overflow-hidden pt-20"
     >
       {/* Orbiting Rings */}
       <div ref={ringsRef} className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -184,13 +184,13 @@ export default function Hero() {
             <div className="hero-text-line flex flex-wrap gap-4 justify-center lg:justify-start mt-8">
               <a
                 href="#projects"
-                className="px-8 py-4 bg-gradient-to-r from-purple-600 to-purple-500 rounded-xl font-orbitron font-bold text-white hover:shadow-glow-purple transition-all duration-300 hover:scale-105"
+                className="btn-holo px-8 py-4 bg-gradient-to-r from-purple-500 via-fuchsia-500 to-cyan-400 rounded-xl font-orbitron font-bold text-white hover:shadow-glow-purple transition-all duration-300 hover:scale-105"
               >
                 VIEW QUESTS
               </a>
               <a
                 href="#contact"
-                className="px-8 py-4 glass rounded-xl font-orbitron font-bold text-white hover:border-cyan-500/50 transition-all duration-300 hover:scale-105"
+                className="btn-holo px-8 py-4 glass rounded-xl font-orbitron font-bold text-white hover:border-cyan-400/60 transition-all duration-300 hover:scale-105"
               >
                 INITIATE CONTACT
               </a>

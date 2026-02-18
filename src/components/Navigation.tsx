@@ -87,16 +87,16 @@ export default function Navigation() {
               {navItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = activeSection === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => scrollToSection(item.id)}
-                    className={`nav-item relative px-4 py-2 rounded-lg transition-all duration-300 group ${
-                      isActive
-                        ? 'text-cyan-400'
-                        : 'text-slate-400 hover:text-white'
-                    }`}
-                  >
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => scrollToSection(item.id)}
+                  className={`nav-item btn-holo relative px-4 py-2 rounded-lg transition-all duration-300 group ${
+                    isActive
+                      ? 'text-cyan-300'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
                     <span className="flex items-center gap-2">
                       <Icon className="w-4 h-4" />
                       <span className="font-orbitron text-sm tracking-wider">
@@ -104,7 +104,7 @@ export default function Navigation() {
                       </span>
                     </span>
                     {isActive && (
-                      <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 bg-cyan-400 rounded-full" />
+                      <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 bg-fuchsia-400 rounded-full" />
                     )}
                     <span className="absolute inset-0 rounded-lg bg-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </button>
@@ -187,9 +187,9 @@ export default function Navigation() {
       >
         <button
           onClick={() => scrollToSection('contact')}
-          className="glass rounded-xl px-4 py-3 flex items-center gap-3 hover:bg-purple-500/20 transition-colors group"
+          className="btn-holo glass rounded-xl px-4 py-3 flex items-center gap-3 hover:bg-purple-500/20 transition-colors group"
         >
-          <Mail className="w-5 h-5 text-cyan-400 group-hover:scale-110 transition-transform" />
+          <Mail className="w-5 h-5 text-cyan-300 group-hover:scale-110 transition-transform" />
           <span className="font-orbitron text-sm text-white hidden sm:block">INITIATE CONTACT</span>
         </button>
       </div>

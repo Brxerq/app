@@ -39,9 +39,9 @@ function App() {
   return (
     <div ref={mainRef} className="relative min-h-screen bg-dark overflow-x-hidden">
       <div className="fixed inset-0 z-0 pointer-events-none">
-        <div className="absolute -top-24 -left-20 h-[28rem] w-[28rem] rounded-full bg-purple-600/14 blur-3xl" />
+        <div className="absolute -top-24 -left-20 h-[28rem] w-[28rem] rounded-full bg-purple-500/14 blur-3xl" />
         <div className="absolute top-[18%] -right-24 h-[24rem] w-[24rem] rounded-full bg-cyan-400/12 blur-3xl" />
-        <div className="absolute bottom-[-10rem] left-1/3 h-[26rem] w-[26rem] rounded-full bg-orange-500/8 blur-3xl" />
+        <div className="absolute bottom-[-10rem] left-1/3 h-[26rem] w-[26rem] rounded-full bg-orange-400/8 blur-3xl" />
         <div className="absolute inset-0 bg-gradient-to-b from-slate-950/30 via-transparent to-slate-950/65" />
       </div>
 

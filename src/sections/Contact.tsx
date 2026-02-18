@@ -122,7 +122,7 @@ export default function Contact() {
     <section
       ref={sectionRef}
       id="contact"
-      className="relative min-h-screen py-24 overflow-hidden"
+      className="section-shell relative min-h-screen py-24 overflow-hidden"
     >
       <div className="absolute inset-0 opacity-10">
         <div className="absolute inset-0" style={{
@@ -141,7 +141,7 @@ export default function Contact() {
               OPEN A <span className="text-gradient">CHANNEL</span>
             </h2>
           </div>
-          <div className="h-1 w-32 bg-gradient-to-r from-green-500 to-cyan-500 rounded-full mx-auto mb-4" />
+          <div className="neon-divider w-32 mx-auto mb-4" />
           <p className="text-slate-300/95 max-w-xl mx-auto leading-8">
             Ready to collaborate on AI-driven product engineering? Send a message and
             I will respond with implementation details and next steps.
@@ -246,10 +246,10 @@ export default function Contact() {
                 <button
                   type="submit"
                   disabled={isSubmitting || isSubmitted}
-                  className={`w-full py-4 rounded-xl font-orbitron font-bold text-lg transition-all duration-500 flex items-center justify-center gap-3 ${
+                  className={`btn-holo w-full py-4 rounded-xl font-orbitron font-bold text-lg transition-all duration-500 flex items-center justify-center gap-3 ${
                     isSubmitted
                       ? 'bg-green-500 text-white'
-                      : 'bg-gradient-to-r from-purple-600 to-cyan-600 text-white hover:shadow-glow-purple hover:scale-[1.02]'
+                      : 'bg-gradient-to-r from-purple-500 via-fuchsia-500 to-cyan-400 text-white hover:shadow-glow-purple hover:scale-[1.02]'
                   }`}
                 >
                   {isSubmitting ? (

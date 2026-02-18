@@ -130,7 +130,7 @@ export default function Projects() {
     <section
       ref={sectionRef}
       id="projects"
-      className="relative min-h-screen py-24 overflow-hidden"
+      className="section-shell relative min-h-screen py-24 overflow-hidden"
     >
       <div className="container mx-auto px-6">
         <div className="mb-16">
@@ -142,7 +142,7 @@ export default function Projects() {
               DEPLOYED <span className="text-gradient">WORKS</span>
             </h2>
           </div>
-          <div className="h-1 w-32 bg-gradient-to-r from-orange-500 to-purple-500 rounded-full mb-4" />
+          <div className="neon-divider w-32 mb-4" />
           <p className="text-slate-300/95 max-w-2xl leading-8">
             Resume-aligned project set with AI/ML systems, computer vision builds,
             and game engineering work delivered across 2023-2024.
@@ -329,7 +329,7 @@ export default function Projects() {
             href="https://github.com/Brxerq"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-3 px-8 py-4 glass rounded-xl font-orbitron font-bold text-white hover:bg-purple-500/20 transition-all duration-300 group"
+            className="btn-holo inline-flex items-center gap-3 px-8 py-4 glass rounded-xl font-orbitron font-bold text-white hover:bg-purple-500/20 transition-all duration-300 group"
           >
             <Github className="w-5 h-5" />
             <span>VIEW ALL QUESTS</span>
