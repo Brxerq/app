@@ -83,13 +83,15 @@ export default function Skills() {
 
       gsap.fromTo(
         '.skill-orb',
-        { scale: 3, opacity: 0 },
+        { scale: 0.92, y: 20, opacity: 0 },
         {
           scale: 1,
+          y: 0,
           opacity: 1,
-          duration: 1,
+          duration: 0.65,
           stagger: 0.05,
-          ease: 'back.out(1.7)',
+          ease: 'power3.out',
+          immediateRender: false,
           scrollTrigger: {
             trigger: cloudRef.current,
             start: 'top 80%',
