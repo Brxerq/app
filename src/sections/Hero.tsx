@@ -17,7 +17,6 @@ export default function Hero() {
   const avatarRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
-  const ringsRef = useRef<HTMLDivElement>(null);
   const tiltXRef = useRef(0);
   const tiltYRef = useRef(0);
   const frameRef = useRef<number | null>(null);
@@ -53,14 +52,6 @@ export default function Hero() {
         '-=0.4'
       );
 
-      // Rings start orbiting
-      tl.fromTo(
-        '.orbit-ring',
-        { opacity: 0, scale: 0.8 },
-        { opacity: 1, scale: 1, duration: 1, stagger: 0.2 },
-        '-=0.6'
-      );
-
       if (!reducedMotion && isDesktop) {
         // Scroll parallax effects on capable desktop only
         gsap.to(avatarRef.current, {
@@ -83,12 +74,6 @@ export default function Hero() {
           },
         });
 
-        gsap.to('.orbit-ring', {
-          rotation: 360,
-          duration: 20,
-          repeat: -1,
-          ease: 'none',
-        });
       }
     }, sectionRef);
 
@@ -141,16 +126,6 @@ export default function Hero() {
       id="hero"
       className="section-shell relative min-h-screen flex items-center justify-center overflow-hidden pt-20"
     >
-      {/* Orbiting Rings */}
-      <div ref={ringsRef} className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <div className="orbit-ring absolute w-[500px] h-[500px] border border-purple-500/20 rounded-full" 
-             style={{ transform: 'rotateX(60deg)' }} />
-        <div className="orbit-ring absolute w-[400px] h-[400px] border border-cyan-500/20 rounded-full" 
-             style={{ transform: 'rotateX(60deg) rotateY(30deg)' }} />
-        <div className="orbit-ring absolute w-[600px] h-[600px] border border-orange-500/10 rounded-full" 
-             style={{ transform: 'rotateX(60deg) rotateY(-30deg)' }} />
-      </div>
-
       <div className="container mx-auto px-6 relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Text Content */}

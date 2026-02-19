@@ -137,6 +137,116 @@ function FloatingParticles() {
   );
 }
 
+function OrbitDotsTrails() {
+  const groupRef = useRef<THREE.Group>(null);
+  const purpleOrbitRef = useRef<THREE.Group>(null);
+  const dotARef = useRef<THREE.Mesh>(null);
+  const dotBRef = useRef<THREE.Mesh>(null);
+  const dotCRef = useRef<THREE.Mesh>(null);
+  const dotDRef = useRef<THREE.Mesh>(null);
+
+  const trailA = useMemo(() => {
+    const points: number[] = [];
+    const segments = 220;
+    for (let i = 0; i <= segments; i += 1) {
+      const t = (i / segments) * Math.PI * 2;
+      points.push(Math.cos(t) * 1.9, 0, Math.sin(t) * 1.05);
+    }
+    return new Float32Array(points);
+  }, []);
+
+  const trailB = useMemo(() => {
+    const points: number[] = [];
+    const segments = 220;
+    for (let i = 0; i <= segments; i += 1) {
+      const t = (i / segments) * Math.PI * 2;
+      points.push(Math.cos(t) * 2.35, 0, Math.sin(t) * 0.78);
+    }
+    return new Float32Array(points);
+  }, []);
+
+  const trailLineA = useMemo(() => {
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.BufferAttribute(trailA, 3));
+    const material = new THREE.LineBasicMaterial({
+      color: new THREE.Color('#22d3ee'),
+      transparent: true,
+      opacity: 0.58,
+      blending: THREE.AdditiveBlending,
+    });
+    return new THREE.LineLoop(geometry, material);
+  }, [trailA]);
+
+  const trailLineB = useMemo(() => {
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.BufferAttribute(trailB, 3));
+    const material = new THREE.LineBasicMaterial({
+      color: new THREE.Color('#a855f7'),
+      transparent: true,
+      opacity: 0.55,
+      blending: THREE.AdditiveBlending,
+    });
+    return new THREE.LineLoop(geometry, material);
+  }, [trailB]);
+
+  useEffect(() => {
+    return () => {
+      trailLineA.geometry.dispose();
+      (trailLineA.material as THREE.Material).dispose();
+      trailLineB.geometry.dispose();
+      (trailLineB.material as THREE.Material).dispose();
+    };
+  }, [trailLineA, trailLineB]);
+
+  useFrame((state) => {
+    if (!groupRef.current) {
+      return;
+    }
+    const t = state.clock.elapsedTime;
+    groupRef.current.rotation.y = t * 0.07;
+    groupRef.current.rotation.x = 0.48 + Math.sin(t * 0.22) * 0.02;
+
+    if (dotARef.current) {
+      dotARef.current.position.set(Math.cos(t * 0.42) * 1.9, 0, Math.sin(t * 0.42) * 1.05);
+    }
+    if (dotBRef.current) {
+      dotBRef.current.position.set(Math.cos(t * 0.42 + Math.PI) * 1.9, 0, Math.sin(t * 0.42 + Math.PI) * 1.05);
+    }
+    if (dotCRef.current) {
+      dotCRef.current.position.set(Math.cos(-t * 0.32 + 0.75) * 2.35, 0, Math.sin(-t * 0.32 + 0.75) * 0.78);
+    }
+    if (dotDRef.current) {
+      dotDRef.current.position.set(Math.cos(-t * 0.32 + Math.PI + 0.75) * 2.35, 0, Math.sin(-t * 0.32 + Math.PI + 0.75) * 0.78);
+    }
+  });
+
+  return (
+    <group ref={groupRef} position={[0, 1.25, -0.8]} rotation={[0.48, 0, 0.15]}>
+      <primitive object={trailLineA} />
+      <group ref={purpleOrbitRef} rotation={[0, 0.35, 0]}>
+        <primitive object={trailLineB} />
+        <mesh ref={dotCRef}>
+          <sphereGeometry args={[0.045, 12, 12]} />
+          <meshBasicMaterial color="#a855f7" toneMapped={false} />
+        </mesh>
+        <mesh ref={dotDRef}>
+          <sphereGeometry args={[0.035, 10, 10]} />
+          <meshBasicMaterial color="#d8b4fe" toneMapped={false} />
+        </mesh>
+      </group>
+
+      <mesh ref={dotARef}>
+        <sphereGeometry args={[0.045, 12, 12]} />
+        <meshBasicMaterial color="#22d3ee" toneMapped={false} />
+      </mesh>
+      <mesh ref={dotBRef}>
+        <sphereGeometry args={[0.035, 10, 10]} />
+        <meshBasicMaterial color="#67e8f9" toneMapped={false} />
+      </mesh>
+    </group>
+  );
+}
+
 export default function BackgroundGrid() {
   return (
     <div className="fixed inset-0 z-0">
@@ -147,8 +257,10 @@ export default function BackgroundGrid() {
         performance={{ min: 0.7 }}
       >
         <ambientLight intensity={0.5} />
+        <pointLight position={[2, 4, 3]} intensity={0.7} color="#67e8f9" />
         <GridFloor />
         <FloatingParticles />
+        <OrbitDotsTrails />
       </Canvas>
       
       {/* CSS Grid Overlay */}
