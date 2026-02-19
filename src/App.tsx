@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect, useRef } from 'react';
+import { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Navigation from './components/Navigation';
@@ -12,8 +12,24 @@ const BackgroundGrid = lazy(() => import('./components/BackgroundGrid'));
 
 gsap.registerPlugin(ScrollTrigger);
 
+function getDeviceProfile() {
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const isMobile = window.matchMedia('(max-width: 768px)').matches;
+  const navWithMemory = navigator as Navigator & { deviceMemory?: number };
+  const lowPowerCpu = typeof navigator.hardwareConcurrency === 'number' && navigator.hardwareConcurrency <= 4;
+  const lowMemory = typeof navWithMemory.deviceMemory === 'number' && navWithMemory.deviceMemory <= 4;
+  const lowPowerMode = reducedMotion || isMobile || lowPowerCpu || lowMemory;
+
+  return {
+    showBackgroundGrid: !lowPowerMode,
+    showNoiseOverlay: !(reducedMotion || isMobile),
+  };
+}
+
 function App() {
   const mainRef = useRef<HTMLDivElement>(null);
+  const [showBackgroundGrid, setShowBackgroundGrid] = useState(() => getDeviceProfile().showBackgroundGrid);
+  const [showNoiseOverlay, setShowNoiseOverlay] = useState(() => getDeviceProfile().showNoiseOverlay);
 
   useEffect(() => {
     const anchors = Array.from(document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]'));
@@ -36,18 +52,26 @@ function App() {
     };
   }, []);
 
+  useEffect(() => {
+    const profile = getDeviceProfile();
+    setShowBackgroundGrid(profile.showBackgroundGrid);
+    setShowNoiseOverlay(profile.showNoiseOverlay);
+  }, []);
+
   return (
     <div ref={mainRef} className="relative min-h-screen bg-dark overflow-x-hidden">
       <div className="fixed inset-0 z-0 pointer-events-none">
-        <div className="absolute -top-24 -left-20 h-[28rem] w-[28rem] rounded-full bg-purple-500/14 blur-3xl" />
-        <div className="absolute top-[18%] -right-24 h-[24rem] w-[24rem] rounded-full bg-cyan-400/12 blur-3xl" />
-        <div className="absolute bottom-[-10rem] left-1/3 h-[26rem] w-[26rem] rounded-full bg-orange-400/8 blur-3xl" />
+        <div className="absolute -top-24 -left-20 h-[28rem] w-[28rem] rounded-full bg-purple-500/14 blur-3xl hidden md:block" />
+        <div className="absolute top-[18%] -right-24 h-[24rem] w-[24rem] rounded-full bg-cyan-400/12 blur-3xl hidden md:block" />
+        <div className="absolute bottom-[-10rem] left-1/3 h-[26rem] w-[26rem] rounded-full bg-orange-400/8 blur-3xl hidden md:block" />
         <div className="absolute inset-0 bg-gradient-to-b from-slate-950/30 via-transparent to-slate-950/65" />
       </div>
 
-      <Suspense fallback={null}>
-        <BackgroundGrid />
-      </Suspense>
+      {showBackgroundGrid && (
+        <Suspense fallback={null}>
+          <BackgroundGrid />
+        </Suspense>
+      )}
       
       {/* Navigation */}
       <Navigation />
@@ -64,7 +88,7 @@ function App() {
       </main>
       
       {/* Noise Overlay */}
-      <div className="fixed inset-0 pointer-events-none z-50 noise-overlay" />
+      {showNoiseOverlay && <div className="fixed inset-0 pointer-events-none z-50 noise-overlay" />}
     </div>
   );
 }

@@ -2,43 +2,43 @@ import { useRef, useEffect, useMemo } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
+const VERTEX_SHADER = `
+  varying vec2 vUv;
+  varying vec3 vPosition;
+  void main() {
+    vUv = uv;
+    vPosition = position;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
+
+const FRAGMENT_SHADER = `
+  uniform float uTime;
+  uniform vec2 uMouse;
+  uniform vec3 uColor1;
+  uniform vec3 uColor2;
+  varying vec2 vUv;
+  varying vec3 vPosition;
+  
+  void main() {
+    vec2 grid = fract(vUv * 30.0);
+    float line = step(0.95, grid.x) + step(0.95, grid.y);
+    
+    float dist = distance(vUv, uMouse);
+    float ripple = sin(dist * 20.0 - uTime * 3.0) * 0.5 + 0.5;
+    ripple *= smoothstep(0.5, 0.0, dist);
+    
+    float alpha = line * 0.3 + ripple * 0.2;
+    
+    vec3 color = mix(uColor1, uColor2, vUv.y + sin(uTime * 0.5) * 0.2);
+    
+    gl_FragColor = vec4(color, alpha * 0.5);
+  }
+`;
+
 function GridFloor() {
   const meshRef = useRef<THREE.Mesh>(null);
   const materialRef = useRef<THREE.ShaderMaterial>(null);
-
-  const vertexShader = `
-    varying vec2 vUv;
-    varying vec3 vPosition;
-    void main() {
-      vUv = uv;
-      vPosition = position;
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-    }
-  `;
-
-  const fragmentShader = `
-    uniform float uTime;
-    uniform vec2 uMouse;
-    uniform vec3 uColor1;
-    uniform vec3 uColor2;
-    varying vec2 vUv;
-    varying vec3 vPosition;
-    
-    void main() {
-      vec2 grid = fract(vUv * 30.0);
-      float line = step(0.95, grid.x) + step(0.95, grid.y);
-      
-      float dist = distance(vUv, uMouse);
-      float ripple = sin(dist * 20.0 - uTime * 3.0) * 0.5 + 0.5;
-      ripple *= smoothstep(0.5, 0.0, dist);
-      
-      float alpha = line * 0.3 + ripple * 0.2;
-      
-      vec3 color = mix(uColor1, uColor2, vUv.y + sin(uTime * 0.5) * 0.2);
-      
-      gl_FragColor = vec4(color, alpha * 0.5);
-    }
-  `;
 
   const uniforms = useRef({
     uTime: { value: 0 },
@@ -54,6 +54,11 @@ function GridFloor() {
   });
 
   useEffect(() => {
+    const canTrackMouse = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    if (!canTrackMouse) {
+      return;
+    }
+
     const handleMouseMove = (e: MouseEvent) => {
       if (materialRef.current) {
         materialRef.current.uniforms.uMouse.value.x = e.clientX / window.innerWidth;
@@ -70,8 +75,8 @@ function GridFloor() {
       <planeGeometry args={[20, 20, 1, 1]} />
       <shaderMaterial
         ref={materialRef}
-        vertexShader={vertexShader}
-        fragmentShader={fragmentShader}
+        vertexShader={VERTEX_SHADER}
+        fragmentShader={FRAGMENT_SHADER}
         uniforms={uniforms.current}
         transparent
         side={THREE.DoubleSide}
@@ -82,7 +87,7 @@ function GridFloor() {
 
 function FloatingParticles() {
   const pointsRef = useRef<THREE.Points>(null);
-  const particleCount = 100;
+  const particleCount = 60;
 
   const [positions, colors] = useMemo(() => {
     const pos = new Float32Array(particleCount * 3);
@@ -137,8 +142,9 @@ export default function BackgroundGrid() {
     <div className="fixed inset-0 z-0">
       <Canvas
         camera={{ position: [0, 3, 8], fov: 60 }}
-        dpr={[1, 2]}
-        gl={{ antialias: true, alpha: true }}
+        dpr={[1, 1.25]}
+        gl={{ antialias: false, alpha: true, powerPreference: 'high-performance' }}
+        performance={{ min: 0.7 }}
       >
         <ambientLight intensity={0.5} />
         <GridFloor />

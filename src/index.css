@@ -394,6 +394,43 @@
   animation: glow-pulse 4s ease-in-out infinite;
 }
 
+@media (max-width: 768px) {
+  .glass,
+  .glass-cyan {
+    backdrop-filter: blur(6px);
+  }
+
+  .skill-orb:hover {
+    transform: scale(1.02) translateY(-1px);
+    filter: none;
+  }
+
+  .noise-overlay {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .noise-overlay {
+    display: none;
+  }
+
+  .scanline::after,
+  .animate-float,
+  .animate-orbit,
+  .animate-glow-pulse {
+    animation: none !important;
+  }
+
+  .btn-holo::after {
+    display: none;
+  }
+}
+
 /* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 8px;

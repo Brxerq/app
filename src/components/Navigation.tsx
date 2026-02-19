@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Menu, X, Gamepad2, User, Code2, Briefcase, FolderGit2, Mail } from 'lucide-react';
 import { gsap } from 'gsap';
 
@@ -14,28 +14,56 @@ export default function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('hero');
   const [isScrolled, setIsScrolled] = useState(false);
+  const activeSectionRef = useRef(activeSection);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 100);
-      
-      // Determine active section
-      const sections = navItems.map(item => document.getElementById(item.id));
+    activeSectionRef.current = activeSection;
+  }, [activeSection]);
+
+  useEffect(() => {
+    let ticking = false;
+    let rafId = 0;
+    const sections = navItems
+      .map((item) => ({ id: item.id, element: document.getElementById(item.id) }))
+      .filter((item): item is { id: string; element: HTMLElement } => Boolean(item.element));
+
+    const updateScrollState = () => {
+      const nextScrolled = window.scrollY > 100;
+      setIsScrolled((prev) => (prev === nextScrolled ? prev : nextScrolled));
+
       const scrollPosition = window.scrollY + window.innerHeight / 3;
-      
-      sections.forEach((section, index) => {
-        if (section) {
-          const top = section.offsetTop;
-          const bottom = top + section.offsetHeight;
-          if (scrollPosition >= top && scrollPosition < bottom) {
-            setActiveSection(navItems[index].id);
-          }
+      let nextActive = activeSectionRef.current;
+
+      for (let i = 0; i < sections.length; i += 1) {
+        const section = sections[i];
+        const top = section.element.offsetTop;
+        const bottom = top + section.element.offsetHeight;
+        if (scrollPosition >= top && scrollPosition < bottom) {
+          nextActive = section.id;
+          break;
         }
-      });
+      }
+
+      setActiveSection((prev) => (prev === nextActive ? prev : nextActive));
+      ticking = false;
+    };
+
+    const handleScroll = () => {
+      if (ticking) {
+        return;
+      }
+      ticking = true;
+      rafId = window.requestAnimationFrame(updateScrollState);
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    updateScrollState();
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (rafId) {
+        window.cancelAnimationFrame(rafId);
+      }
+    };
   }, []);
 
   useEffect(() => {

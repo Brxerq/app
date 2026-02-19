@@ -146,6 +146,9 @@ export default function Experience() {
   const [expandedId, setExpandedId] = useState<number | null>(1);
 
   useEffect(() => {
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
+
     const ctx = gsap.context(() => {
       gsap.fromTo(
         '.exp-heading',
@@ -192,12 +195,14 @@ export default function Experience() {
         },
       );
 
-      gsap.to('.data-pulse', {
-        y: '100%',
-        duration: 2,
-        repeat: -1,
-        ease: 'none',
-      });
+      if (!reducedMotion && isDesktop) {
+        gsap.to('.data-pulse', {
+          y: '100%',
+          duration: 2,
+          repeat: -1,
+          ease: 'none',
+        });
+      }
     }, sectionRef);
 
     return () => ctx.revert();

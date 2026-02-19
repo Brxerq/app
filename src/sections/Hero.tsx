@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ChevronDown, Terminal, Cpu, Zap, Shield, GraduationCap } from 'lucide-react';
@@ -18,9 +18,14 @@ export default function Hero() {
   const textRef = useRef<HTMLDivElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
   const ringsRef = useRef<HTMLDivElement>(null);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const tiltXRef = useRef(0);
+  const tiltYRef = useRef(0);
+  const frameRef = useRef<number | null>(null);
 
   useEffect(() => {
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
+
     const ctx = gsap.context(() => {
       // Entrance animations
       const tl = gsap.timeline({ delay: 0.3 });
@@ -56,33 +61,35 @@ export default function Hero() {
         '-=0.6'
       );
 
-      // Scroll parallax effects
-      gsap.to(avatarRef.current, {
-        y: 150,
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: 'top top',
-          end: 'bottom top',
-          scrub: 1,
-        },
-      });
+      if (!reducedMotion && isDesktop) {
+        // Scroll parallax effects on capable desktop only
+        gsap.to(avatarRef.current, {
+          y: 150,
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top top',
+            end: 'bottom top',
+            scrub: 1,
+          },
+        });
 
-      gsap.to(textRef.current, {
-        y: -100,
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: 'top top',
-          end: 'bottom top',
-          scrub: 1,
-        },
-      });
+        gsap.to(textRef.current, {
+          y: -100,
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top top',
+            end: 'bottom top',
+            scrub: 1,
+          },
+        });
 
-      gsap.to('.orbit-ring', {
-        rotation: 360,
-        duration: 20,
-        repeat: -1,
-        ease: 'none',
-      });
+        gsap.to('.orbit-ring', {
+          rotation: 360,
+          duration: 20,
+          repeat: -1,
+          ease: 'none',
+        });
+      }
     }, sectionRef);
 
     return () => ctx.revert();
@@ -90,19 +97,42 @@ export default function Hero() {
 
   // Mouse move handler for 3D tilt
   useEffect(() => {
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    if (reducedMotion || !canHover) {
+      return;
+    }
+
+    const applyTilt = () => {
+      frameRef.current = null;
+      if (!avatarRef.current) {
+        return;
+      }
+      avatarRef.current.style.transform = `rotateX(${tiltYRef.current}deg) rotateY(${tiltXRef.current}deg)`;
+    };
+
     const handleMouseMove = (e: MouseEvent) => {
-      if (avatarRef.current) {
-        const rect = avatarRef.current.getBoundingClientRect();
-        const centerX = rect.left + rect.width / 2;
-        const centerY = rect.top + rect.height / 2;
-        const rotateX = ((e.clientY - centerY) / rect.height) * -15;
-        const rotateY = ((e.clientX - centerX) / rect.width) * 15;
-        setMousePos({ x: rotateY, y: rotateX });
+      if (!avatarRef.current) {
+        return;
+      }
+      const rect = avatarRef.current.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      tiltYRef.current = ((e.clientY - centerY) / rect.height) * -15;
+      tiltXRef.current = ((e.clientX - centerX) / rect.width) * 15;
+
+      if (frameRef.current === null) {
+        frameRef.current = window.requestAnimationFrame(applyTilt);
       }
     };
 
     window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      if (frameRef.current !== null) {
+        window.cancelAnimationFrame(frameRef.current);
+      }
+    };
   }, []);
 
   return (
@@ -203,8 +233,8 @@ export default function Hero() {
               ref={avatarRef}
               className="relative preserve-3d"
               style={{
-                transform: `rotateX(${mousePos.y}deg) rotateY(${mousePos.x}deg)`,
                 transition: 'transform 0.1s ease-out',
+                willChange: 'transform',
               }}
             >
               {/* Glow Effect */}
