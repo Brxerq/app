@@ -152,16 +152,19 @@ export default function Hero() {
             {/* Title */}
             <div className="hero-text-line mb-6">
               <span className="font-orbitron text-xl sm:text-2xl text-slate-300 tracking-[0.08em]">
-                AI-DRIVEN SOFTWARE DEVELOPER
+                AI Engineer & Full-Stack Developer
               </span>
             </div>
 
             {/* Description */}
             <p className="hero-text-line text-lg text-slate-300 max-w-xl mx-auto lg:mx-0 mb-8 leading-relaxed">
-              AI-driven Software Developer and Machine Learning Engineer focused on
-              end-to-end CRM, NLP, and Computer Vision systems. Delivered 40%
-              faster support response, 30% less manual reporting, and vision
-              models reaching 96.8% training accuracy.
+              Mission-focused builder who ships complete systems across CRM
+              automation, NLP copilots, and computer vision workflows. I turn
+              raw ideas into production-ready features, optimize the user
+              journey, and keep reliability high from first deploy to live
+              operations. Currently leveling up in Data Science and AI while
+              delivering practical products that teams can trust in real-world
+              environments.
             </p>
 
             {/* Stats Grid */}
