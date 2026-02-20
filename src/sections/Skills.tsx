@@ -61,6 +61,7 @@ export default function Skills() {
           scrollTrigger: {
             trigger: sectionRef.current,
             start: 'top 80%',
+            once: true,
           },
         },
       );
@@ -77,6 +78,7 @@ export default function Skills() {
           scrollTrigger: {
             trigger: sectionRef.current,
             start: 'top 80%',
+            once: true,
           },
         },
       );
@@ -95,6 +97,7 @@ export default function Skills() {
           scrollTrigger: {
             trigger: cloudRef.current,
             start: 'top 80%',
+            once: true,
           },
         },
       );
@@ -111,6 +114,7 @@ export default function Skills() {
           scrollTrigger: {
             trigger: sectionRef.current,
             start: 'top 70%',
+            once: true,
           },
         },
       );
@@ -188,11 +192,10 @@ export default function Skills() {
                 <button
                   key={cat}
                   onClick={() => setActiveCategory(cat)}
-                  className={`category-btn px-4 py-2 rounded-lg font-orbitron text-sm transition-all duration-300 ${
-                    activeCategory === cat
+                  className={`category-btn px-4 py-2 rounded-lg font-orbitron text-sm transition-all duration-300 ${activeCategory === cat
                       ? 'bg-purple-500 text-white'
                       : 'glass text-slate-400 hover:text-white hover:bg-white/5'
-                  }`}
+                    }`}
                 >
                   {cat}
                 </button>
@@ -213,9 +216,8 @@ export default function Skills() {
                     style={{ animationDelay: `${index * 0.05}s` }}
                   >
                     <div
-                      className={`relative glass rounded-2xl p-6 aspect-square flex flex-col items-center justify-center cursor-pointer transition-all duration-300 ${
-                        isHovered ? 'scale-110 border-glow-purple' : ''
-                      }`}
+                      className={`relative glass rounded-2xl p-6 aspect-square flex flex-col items-center justify-center cursor-pointer transition-all duration-300 ${isHovered ? 'scale-110 border-glow-purple' : ''
+                        }`}
                       style={{
                         borderColor: isHovered ? skill.color : undefined,
                       }}
@@ -249,17 +251,15 @@ export default function Skills() {
                           strokeWidth="2"
                           strokeDasharray={`${skill.level * 2.83} 283`}
                           strokeLinecap="round"
-                          className={`transition-all duration-500 ${
-                            isHovered ? 'opacity-100' : 'opacity-0'
-                          }`}
+                          className={`transition-all duration-500 ${isHovered ? 'opacity-100' : 'opacity-0'
+                            }`}
                         />
                       </svg>
                     </div>
 
                     <div
-                      className={`absolute -top-12 left-1/2 -translate-x-1/2 glass rounded-lg px-3 py-2 whitespace-nowrap z-20 transition-all duration-300 ${
-                        isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'
-                      }`}
+                      className={`absolute -top-12 left-1/2 -translate-x-1/2 glass rounded-lg px-3 py-2 whitespace-nowrap z-20 transition-all duration-300 ${isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'
+                        }`}
                     >
                       <div className="font-orbitron text-xs text-cyan-400">
                         {skill.level}% MASTERY

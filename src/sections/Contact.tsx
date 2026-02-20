@@ -42,10 +42,7 @@ export default function Contact() {
         {
           opacity: 1,
           duration: 1,
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top 80%',
-          },
+          scrollTrigger: { trigger: sectionRef.current, start: 'top 80%', once: true },
         },
       );
 
@@ -58,10 +55,7 @@ export default function Contact() {
           duration: 0.8,
           delay: 0.3,
           ease: 'power2.out',
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top 70%',
-          },
+          scrollTrigger: { trigger: sectionRef.current, start: 'top 70%', once: true },
         },
       );
 
@@ -74,10 +68,7 @@ export default function Contact() {
           duration: 0.6,
           stagger: 0.1,
           ease: 'power2.out',
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top 60%',
-          },
+          scrollTrigger: { trigger: sectionRef.current, start: 'top 60%', once: true },
         },
       );
     }, sectionRef);
@@ -183,11 +174,10 @@ export default function Contact() {
                     onFocus={() => setFocusedField('name')}
                     onBlur={() => setFocusedField(null)}
                     required
-                    className={`w-full bg-dark/50 border-2 rounded-xl px-4 py-4 font-mono text-white placeholder-slate-600 transition-all duration-300 ${
-                      focusedField === 'name'
+                    className={`w-full bg-dark/50 border-2 rounded-xl px-4 py-4 font-mono text-white placeholder-slate-600 transition-all duration-300 ${focusedField === 'name'
                         ? 'border-cyan-400 shadow-glow-cyan'
                         : 'border-white/10 hover:border-white/20'
-                    }`}
+                      }`}
                     placeholder="Enter your designation..."
                   />
                   {focusedField === 'name' && (
@@ -207,11 +197,10 @@ export default function Contact() {
                     onFocus={() => setFocusedField('email')}
                     onBlur={() => setFocusedField(null)}
                     required
-                    className={`w-full bg-dark/50 border-2 rounded-xl px-4 py-4 font-mono text-white placeholder-slate-600 transition-all duration-300 ${
-                      focusedField === 'email'
+                    className={`w-full bg-dark/50 border-2 rounded-xl px-4 py-4 font-mono text-white placeholder-slate-600 transition-all duration-300 ${focusedField === 'email'
                         ? 'border-purple-400 shadow-glow-purple'
                         : 'border-white/10 hover:border-white/20'
-                    }`}
+                      }`}
                     placeholder="your@email.com"
                   />
                   {focusedField === 'email' && (
@@ -231,11 +220,10 @@ export default function Contact() {
                     onBlur={() => setFocusedField(null)}
                     required
                     rows={5}
-                    className={`w-full bg-dark/50 border-2 rounded-xl px-4 py-4 font-mono text-white placeholder-slate-600 transition-all duration-300 resize-none ${
-                      focusedField === 'message'
+                    className={`w-full bg-dark/50 border-2 rounded-xl px-4 py-4 font-mono text-white placeholder-slate-600 transition-all duration-300 resize-none ${focusedField === 'message'
                         ? 'border-orange-400 shadow-glow-orange'
                         : 'border-white/10 hover:border-white/20'
-                    }`}
+                      }`}
                     placeholder="Transmit your message..."
                   />
                   {focusedField === 'message' && (
@@ -246,11 +234,10 @@ export default function Contact() {
                 <button
                   type="submit"
                   disabled={isSubmitting || isSubmitted}
-                  className={`btn-holo w-full py-4 rounded-xl font-orbitron font-bold text-lg transition-all duration-500 flex items-center justify-center gap-3 ${
-                    isSubmitted
+                  className={`btn-holo w-full py-4 rounded-xl font-orbitron font-bold text-lg transition-all duration-500 flex items-center justify-center gap-3 ${isSubmitted
                       ? 'bg-green-500 text-white'
                       : 'bg-gradient-to-r from-purple-500 via-fuchsia-500 to-cyan-400 text-white hover:shadow-glow-purple hover:scale-[1.02]'
-                  }`}
+                    }`}
                 >
                   {isSubmitting ? (
                     <>

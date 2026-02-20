@@ -450,4 +450,13 @@
 }
 
 
+/* Site fade-in — applied to the main site wrapper the moment it mounts */
+@keyframes site-fadein {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.site-fadein {
+  animation: site-fadein 500ms ease forwards;
+}
 

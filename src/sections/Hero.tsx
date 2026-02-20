@@ -16,46 +16,49 @@ export default function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
   const avatarRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
-  const statsRef = useRef<HTMLDivElement>(null);
   const tiltXRef = useRef(0);
   const tiltYRef = useRef(0);
   const frameRef = useRef<number | null>(null);
 
+  // Single entrance animation — runs once on mount.
+  // Hero only mounts AFTER the loading screen has fully faded out,
+  // so this always plays on a fully visible page.
   useEffect(() => {
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
 
     const ctx = gsap.context(() => {
-      // Entrance animations
-      const tl = gsap.timeline({ delay: 0.3 });
+      if (!reducedMotion) {
+        const tl = gsap.timeline({ delay: 0.2 });
 
-      // Avatar 3D flip entrance
-      tl.fromTo(
-        avatarRef.current,
-        { rotateX: 90, scale: 0.5, opacity: 0 },
-        { rotateX: 0, scale: 1, opacity: 1, duration: 1.2, ease: 'expo.out' }
-      );
+        // Avatar: fade + flip up from below
+        tl.fromTo(
+          avatarRef.current,
+          { y: 40, opacity: 0, scale: 0.92 },
+          { y: 0, opacity: 1, scale: 1, duration: 0.9, ease: 'power3.out' }
+        );
 
-      // Text decode animation
-      tl.fromTo(
-        '.hero-text-line',
-        { y: 50, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.8, stagger: 0.1, ease: 'power2.out' },
-        '-=0.8'
-      );
+        // Text lines: staggered fade up
+        tl.fromTo(
+          '.hero-text-line',
+          { y: 30, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.7, stagger: 0.08, ease: 'power2.out' },
+          '-=0.6'
+        );
 
-      // Stats counter animation
-      tl.fromTo(
-        '.stat-item',
-        { y: 30, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.6, stagger: 0.1, ease: 'back.out(1.7)' },
-        '-=0.4'
-      );
+        // Stats cards: staggered fade up with bounce
+        tl.fromTo(
+          '.stat-item',
+          { y: 20, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.5, stagger: 0.08, ease: 'back.out(1.4)' },
+          '-=0.4'
+        );
+      }
 
+      // Scroll parallax (desktop only)
       if (!reducedMotion && isDesktop) {
-        // Scroll parallax effects on capable desktop only
         gsap.to(avatarRef.current, {
-          y: 150,
+          y: 120,
           scrollTrigger: {
             trigger: sectionRef.current,
             start: 'top top',
@@ -65,7 +68,7 @@ export default function Hero() {
         });
 
         gsap.to(textRef.current, {
-          y: -100,
+          y: -80,
           scrollTrigger: {
             trigger: sectionRef.current,
             start: 'top top',
@@ -73,7 +76,6 @@ export default function Hero() {
             scrub: 1,
           },
         });
-
       }
     }, sectionRef);
 
@@ -168,7 +170,7 @@ export default function Hero() {
             </p>
 
             {/* Stats Grid */}
-            <div ref={statsRef} className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-2xl mx-auto lg:mx-0">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-2xl mx-auto lg:mx-0">
               {stats.map((stat, index) => {
                 const Icon = stat.icon;
                 return (
@@ -217,22 +219,22 @@ export default function Hero() {
             >
               {/* Glow Effect */}
               <div className="absolute inset-0 bg-gradient-to-br from-purple-500/30 to-cyan-500/30 rounded-3xl blur-3xl animate-glow-pulse" />
-              
+
               {/* Avatar Container */}
               <div className="relative w-72 h-72 sm:w-96 sm:h-96">
                 {/* Border Frame */}
-                <div className="absolute inset-0 rounded-3xl border-2 border-purple-500/50" 
-                     style={{ 
-                       background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(6, 182, 212, 0.1))',
-                       boxShadow: '0 0 40px rgba(168, 85, 247, 0.3), inset 0 0 40px rgba(6, 182, 212, 0.1)'
-                     }} />
-                
+                <div className="absolute inset-0 rounded-3xl border-2 border-purple-500/50"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(6, 182, 212, 0.1))',
+                    boxShadow: '0 0 40px rgba(168, 85, 247, 0.3), inset 0 0 40px rgba(6, 182, 212, 0.1)'
+                  }} />
+
                 {/* Corner Accents */}
                 <div className="absolute -top-2 -left-2 w-8 h-8 border-t-2 border-l-2 border-cyan-400" />
                 <div className="absolute -top-2 -right-2 w-8 h-8 border-t-2 border-r-2 border-cyan-400" />
                 <div className="absolute -bottom-2 -left-2 w-8 h-8 border-b-2 border-l-2 border-cyan-400" />
                 <div className="absolute -bottom-2 -right-2 w-8 h-8 border-b-2 border-r-2 border-cyan-400" />
-                
+
                 {/* Avatar Image */}
                 <div className="absolute inset-4 rounded-2xl overflow-hidden">
                   <img

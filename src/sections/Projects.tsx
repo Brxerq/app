@@ -98,10 +98,7 @@ export default function Projects() {
           opacity: 1,
           duration: 0.8,
           ease: 'power2.out',
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top 80%',
-          },
+          scrollTrigger: { trigger: sectionRef.current, start: 'top 80%', once: true },
         },
       );
 
@@ -115,10 +112,7 @@ export default function Projects() {
           duration: 0.8,
           stagger: 0.15,
           ease: 'power2.out',
-          scrollTrigger: {
-            trigger: cardsRef.current,
-            start: 'top 80%',
-          },
+          scrollTrigger: { trigger: cardsRef.current, start: 'top 80%', once: true },
         },
       );
     }, sectionRef);
@@ -166,9 +160,8 @@ export default function Projects() {
                     <img
                       src={project.image}
                       alt={project.title}
-                      className={`w-full h-full object-cover transition-transform duration-700 ${
-                        isHovered ? 'scale-110' : 'scale-100'
-                      }`}
+                      className={`w-full h-full object-cover transition-transform duration-700 ${isHovered ? 'scale-110' : 'scale-100'
+                        }`}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-dark via-dark/50 to-transparent" />
 
@@ -178,9 +171,8 @@ export default function Projects() {
                     </div>
 
                     <div
-                      className={`absolute inset-0 flex items-center justify-center gap-4 transition-opacity duration-300 ${
-                        isHovered ? 'opacity-100' : 'opacity-0'
-                      }`}
+                      className={`absolute inset-0 flex items-center justify-center gap-4 transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'
+                        }`}
                     >
                       <a
                         href={project.demoUrl}

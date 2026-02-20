@@ -158,10 +158,7 @@ export default function Experience() {
           opacity: 1,
           duration: 0.8,
           ease: 'power2.out',
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top 80%',
-          },
+          scrollTrigger: { trigger: sectionRef.current, start: 'top 80%', once: true },
         },
       );
 
@@ -172,10 +169,7 @@ export default function Experience() {
           scaleY: 1,
           duration: 1.5,
           ease: 'power2.inOut',
-          scrollTrigger: {
-            trigger: timelineRef.current,
-            start: 'top 80%',
-          },
+          scrollTrigger: { trigger: timelineRef.current, start: 'top 80%', once: true },
         },
       );
 
@@ -188,10 +182,7 @@ export default function Experience() {
           duration: 0.8,
           stagger: 0.2,
           ease: 'power2.out',
-          scrollTrigger: {
-            trigger: timelineRef.current,
-            start: 'top 70%',
-          },
+          scrollTrigger: { trigger: timelineRef.current, start: 'top 70%', once: true },
         },
       );
 
@@ -252,9 +243,8 @@ export default function Experience() {
               return (
                 <div
                   key={exp.id}
-                  className={`exp-card relative flex flex-col lg:flex-row items-center gap-8 ${
-                    isLeft ? 'lg:flex-row' : 'lg:flex-row-reverse'
-                  }`}
+                  className={`exp-card relative flex flex-col lg:flex-row items-center gap-8 ${isLeft ? 'lg:flex-row' : 'lg:flex-row-reverse'
+                    }`}
                 >
                   <div className={`flex-1 ${isLeft ? 'lg:text-right lg:pr-16' : 'lg:text-left lg:pl-16'}`}>
                     <div
@@ -324,16 +314,14 @@ export default function Experience() {
                       >
                         <span>{isExpanded ? 'COLLAPSE' : 'VIEW DETAILS'}</span>
                         <ChevronRight
-                          className={`w-4 h-4 transition-transform duration-300 ${
-                            isExpanded ? 'rotate-90' : ''
-                          }`}
+                          className={`w-4 h-4 transition-transform duration-300 ${isExpanded ? 'rotate-90' : ''
+                            }`}
                         />
                       </button>
 
                       <div
-                        className={`overflow-hidden transition-all duration-500 ${
-                          isExpanded ? 'max-h-96 mt-6 pt-6 border-t border-white/10' : 'max-h-0'
-                        }`}
+                        className={`overflow-hidden transition-all duration-500 ${isExpanded ? 'max-h-96 mt-6 pt-6 border-t border-white/10' : 'max-h-0'
+                          }`}
                       >
                         <h4 className="font-orbitron text-sm text-slate-400 mb-4">
                           KEY ACHIEVEMENTS
