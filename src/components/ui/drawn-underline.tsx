@@ -59,11 +59,17 @@ export function DrawnUnderline({
   children,
   className,
   color = '#ff4d4d',
+  disabled = false,
 }: {
   children: ReactNode;
   className?: string;
   /** Stroke color of the scribble. Defaults to red marker. */
   color?: string;
+  /**
+   * Skip the scribble but keep the wrapper. Callers that toggle this per state
+   * still render identical markup, so nothing reflows when the state flips.
+   */
+  disabled?: boolean;
 }) {
   const pathRef = useRef<SVGPathElement>(null);
   const enterRef = useRef<gsap.core.Tween | null>(null);
@@ -103,7 +109,7 @@ export function DrawnUnderline({
   );
 
   const handleEnter = () => {
-    if (enterRef.current?.isActive()) return;
+    if (disabled || enterRef.current?.isActive()) return;
     setVariant(pickVariant());
   };
 

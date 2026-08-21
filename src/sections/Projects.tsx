@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { SketchButton, SectionHeading, SketchCard, SketchTag } from '@/components/ui/sketch';
-import { asset } from '@/lib/utils';
+import { asset, prefersReducedMotion } from '@/lib/utils';
 import { ContributionGraph } from '@/components/ContributionGraph';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -224,8 +224,16 @@ export default function Projects() {
   const sectionRef = useRef<HTMLElement>(null);
   const cardsRef = useRef<HTMLDivElement>(null);
   const sitesRef = useRef<HTMLDivElement>(null);
+  const commitLogScrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const el = commitLogScrollRef.current;
+    if (el) el.scrollLeft = el.scrollWidth;
+  }, []);
+
+  useEffect(() => {
+    if (prefersReducedMotion()) return;
+
     const ctx = gsap.context(() => {
       gsap.fromTo(
         '.project-card',
@@ -271,12 +279,15 @@ export default function Projects() {
 
           <div ref={sitesRef} className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {sites.map((site, index) => (
+              // The tack sits on the wrapper, not the card: the card clips its
+              // own overflow to keep the screenshot inside the wobbly corners,
+              // which would swallow a pin drawn above its top edge.
+              <div key={site.url} className={`site-card tack relative ${TILTS[index % TILTS.length]}`}>
               <a
-                key={site.url}
                 href={site.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`site-card tack group flex flex-col overflow-hidden rounded-wobblyMd border-2 border-ink bg-white shadow-sketchSoft transition-all duration-100 hover:rotate-0 hover:shadow-sketch ${TILTS[index % TILTS.length]}`}
+                className="group flex h-full flex-col overflow-hidden rounded-wobblyMd border-2 border-ink bg-white shadow-sketchSoft transition-all duration-100 hover:shadow-sketch"
               >
                 <div className="h-36 overflow-hidden border-b-2 border-dashed border-ink bg-paper-aged">
                   <img
@@ -298,8 +309,8 @@ export default function Projects() {
                       />
                     </span>
                     <div className="min-w-0">
-                      <h4 className="truncate font-kalam text-lg leading-tight">{site.name}</h4>
-                      <p className="truncate font-hand text-sm text-marker">{site.tagline}</p>
+                      <h3 className="truncate font-kalam text-lg leading-tight">{site.name}</h3>
+                      <p className="truncate font-hand text-sm text-marker-deep">{site.tagline}</p>
                     </div>
                   </div>
 
@@ -313,17 +324,19 @@ export default function Projects() {
                         {tag}
                       </SketchTag>
                     ))}
-                    <span className="ml-auto flex items-center gap-1 font-hand text-base text-pen group-hover:line-through">
+                    <span className="ml-auto flex items-center gap-1 font-hand text-base text-pen underline-offset-4 group-hover:underline">
                       visit
                       <ExternalLink className="h-3.5 w-3.5" strokeWidth={2.5} />
                     </span>
                   </div>
                 </div>
               </a>
+              </div>
             ))}
           </div>
         </div>
-        <SectionHeading label="the good stuff" title="things i" accent="built" className="mt-20">
+
+        <SectionHeading label="the good stuff" title="things i" accent="built" className="mt-24">
           Applied AI and computer vision: models trained, shipped, and left
           running where people could actually break them.
         </SectionHeading>
@@ -353,9 +366,9 @@ export default function Projects() {
                         className="h-full w-full object-cover object-top transition-transform duration-200 group-hover:scale-[1.04]"
                       />
                     ) : (
-                      <div className="flex h-full w-full flex-col items-center justify-center gap-2 border-2 border-dashed border-ink/40 text-ink-faint">
+                      <div className="flex h-full w-full flex-col items-center justify-center gap-2 border-2 border-dashed border-ink/40 text-ink-soft">
                         <Icon className="h-10 w-10" strokeWidth={2.5} />
-                        <span className="font-hand text-base">no screenshot, sorry</span>
+                        <span className="font-hand text-base text-ink-soft">no screenshot, sorry</span>
                       </div>
                     )}
                   </div>
@@ -363,9 +376,9 @@ export default function Projects() {
                   <div className="px-2 pb-1 pt-4">
                     <div className="mb-1 flex flex-wrap items-baseline justify-between gap-2">
                       <h3 className="font-kalam text-2xl leading-tight">{project.title}</h3>
-                      <span className="font-hand text-base text-ink-faint">{project.date}</span>
+                      <span className="tabular font-hand text-base text-ink-faint">{project.date}</span>
                     </div>
-                    <p className="font-hand text-lg text-marker">{project.subtitle}</p>
+                    <p className="font-hand text-lg text-marker-deep">{project.subtitle}</p>
 
                     <p className="mt-3 font-hand text-lg leading-relaxed text-ink-soft">
                       {project.description}
@@ -400,7 +413,7 @@ export default function Projects() {
                             href={project.demoUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-1.5 font-hand text-lg text-pen hover:text-marker"
+                            className="flex min-h-[44px] items-center gap-1.5 font-hand text-lg text-pen underline-offset-4 hover:underline"
                           >
                             <ExternalLink className="h-4 w-4" strokeWidth={2.5} />
                             open it
@@ -411,7 +424,7 @@ export default function Projects() {
                             href={project.repoUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-1.5 font-hand text-lg text-pen hover:text-marker"
+                            className="flex min-h-[44px] items-center gap-1.5 font-hand text-lg text-pen underline-offset-4 hover:underline"
                           >
                             <Github className="h-4 w-4" strokeWidth={2.5} />
                             read the code
@@ -445,9 +458,9 @@ export default function Projects() {
                     <span className="mb-3 flex h-11 w-11 items-center justify-center rounded-blob border-2 border-ink bg-white">
                       <Icon className="h-5 w-5" strokeWidth={2.5} />
                     </span>
-                    <h4 className="font-kalam text-xl leading-tight">{project.title}</h4>
-                    <p className="font-hand text-base text-marker">{project.subtitle}</p>
-                    <p className="mt-1 font-hand text-sm text-ink-faint">{project.date}</p>
+                    <h3 className="font-kalam text-xl leading-tight">{project.title}</h3>
+                    <p className="font-hand text-base text-marker-deep">{project.subtitle}</p>
+                    <p className="tabular mt-1 font-hand text-sm text-ink-faint">{project.date}</p>
                     <p className="mt-2 font-hand text-base leading-relaxed text-ink-soft">
                       {project.description}
                     </p>
@@ -476,11 +489,16 @@ export default function Projects() {
               <Github className="h-4 w-4" strokeWidth={2.5} />
               @Brxerq
             </div>
-            <div className="overflow-x-auto">
+            <div ref={commitLogScrollRef} className="overflow-x-auto">
               <div className="w-[740px]">
                 <ContributionGraph username="Brxerq" />
               </div>
             </div>
+            {/* A year of commits can't fit a phone, so say that it scrolls
+                rather than letting the graph look cut off. */}
+            <p className="mt-3 font-hand text-sm text-ink-faint sm:hidden">
+              drag sideways to scan the whole year
+            </p>
           </SketchCard>
         </div>
 

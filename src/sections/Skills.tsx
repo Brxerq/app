@@ -2,7 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SectionHeading, SketchCard, SketchTag, Squiggle } from '@/components/ui/sketch';
+import { prefersReducedMotion } from '@/lib/utils';
 import {
+  ArrowRight,
   Code2,
   Database,
   Cloud,
@@ -53,10 +55,21 @@ export default function Skills() {
   const cloudRef = useRef<HTMLDivElement>(null);
   const [activeCategory, setActiveCategory] = useState('everything');
 
-  const filteredSkills =
-    activeCategory === 'everything' ? skills : skills.filter((s) => s.category === activeCategory);
+  // Picking a category highlights inside the full set rather than filtering it
+  // down. 16 chips fit on screen at once, so removing twelve of them only
+  // collapsed the grid and yanked everything below it up the page — and it hid
+  // the thing the section is actually for: seeing the whole toolbox.
+  const isDimmed = (category: string) =>
+    activeCategory !== 'everything' && category !== activeCategory;
+
+  const matchCount =
+    activeCategory === 'everything'
+      ? skills.length
+      : skills.filter((s) => s.category === activeCategory).length;
 
   useEffect(() => {
+    if (prefersReducedMotion()) return;
+
     const ctx = gsap.context(() => {
       gsap.fromTo(
         '.skills-intro',
@@ -137,15 +150,16 @@ export default function Skills() {
 
           {/* Right: the chips */}
           <div className="md:col-span-3" ref={cloudRef}>
-            <div className="mb-6 flex flex-wrap gap-2">
+            <div className="mb-6 flex flex-wrap gap-2" role="group" aria-label="Filter by category">
               {categories.map((cat, i) => {
                 const isActive = activeCategory === cat;
                 return (
                   <button
                     key={cat}
                     onClick={() => setActiveCategory(cat)}
-                    className={`rounded-wobblySm border-2 border-ink px-3 py-1.5 font-hand text-base transition-all duration-100 hover:rotate-0 ${TILTS[i % TILTS.length]} ${isActive
-                      ? 'bg-marker text-white shadow-sketchSm'
+                    aria-pressed={isActive}
+                    className={`min-h-[44px] rounded-wobblySm border-2 border-ink px-3.5 py-2 font-hand text-base transition-colors duration-100 hover:rotate-0 ${TILTS[i % TILTS.length]} ${isActive
+                      ? 'bg-marker-deep text-white shadow-sketchSm'
                       : 'bg-white text-ink shadow-sketchSm hover:bg-postit'
                       }`}
                   >
@@ -155,16 +169,39 @@ export default function Skills() {
               })}
             </div>
 
+            <p className="sr-only" aria-live="polite">
+              {activeCategory === 'everything'
+                ? `Showing all ${matchCount} technologies`
+                : `${matchCount} of ${skills.length} technologies in ${activeCategory}`}
+            </p>
+
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-              {filteredSkills.map((skill, index) => {
+              {skills.map((skill, index) => {
                 const Icon = skill.icon;
+                const dimmed = isDimmed(skill.category);
+                const picked = activeCategory !== 'everything' && !dimmed;
                 return (
+                  // Out-of-category chips step back through the chrome — thin
+                  // pencil border, no shadow, paper instead of a fresh sheet —
+                  // never through opacity, which would drag the label below
+                  // readable contrast.
                   <div
                     key={skill.name}
-                    className={`skill-chip flex flex-col items-center justify-center gap-2 rounded-wobblyMd border-2 border-ink bg-white px-3 py-5 text-center shadow-sketchSoft transition-all duration-100 hover:rotate-0 hover:shadow-sketch ${TILTS[index % TILTS.length]}`}
+                    className={`skill-chip flex flex-col items-center justify-center gap-2 rounded-wobblyMd border-2 px-3 py-5 text-center transition-all duration-200 hover:rotate-0 ${TILTS[index % TILTS.length]} ${dimmed
+                      ? 'border-ink/30 bg-paper text-ink-soft shadow-none'
+                      : picked
+                        ? 'border-ink bg-white shadow-sketch'
+                        : 'border-ink bg-white shadow-sketchSoft hover:shadow-sketch'
+                      }`}
                   >
-                    <span className="flex h-11 w-11 items-center justify-center rounded-blob border-2 border-ink bg-paper">
-                      <Icon className="h-5 w-5" strokeWidth={2.5} />
+                    <span
+                      className={`flex h-11 w-11 items-center justify-center rounded-blob border-2 bg-paper ${dimmed ? 'border-ink/30' : 'border-ink'
+                        }`}
+                    >
+                      <Icon
+                        className={`h-5 w-5 ${picked ? 'text-marker-deep' : ''}`}
+                        strokeWidth={2.5}
+                      />
                     </span>
                     <span className="font-hand text-base leading-tight">{skill.name}</span>
                   </div>
@@ -182,7 +219,7 @@ export default function Skills() {
                     className="inline-flex items-center gap-2 rounded-wobblySm border-2 border-dashed border-ink px-3 py-1.5 font-hand text-base"
                   >
                     {pair.from}
-                    <span className="text-marker">→</span>
+                    <ArrowRight className="h-4 w-4 shrink-0 text-marker-deep" strokeWidth={2.5} aria-hidden />
                     {pair.to}
                   </span>
                 ))}

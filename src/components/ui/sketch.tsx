@@ -15,8 +15,10 @@ import { cn } from '@/lib/utils';
 
 type ButtonVariant = 'primary' | 'secondary' | 'ghost';
 
+// `marker-deep` rather than `marker`: white on the bright red only reaches
+// 3.3:1, which fails at button text sizes.
 const buttonTone: Record<ButtonVariant, string> = {
-  primary: 'bg-white hover:bg-marker hover:text-white',
+  primary: 'bg-white hover:bg-marker-deep hover:text-white',
   secondary: 'bg-paper-aged hover:bg-pen hover:text-white',
   ghost: 'bg-transparent hover:bg-postit',
 };
@@ -32,6 +34,7 @@ interface SketchButtonProps {
   type?: 'button' | 'submit';
   disabled?: boolean;
   icon?: ReactNode;
+  tabIndex?: number;
 }
 
 export function SketchButton({
@@ -45,6 +48,7 @@ export function SketchButton({
   type = 'button',
   disabled = false,
   icon,
+  tabIndex,
 }: SketchButtonProps) {
   const classes = cn(
     'inline-flex h-12 items-center justify-center gap-2 rounded-wobbly border-[3px] border-ink px-6',
@@ -61,7 +65,7 @@ export function SketchButton({
 
   if (href) {
     return (
-      <a href={href} target={target} rel={rel} onClick={onClick} className={classes}>
+      <a href={href} target={target} rel={rel} onClick={onClick} tabIndex={tabIndex} className={classes}>
         {icon}
         {children}
       </a>
@@ -69,7 +73,13 @@ export function SketchButton({
   }
 
   return (
-    <button type={type} disabled={disabled} onClick={onClick} className={classes}>
+    <button
+      type={type}
+      disabled={disabled}
+      onClick={onClick}
+      tabIndex={tabIndex}
+      className={classes}
+    >
       {icon}
       {children}
     </button>

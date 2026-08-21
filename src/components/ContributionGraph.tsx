@@ -35,10 +35,34 @@ export function ContributionGraph({ username }: { username: string }) {
     };
   }, [username]);
 
-  if (failed) return null;
+  if (failed) {
+    // The card and its heading are already on the page, so a null render would
+    // leave an empty frame with no explanation.
+    return (
+      <div className="flex h-[125px] flex-col items-center justify-center gap-1 rounded-wobblySm border-2 border-dashed border-ink/40 px-4 text-center">
+        <span className="font-hand text-base text-ink-soft">
+          couldn&apos;t reach GitHub just now
+        </span>
+        <a
+          href={`https://github.com/${username}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-hand text-base text-pen underline-offset-4 hover:underline"
+        >
+          see the graph on GitHub
+        </a>
+      </div>
+    );
+  }
 
   if (!days) {
-    return <div className="h-[125px] rounded-wobblySm border-2 border-dashed border-ink/30 bg-paper-aged/50 animate-pulse" />;
+    return (
+      <div
+        className="h-[125px] animate-pulse rounded-wobblySm border-2 border-dashed border-ink/30 bg-paper-aged/50"
+        role="status"
+        aria-label="Loading contribution graph"
+      />
+    );
   }
 
   // Pad so the first column starts on the correct weekday row.
@@ -74,7 +98,7 @@ export function ContributionGraph({ username }: { username: string }) {
         {labels.map((label) => (
           <span
             key={`${label.text}-${label.column}`}
-            className="text-[10px] font-hand text-ink-faint whitespace-nowrap"
+            className="whitespace-nowrap font-hand text-[11px] text-ink-faint"
             style={{ gridRow: 1, gridColumn: `${label.column + 1} / span 4` }}
           >
             {label.text}
@@ -98,7 +122,7 @@ export function ContributionGraph({ username }: { username: string }) {
       </div>
 
       <div className="mt-4 flex items-center justify-between gap-4 text-[11px] font-hand text-ink-soft">
-        <span>{total.toLocaleString()} contributions in the last year</span>
+        <span className="tabular">{total.toLocaleString()} contributions in the last year</span>
         <span className="flex items-center gap-1.5">
           Less
           {LEVELS.map((shade) => (

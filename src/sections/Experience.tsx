@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SectionHeading, SketchCard, SketchTag, Squiggle } from '@/components/ui/sketch';
-import { asset } from '@/lib/utils';
+import { asset, prefersReducedMotion } from '@/lib/utils';
 import { Calendar, MapPin, ChevronRight, ExternalLink, Check } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -197,6 +197,8 @@ export default function Experience() {
   const [expandedId, setExpandedId] = useState<number | null>(1);
 
   useEffect(() => {
+    if (prefersReducedMotion()) return;
+
     const ctx = gsap.context(() => {
       gsap.fromTo(
         '.exp-card',
@@ -261,6 +263,7 @@ export default function Experience() {
                         onClick={() => setExpandedId(isExpanded ? null : exp.id)}
                         className="w-full text-left"
                         aria-expanded={isExpanded}
+                        aria-controls={`exp-details-${exp.id}`}
                       >
                         <div className="mb-3 flex items-start gap-4">
                           <span className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-wobblySm border-2 border-ink bg-paper">
@@ -280,11 +283,11 @@ export default function Experience() {
                             <h3 className="font-kalam text-2xl leading-tight">
                               {exp.company}
                             </h3>
-                            <p className="font-hand text-lg text-marker">{exp.role}</p>
+                            <p className="font-hand text-lg text-marker-deep">{exp.role}</p>
                           </div>
                         </div>
 
-                        <div className="mb-3 flex flex-wrap gap-x-5 gap-y-1 font-hand text-base text-ink-faint">
+                        <div className="tabular mb-3 flex flex-wrap gap-x-5 gap-y-1 font-hand text-base text-ink-faint">
                           <span className="flex items-center gap-1.5">
                             <Calendar className="h-4 w-4" strokeWidth={2.5} />
                             {exp.period}
@@ -311,7 +314,9 @@ export default function Experience() {
                       <div className="mt-4 flex flex-wrap items-center gap-4">
                         <button
                           onClick={() => setExpandedId(isExpanded ? null : exp.id)}
-                          className="flex items-center gap-1 font-hand text-lg text-pen"
+                          aria-expanded={isExpanded}
+                          aria-controls={`exp-details-${exp.id}`}
+                          className="flex min-h-[44px] items-center gap-1 font-hand text-lg text-pen"
                         >
                           {isExpanded ? 'hide the details' : 'what i actually did'}
                           <ChevronRight
@@ -325,7 +330,7 @@ export default function Experience() {
                             href={exp.website}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-1 font-hand text-lg text-ink-faint hover:text-marker hover:line-through"
+                            className="flex min-h-[44px] items-center gap-1 font-hand text-lg text-ink-faint underline-offset-4 hover:text-pen hover:underline"
                           >
                             visit site
                             <ExternalLink className="h-4 w-4" strokeWidth={2.5} />
@@ -334,7 +339,10 @@ export default function Experience() {
                       </div>
 
                       {isExpanded && (
-                        <ul className="mt-5 space-y-2.5 border-t-[3px] border-dashed border-ink/30 pt-5">
+                        <ul
+                          id={`exp-details-${exp.id}`}
+                          className="mt-5 space-y-2.5 border-t-[3px] border-dashed border-ink/30 pt-5"
+                        >
                           {exp.achievements.map((achievement) => (
                             <li key={achievement} className="flex items-start gap-3">
                               <Check
@@ -374,7 +382,7 @@ export default function Experience() {
                       <h4 className="font-kalam text-xl leading-tight">{edu.school}</h4>
                       <SketchTag tone="note">{edu.period}</SketchTag>
                     </div>
-                    <p className="font-hand text-lg text-marker">{edu.degree}</p>
+                    <p className="font-hand text-lg text-marker-deep">{edu.degree}</p>
                     <p className="mt-2 font-hand text-base text-ink-soft">{edu.description}</p>
                   </div>
                 </SketchCard>

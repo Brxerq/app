@@ -47,10 +47,15 @@ module.exports = {
         },
         ink: {
           DEFAULT: '#2d2d2d', // soft pencil black, never pure black
-          soft: '#5a5a5a',
-          faint: '#8a857c',
+          soft: '#5a5a5a',    // 7.0:1 on white
+          faint: '#6b665c',   // 5.7:1 on white — the lightest text tone allowed
         },
-        marker: '#ff4d4d',  // red correction marker
+        /* `marker` is the loud red: fills, borders, icons and display type only.
+           Red text under 24px must use `marker-deep`, which clears 4.5:1. */
+        marker: {
+          DEFAULT: '#ff4d4d',
+          deep: '#d92828',
+        },
         pen: '#2d5da1',     // blue ballpoint
         postit: '#fff9c4',  // sticky note yellow
       },

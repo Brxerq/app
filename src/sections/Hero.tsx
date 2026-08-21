@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { SketchButton, SketchArrow } from '@/components/ui/sketch';
-import { asset } from '@/lib/utils';
+import { asset, prefersReducedMotion } from '@/lib/utils';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowDown, GraduationCap, Cpu, Clock, Sparkles } from 'lucide-react';
@@ -20,8 +20,7 @@ export default function Hero() {
 
   // Single entrance animation — runs once on mount, after the loading screen is gone.
   useEffect(() => {
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reducedMotion) return;
+    if (prefersReducedMotion()) return;
 
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ delay: 0.15 });
@@ -99,7 +98,7 @@ export default function Hero() {
                     key={note.label}
                     className={`hero-note rounded-wobblySm border-2 border-ink p-3 shadow-sketch transition-transform duration-100 hover:rotate-0 ${note.tilt} ${note.tone}`}
                   >
-                    <Icon className="mb-1 h-5 w-5 text-marker" strokeWidth={2.5} />
+                    <Icon className="mb-1 h-5 w-5 text-marker-deep" strokeWidth={2.5} />
                     <div className="font-hand text-sm text-ink-faint">{note.label}</div>
                     <div className="font-kalam text-base leading-tight">{note.value}</div>
                   </div>
@@ -124,8 +123,11 @@ export default function Hero() {
             <div ref={avatarRef} className="relative">
               <div className="tape relative -rotate-3 transition-transform duration-100 hover:rotate-1">
                 <img
-                  src={asset('/avatar.png')}
+                  src={asset('/avatar.webp')}
                   alt="Syed Muhammad Hassaan"
+                  width={576}
+                  height={598}
+                  fetchPriority="high"
                   className="h-72 w-72 object-contain sm:h-80 sm:w-80"
                 />
                 <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 font-kalam text-lg text-ink-soft">
@@ -133,14 +135,16 @@ export default function Hero() {
                 </span>
               </div>
 
-              {/* Doodled blob that keeps bouncing */}
-              <div className="absolute -right-6 -top-6 hidden h-16 w-16 animate-doodle-bounce items-center justify-center rounded-blob border-[3px] border-ink bg-postit font-kalam text-sm shadow-sketch md:flex">
+              {/* Doodled blob that keeps bouncing. Availability and location
+                  are the two facts a recruiter scans for, so they stay on
+                  screen at every width — just tucked in closer on phones. */}
+              <div className="absolute -right-2 -top-4 flex h-16 w-16 animate-doodle-bounce items-center justify-center rounded-blob border-[3px] border-ink bg-postit text-center font-kalam text-sm shadow-sketch sm:-right-6 sm:-top-6">
                 open to
                 <br />
                 work
               </div>
 
-              <div className="absolute -bottom-4 -left-6 hidden rotate-6 rounded-wobblySm border-2 border-ink bg-white px-3 py-1 font-hand text-base shadow-sketchSm md:block">
+              <div className="absolute -bottom-3 -left-2 rotate-6 rounded-wobblySm border-2 border-ink bg-white px-3 py-1 font-hand text-base shadow-sketchSm sm:-bottom-4 sm:-left-6">
                 Karachi, PK
               </div>
             </div>

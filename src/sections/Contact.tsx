@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { SketchButton, SectionHeading, SketchCard, Squiggle } from '@/components/ui/sketch';
+import { prefersReducedMotion } from '@/lib/utils';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import {
@@ -11,8 +12,11 @@ import {
   Check,
   MapPin,
   Clock,
-  Phone,
+  ArrowRight,
+  Copy,
 } from 'lucide-react';
+
+const EMAIL = 'kinghassaan99@gmail.com';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -27,22 +31,25 @@ const socialLinks = [
   { icon: Instagram, label: 'Instagram', handle: '@ha_ssaann', url: 'https://www.instagram.com/ha_ssaann/' },
 ];
 
+// Email should be one tap, not a string to copy by hand off a phone screen.
 const facts = [
   { icon: Clock, text: 'I reply within about a day' },
   { icon: MapPin, text: 'Based in Karachi, Pakistan' },
-  { icon: Phone, text: '(+92) 3400804611' },
-  { icon: Mail, text: 'kinghassaan99@gmail.com' },
+  { icon: Mail, text: EMAIL, href: `mailto:${EMAIL}` },
 ];
 
 const fieldClasses =
-  'w-full rounded-wobblySm border-2 border-ink bg-white px-4 py-3 font-hand text-lg text-ink placeholder:text-ink/40 focus:border-pen focus:outline-none focus:ring-2 focus:ring-pen/20';
+  'w-full rounded-wobblySm border-2 border-ink bg-white px-4 py-3 font-hand text-lg text-ink placeholder:text-ink-faint focus:border-pen focus:outline-none focus:ring-2 focus:ring-pen/20';
 
 export default function Contact() {
   const sectionRef = useRef<HTMLElement>(null);
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
+    if (prefersReducedMotion()) return;
+
     const ctx = gsap.context(() => {
       gsap.fromTo(
         '.contact-panel',
@@ -80,13 +87,29 @@ export default function Contact() {
     ].join('\n');
 
     setIsSubmitted(true);
-    window.location.href = `mailto:kinghassaan99@gmail.com?subject=${encodeURIComponent(
+    window.location.href = `mailto:${EMAIL}?subject=${encodeURIComponent(
       subject,
     )}&body=${encodeURIComponent(body)}`;
+
+    // Handing off to a mail client isn't a confirmed send: it can be blocked,
+    // or land somewhere the writer never sees. Return the button so a second
+    // attempt — or the copy-the-address fallback — is always available.
+    window.setTimeout(() => setIsSubmitted(false), 6000);
+  };
+
+  const copyEmail = async () => {
+    try {
+      await navigator.clipboard.writeText(EMAIL);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard denied — the mailto link next to this still works.
+    }
   };
 
   return (
-    <section ref={sectionRef} id="contact" className="relative px-6 py-20">
+    <>
+    <section ref={sectionRef} id="contact" className="relative px-6 pb-10 pt-20">
       <div className="mx-auto max-w-5xl">
         <SectionHeading label="the last page" title="let's" accent="talk" align="center">
           Got something you want built, or half-built and stuck? Write it down
@@ -162,11 +185,23 @@ export default function Contact() {
                     )
                   }
                 >
-                  {isSubmitted ? 'sent — check your mail app' : 'send it'}
+                  {isSubmitted ? 'opening your mail app…' : 'send it'}
                 </SketchButton>
 
                 <p className="text-center font-hand text-base text-ink-faint">
-                  this opens your mail app, nothing gets stored here
+                  this hands off to your mail app — nothing gets stored here.{' '}
+                  <button
+                    type="button"
+                    onClick={copyEmail}
+                    className="inline-flex items-center gap-1 text-pen underline-offset-4 hover:underline"
+                  >
+                    {copied ? (
+                      <Check className="h-3.5 w-3.5" strokeWidth={3} />
+                    ) : (
+                      <Copy className="h-3.5 w-3.5" strokeWidth={2.5} />
+                    )}
+                    {copied ? 'copied' : 'or copy the address'}
+                  </button>
                 </p>
               </form>
             </SketchCard>
@@ -181,8 +216,17 @@ export default function Contact() {
                   const Icon = fact.icon;
                   return (
                     <li key={fact.text} className="flex items-start gap-3 font-hand text-lg">
-                      <Icon className="mt-1 h-4 w-4 shrink-0 text-marker" strokeWidth={2.5} />
-                      {fact.text}
+                      <Icon className="mt-1 h-4 w-4 shrink-0 text-marker-deep" strokeWidth={2.5} />
+                      {fact.href ? (
+                        <a
+                          href={fact.href}
+                          className="inline-flex min-h-[44px] items-center break-all underline-offset-4 hover:underline"
+                        >
+                          {fact.text}
+                        </a>
+                      ) : (
+                        fact.text
+                      )}
                     </li>
                   );
                 })}
@@ -214,7 +258,11 @@ export default function Contact() {
                           {link.handle}
                         </span>
                       </span>
-                      <span className="ml-auto font-hand text-lg text-marker">→</span>
+                      <ArrowRight
+                        className="ml-auto h-5 w-5 shrink-0 text-marker-deep transition-transform duration-100 group-hover:translate-x-1"
+                        strokeWidth={2.5}
+                        aria-hidden
+                      />
                     </a>
                   );
                 })}
@@ -224,8 +272,11 @@ export default function Contact() {
         </div>
       </div>
 
-      {/* Footer — the bottom of the page, torn off */}
-      <footer className="mx-auto mt-20 max-w-5xl border-t-[3px] border-dashed border-ink/40 pt-8">
+    </section>
+
+    {/* Footer — the bottom of the page, torn off. Page-level, so it sits
+        outside the contact section rather than scoped to it. */}
+    <footer className="mx-auto max-w-5xl border-t-[3px] border-dashed border-ink/40 px-6 pb-10 pt-8">
         <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
           <span className="font-kalam text-xl">Syed Muhammad Hassaan</span>
           <span className="font-hand text-base text-ink-faint">
@@ -236,6 +287,6 @@ export default function Contact() {
           </span>
         </div>
       </footer>
-    </section>
+    </>
   );
 }

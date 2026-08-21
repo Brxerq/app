@@ -1,5 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Patrick+Hand&display=swap');
-
+/* Fonts are linked from index.html with a preconnect so they don't sit behind
+   this stylesheet in a request waterfall. */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -31,9 +31,14 @@
     --paper: #fdfbf7;
     --paper-aged: #e5e0d8;
     --ink: #2d2d2d;
+    --ink-faint: #6b665c;
     --marker: #ff4d4d;
+    --marker-deep: #d92828;
     --pen: #2d5da1;
     --postit: #fff9c4;
+
+    /* Clearance for the fixed nav, so anchored sections never land underneath it. */
+    --nav-clearance: 7rem;
   }
 }
 
@@ -44,6 +49,11 @@
 
   html {
     scroll-behavior: smooth;
+  }
+
+  /* Every jump target stops below the fixed nav instead of behind it. */
+  section[id] {
+    scroll-margin-top: var(--nav-clearance);
   }
 
   body {
@@ -82,9 +92,35 @@
     outline: 2px dashed var(--pen);
     outline-offset: 3px;
   }
+
+  /* The blinking bar in a text field is part of the drawing too. */
+  input,
+  textarea {
+    caret-color: var(--marker-deep);
+  }
+
+  /* Dates, counts and stats line up in columns instead of jittering. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
 }
 
 @layer utilities {
+  /* Keyboard-only escape hatch past the nav — a note that flips down from
+     the top edge of the page on first Tab. */
+  .skip-link {
+    position: fixed;
+    top: 0.75rem;
+    left: 50%;
+    z-index: 200;
+    transform: translate(-50%, -160%);
+    transition: transform 150ms ease-out;
+  }
+
+  .skip-link:focus {
+    transform: translate(-50%, 0);
+  }
+
   /* ---- Paper surfaces ------------------------------------------------ */
   .paper-sheet {
     background: #ffffff;
@@ -153,6 +189,16 @@
     background-position: 0 100%;
     background-size: 100% 8px;
     padding-bottom: 7px;
+  }
+
+  /* Same pen squiggle, drawn inside the element's existing padding. For
+     controls that gain and lose it on state change, where the extra
+     padding-bottom would nudge the whole row by a pixel. */
+  .squiggle-underline-pen-inset {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 8' preserveAspectRatio='none'%3E%3Cpath d='M0 5 Q 12 1 24 5 T 48 5 T 72 5 T 100 4' fill='none' stroke='%232d5da1' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: 0 calc(100% - 1px);
+    background-size: 100% 8px;
   }
 
   /* Highlighter swipe behind text */
