@@ -1,271 +1,157 @@
 import { useEffect, useRef } from 'react';
+import { SketchButton, SketchArrow } from '@/components/ui/sketch';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ChevronDown, Terminal, Cpu, Zap, Shield, GraduationCap } from 'lucide-react';
+import { ArrowDown, GraduationCap, Cpu, Clock, Sparkles } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const stats = [
-  { icon: GraduationCap, label: 'EDU', value: 'BSc CS', color: 'text-cyan-400' },
-  { icon: Cpu, label: 'SPECIALTY', value: 'AI + DS', color: 'text-purple-400' },
-  { icon: Zap, label: 'EXP', value: '2+ Years', color: 'text-orange-400' },
-  { icon: Shield, label: 'IMPACT', value: '40% Faster Support', color: 'text-green-400' },
+const notes = [
+  { icon: GraduationCap, label: 'studied', value: 'BSc Computer Science', tilt: '-rotate-2', tone: 'bg-white' },
+  { icon: Cpu, label: 'i build', value: 'AI + data products', tilt: 'rotate-1', tone: 'bg-postit' },
+  { icon: Clock, label: 'been at it', value: '2+ years', tilt: '-rotate-1', tone: 'bg-white' },
+  { icon: Sparkles, label: 'best win', value: '40% faster support', tilt: 'rotate-2', tone: 'bg-postit' },
 ];
 
 export default function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
   const avatarRef = useRef<HTMLDivElement>(null);
-  const textRef = useRef<HTMLDivElement>(null);
-  const tiltXRef = useRef(0);
-  const tiltYRef = useRef(0);
-  const frameRef = useRef<number | null>(null);
 
-  // Single entrance animation — runs once on mount.
-  // Hero only mounts AFTER the loading screen has fully faded out,
-  // so this always plays on a fully visible page.
+  // Single entrance animation — runs once on mount, after the loading screen is gone.
   useEffect(() => {
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
+    if (reducedMotion) return;
 
     const ctx = gsap.context(() => {
-      if (!reducedMotion) {
-        const tl = gsap.timeline({ delay: 0.2 });
+      const tl = gsap.timeline({ delay: 0.15 });
 
-        // Avatar: fade + flip up from below
-        tl.fromTo(
-          avatarRef.current,
-          { y: 40, opacity: 0, scale: 0.92 },
-          { y: 0, opacity: 1, scale: 1, duration: 0.9, ease: 'power3.out' }
-        );
+      tl.fromTo(
+        avatarRef.current,
+        { y: 30, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.7, ease: 'back.out(1.6)' },
+      );
 
-        // Text lines: staggered fade up
-        tl.fromTo(
-          '.hero-text-line',
-          { y: 30, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.7, stagger: 0.08, ease: 'power2.out' },
-          '-=0.6'
-        );
+      tl.fromTo(
+        '.hero-line',
+        { y: 24, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.5, stagger: 0.07, ease: 'power2.out' },
+        '-=0.45',
+      );
 
-        // Stats cards: staggered fade up with bounce
-        tl.fromTo(
-          '.stat-item',
-          { y: 20, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.5, stagger: 0.08, ease: 'back.out(1.4)' },
-          '-=0.4'
-        );
-      }
-
-      // Scroll parallax (desktop only)
-      if (!reducedMotion && isDesktop) {
-        gsap.to(avatarRef.current, {
-          y: 120,
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top top',
-            end: 'bottom top',
-            scrub: 1,
-          },
-        });
-
-        gsap.to(textRef.current, {
-          y: -80,
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top top',
-            end: 'bottom top',
-            scrub: 1,
-          },
-        });
-      }
+      tl.fromTo(
+        '.hero-note',
+        { y: 16, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.4,
+          stagger: 0.06,
+          ease: 'back.out(2)',
+          // Hand back to the CSS tilt/hover classes once the entrance is done.
+          clearProps: 'transform',
+        },
+        '-=0.25',
+      );
     }, sectionRef);
 
     return () => ctx.revert();
-  }, []);
-
-  // Mouse move handler for 3D tilt
-  useEffect(() => {
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-    if (reducedMotion || !canHover) {
-      return;
-    }
-
-    const applyTilt = () => {
-      frameRef.current = null;
-      if (!avatarRef.current) {
-        return;
-      }
-      avatarRef.current.style.transform = `rotateX(${tiltYRef.current}deg) rotateY(${tiltXRef.current}deg)`;
-    };
-
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!avatarRef.current) {
-        return;
-      }
-      const rect = avatarRef.current.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      tiltYRef.current = ((e.clientY - centerY) / rect.height) * -15;
-      tiltXRef.current = ((e.clientX - centerX) / rect.width) * 15;
-
-      if (frameRef.current === null) {
-        frameRef.current = window.requestAnimationFrame(applyTilt);
-      }
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      if (frameRef.current !== null) {
-        window.cancelAnimationFrame(frameRef.current);
-      }
-    };
   }, []);
 
   return (
     <section
       ref={sectionRef}
       id="hero"
-      className="section-shell relative min-h-screen flex items-center justify-center overflow-hidden pt-20"
+      className="relative flex min-h-screen items-center overflow-hidden px-6 pb-20 pt-32"
     >
-      <div className="container mx-auto px-6 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          {/* Text Content */}
-          <div ref={textRef} className="text-center lg:text-left order-2 lg:order-1">
-            {/* Greeting */}
-            <div className="hero-text-line mb-4">
-              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border-glow-cyan">
-                <Terminal className="w-4 h-4 text-cyan-400" />
-                <span className="font-mono text-sm text-cyan-400">
-                  SYSTEM.INIT(&quot;HELLO_WORLD&quot;)
-                </span>
-              </span>
-            </div>
+      <div className="mx-auto w-full max-w-5xl">
+        <div className="grid items-center gap-12 md:grid-cols-2">
+          {/* Words */}
+          <div className="order-2 md:order-1">
+            <span className="hero-line mb-5 inline-block -rotate-2 rounded-wobblySm border-2 border-ink bg-postit px-3 py-1 font-hand text-base shadow-sketchSm">
+              hi there, i&apos;m —
+            </span>
 
-            {/* Name */}
-            <h1 className="hero-text-line font-orbitron font-black text-4xl sm:text-5xl lg:text-6xl mb-4">
-              <span className="text-white glitch-text" data-text="SYED MUHAMMAD">
-                SYED MUHAMMAD
-              </span>
+            <h1 className="hero-line font-kalam text-5xl leading-[1.05] md:text-6xl">
+              Syed Muhammad
               <br />
-              <span className="text-gradient">HASSAAN</span>
+              <span className="text-marker">Hassaan</span>
+              <span className="ml-1 inline-block rotate-12 text-pen">!</span>
             </h1>
 
-            {/* Title */}
-            <div className="hero-text-line mb-6">
-              <span className="font-orbitron text-xl sm:text-2xl text-slate-300 tracking-[0.08em]">
-                AI Engineer & Full-Stack Developer
-              </span>
-            </div>
-
-            {/* Description */}
-            <p className="hero-text-line text-lg text-slate-300 max-w-xl mx-auto lg:mx-0 mb-8 leading-relaxed">
-              Mission-focused builder who ships complete systems across CRM
-              automation, NLP copilots, and computer vision workflows. I turn
-              raw ideas into production-ready features, optimize the user
-              journey, and keep reliability high from first deploy to live
-              operations. Currently leveling up in Data Science and AI while
-              delivering practical products that teams can trust in real-world
-              environments.
+            <p className="hero-line mt-5 font-hand text-xl md:text-2xl">
+              <span className="marker-highlight">AI engineer</span> &amp; full-stack developer
             </p>
 
-            {/* Stats Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-2xl mx-auto lg:mx-0">
-              {stats.map((stat, index) => {
-                const Icon = stat.icon;
+            <p className="hero-line mt-4 max-w-lg font-hand text-lg leading-relaxed text-ink-soft md:text-xl">
+              I ship whole systems, not slices: CRM automation, NLP copilots, and
+              computer-vision workflows that survive real users. Currently deep in
+              data science and AI, still drawing boxes and arrows before I write a
+              line of code.
+            </p>
+
+            {/* Sticky notes */}
+            <div className="mt-8 grid max-w-lg grid-cols-2 gap-4">
+              {notes.map((note) => {
+                const Icon = note.icon;
                 return (
                   <div
-                    key={index}
-                    className="stat-item glass rounded-xl p-4 text-center group hover:border-purple-500/50 transition-all duration-300"
+                    key={note.label}
+                    className={`hero-note rounded-wobblySm border-2 border-ink p-3 shadow-sketch transition-transform duration-100 hover:rotate-0 ${note.tilt} ${note.tone}`}
                   >
-                    <Icon className={`w-6 h-6 mx-auto mb-2 ${stat.color}`} />
-                    <div className="font-orbitron text-xs text-slate-500 mb-1">
-                      {stat.label}
-                    </div>
-                    <div className={`font-orbitron font-bold ${stat.color}`}>
-                      {stat.value}
-                    </div>
+                    <Icon className="mb-1 h-5 w-5 text-marker" strokeWidth={2.5} />
+                    <div className="font-hand text-sm text-ink-faint">{note.label}</div>
+                    <div className="font-kalam text-base leading-tight">{note.value}</div>
                   </div>
                 );
               })}
             </div>
 
-            {/* CTA Buttons */}
-            <div className="hero-text-line flex flex-wrap gap-4 justify-center lg:justify-start mt-8">
-              <a
-                href="#projects"
-                className="btn-holo px-8 py-4 bg-gradient-to-r from-purple-500 via-fuchsia-500 to-cyan-400 rounded-xl font-orbitron font-bold text-white hover:shadow-glow-purple transition-all duration-300 hover:scale-105"
-              >
-                VIEW QUESTS
-              </a>
-              <a
-                href="#contact"
-                className="btn-holo px-8 py-4 glass rounded-xl font-orbitron font-bold text-white hover:border-cyan-400/60 transition-all duration-300 hover:scale-105"
-              >
-                INITIATE CONTACT
-              </a>
+            {/* Buttons + a scribbled arrow pointing at the main one */}
+            <div className="hero-line relative mt-10 flex flex-wrap items-center gap-4">
+              <SketchArrow className="absolute -left-24 -top-6 hidden h-16 w-24 -scale-x-100 md:block" />
+              <SketchButton href="#projects" variant="primary">
+                see my work
+              </SketchButton>
+              <SketchButton href="#contact" variant="secondary">
+                say hello
+              </SketchButton>
             </div>
           </div>
 
-          {/* Avatar */}
-          <div className="order-1 lg:order-2 flex justify-center perspective-1000">
-            <div
-              ref={avatarRef}
-              className="relative preserve-3d"
-              style={{
-                transition: 'transform 0.1s ease-out',
-                willChange: 'transform',
-              }}
-            >
-              {/* Glow Effect */}
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/30 to-cyan-500/30 rounded-3xl blur-3xl animate-glow-pulse" />
+          {/* Taped-up photo */}
+          <div className="order-1 flex justify-center md:order-2">
+            <div ref={avatarRef} className="relative">
+              <div className="tape relative -rotate-3 transition-transform duration-100 hover:rotate-1">
+                <img
+                  src="/avatar.png"
+                  alt="Syed Muhammad Hassaan"
+                  className="h-72 w-72 object-contain sm:h-80 sm:w-80"
+                />
+                <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 font-kalam text-lg text-ink-soft">
+                  that&apos;s me
+                </span>
+              </div>
 
-              {/* Avatar Container */}
-              <div className="relative w-72 h-72 sm:w-96 sm:h-96">
-                {/* Border Frame */}
-                <div className="absolute inset-0 rounded-3xl border-2 border-purple-500/50"
-                  style={{
-                    background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(6, 182, 212, 0.1))',
-                    boxShadow: '0 0 40px rgba(168, 85, 247, 0.3), inset 0 0 40px rgba(6, 182, 212, 0.1)'
-                  }} />
+              {/* Doodled blob that keeps bouncing */}
+              <div className="absolute -right-6 -top-6 hidden h-16 w-16 animate-doodle-bounce items-center justify-center rounded-blob border-[3px] border-ink bg-postit font-kalam text-sm shadow-sketch md:flex">
+                open to
+                <br />
+                work
+              </div>
 
-                {/* Corner Accents */}
-                <div className="absolute -top-2 -left-2 w-8 h-8 border-t-2 border-l-2 border-cyan-400" />
-                <div className="absolute -top-2 -right-2 w-8 h-8 border-t-2 border-r-2 border-cyan-400" />
-                <div className="absolute -bottom-2 -left-2 w-8 h-8 border-b-2 border-l-2 border-cyan-400" />
-                <div className="absolute -bottom-2 -right-2 w-8 h-8 border-b-2 border-r-2 border-cyan-400" />
-
-                {/* Avatar Image */}
-                <div className="absolute inset-4 rounded-2xl overflow-hidden">
-                  <img
-                    src="/avatar.png"
-                    alt="Syed Muhammad Hassaan"
-                    className="w-full h-full object-cover animate-float"
-                  />
-                  {/* Scanline Overlay */}
-                  <div className="absolute inset-0 scanline opacity-50" />
-                </div>
-
-                {/* Floating Badge */}
-                <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 glass rounded-full px-6 py-2 flex items-center gap-2">
-                  <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse" />
-                  <span className="font-mono text-sm text-cyan-400">ONLINE</span>
-                </div>
+              <div className="absolute -bottom-4 -left-6 hidden rotate-6 rounded-wobblySm border-2 border-ink bg-white px-3 py-1 font-hand text-base shadow-sketchSm md:block">
+                Karachi, PK
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Scroll Indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-        <ChevronDown className="w-8 h-8 text-cyan-400" />
+        {/* Scroll hint */}
+        <div className="mt-16 flex items-center justify-center gap-2 font-hand text-lg text-ink-faint">
+          <ArrowDown className="h-5 w-5 animate-doodle-bounce" strokeWidth={2.5} />
+          keep scrolling
+        </div>
       </div>
-
-      {/* Decorative Elements */}
-      <div className="absolute top-1/4 left-10 w-2 h-2 bg-purple-500 rounded-full animate-pulse" />
-      <div className="absolute top-1/3 right-20 w-3 h-3 bg-cyan-500 rounded-full animate-pulse" style={{ animationDelay: '0.5s' }} />
-      <div className="absolute bottom-1/4 left-20 w-2 h-2 bg-orange-500 rounded-full animate-pulse" style={{ animationDelay: '1s' }} />
     </section>
   );
 }

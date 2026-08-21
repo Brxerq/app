@@ -1,6 +1,7 @@
-﻿import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { SectionHeading, SketchCard, SketchTag, Squiggle } from '@/components/ui/sketch';
 import {
   Code2,
   Database,
@@ -8,7 +9,6 @@ import {
   Layers,
   Container,
   Terminal,
-  Cpu,
   Brain,
   Eye,
   MessageSquare,
@@ -18,104 +18,72 @@ import {
 gsap.registerPlugin(ScrollTrigger);
 
 const skills = [
-  { name: 'Python', icon: Terminal, level: 95, color: '#06b6d4', category: 'Languages' },
-  { name: 'TypeScript', icon: Code2, level: 86, color: '#38bdf8', category: 'Languages' },
-  { name: 'C++', icon: Terminal, level: 82, color: '#f97316', category: 'Languages' },
-  { name: 'Dart', icon: Layers, level: 88, color: '#22c55e', category: 'Languages' },
-  { name: 'TensorFlow', icon: Brain, level: 90, color: '#f97316', category: 'AI/Data' },
-  { name: 'PyTorch', icon: Cpu, level: 85, color: '#a855f7', category: 'AI/Data' },
-  { name: 'OpenCV', icon: Eye, level: 88, color: '#22c55e', category: 'AI/Data' },
-  { name: 'LLMs / NLP', icon: MessageSquare, level: 88, color: '#f472b6', category: 'AI/Data' },
-  { name: 'React', icon: Code2, level: 86, color: '#06b6d4', category: 'Frameworks' },
-  { name: 'Django / DRF', icon: Database, level: 84, color: '#a855f7', category: 'Frameworks' },
-  { name: 'Flutter', icon: Layers, level: 90, color: '#06b6d4', category: 'Frameworks' },
-  { name: 'PostgreSQL', icon: Database, level: 83, color: '#22c55e', category: 'Backend' },
-  { name: 'MySQL', icon: Database, level: 87, color: '#a855f7', category: 'Backend' },
-  { name: 'Docker', icon: Container, level: 82, color: '#06b6d4', category: 'Tools' },
-  { name: 'AWS', icon: Cloud, level: 78, color: '#f97316', category: 'Tools' },
-  { name: 'Hugging Face', icon: BarChart3, level: 80, color: '#f59e0b', category: 'Tools' },
+  { name: 'Python', icon: Terminal, category: 'Languages' },
+  { name: 'TypeScript', icon: Code2, category: 'Languages' },
+  { name: 'C++', icon: Terminal, category: 'Languages' },
+  { name: 'Dart', icon: Layers, category: 'Languages' },
+  { name: 'TensorFlow', icon: Brain, category: 'AI / Data' },
+  { name: 'PyTorch', icon: Brain, category: 'AI / Data' },
+  { name: 'OpenCV', icon: Eye, category: 'AI / Data' },
+  { name: 'LLMs / NLP', icon: MessageSquare, category: 'AI / Data' },
+  { name: 'React', icon: Code2, category: 'Frameworks' },
+  { name: 'Django / DRF', icon: Database, category: 'Frameworks' },
+  { name: 'Flutter', icon: Layers, category: 'Frameworks' },
+  { name: 'PostgreSQL', icon: Database, category: 'Backend' },
+  { name: 'MySQL', icon: Database, category: 'Backend' },
+  { name: 'Docker', icon: Container, category: 'Tools' },
+  { name: 'AWS', icon: Cloud, category: 'Tools' },
+  { name: 'Hugging Face', icon: BarChart3, category: 'Tools' },
 ];
 
-const categories = ['All', 'Languages', 'AI/Data', 'Frameworks', 'Backend', 'Tools'];
+const categories = ['everything', 'Languages', 'AI / Data', 'Frameworks', 'Backend', 'Tools'];
+
+// Small deterministic tilts so the grid never looks machine-aligned.
+const TILTS = ['-rotate-2', 'rotate-1', '-rotate-1', 'rotate-2', '-rotate-1', 'rotate-2'];
+
+const pairings = [
+  { from: 'React + TypeScript', to: 'RTK Query' },
+  { from: 'RTK Query', to: 'Django / DRF' },
+  { from: 'LLMs / NLP', to: 'AI assistants' },
+  { from: 'OpenCV', to: 'retail vision' },
+];
 
 export default function Skills() {
   const sectionRef = useRef<HTMLElement>(null);
   const cloudRef = useRef<HTMLDivElement>(null);
-  const [activeCategory, setActiveCategory] = useState('All');
-  const [hoveredSkill, setHoveredSkill] = useState<string | null>(null);
+  const [activeCategory, setActiveCategory] = useState('everything');
 
-  const filteredSkills = activeCategory === 'All'
-    ? skills
-    : skills.filter((s) => s.category === activeCategory);
+  const filteredSkills =
+    activeCategory === 'everything' ? skills : skills.filter((s) => s.category === activeCategory);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
       gsap.fromTo(
-        '.skills-heading',
-        { x: -100, opacity: 0 },
+        '.skills-intro',
+        { y: 30, opacity: 0 },
         {
-          x: 0,
-          opacity: 1,
-          duration: 0.8,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top 80%',
-            once: true,
-          },
-        },
-      );
-
-      gsap.fromTo(
-        '.skills-bio',
-        { x: -50, opacity: 0 },
-        {
-          x: 0,
-          opacity: 1,
-          duration: 0.8,
-          delay: 0.2,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top 80%',
-            once: true,
-          },
-        },
-      );
-
-      gsap.fromTo(
-        '.skill-orb',
-        { scale: 0.92, y: 20, opacity: 0 },
-        {
-          scale: 1,
           y: 0,
           opacity: 1,
-          duration: 0.65,
-          stagger: 0.05,
-          ease: 'power3.out',
+          duration: 0.6,
+          stagger: 0.12,
+          ease: 'power2.out',
+          clearProps: 'transform',
+          scrollTrigger: { trigger: sectionRef.current, start: 'top 80%', once: true },
+        },
+      );
+
+      gsap.fromTo(
+        '.skill-chip',
+        { y: 18, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.4,
+          stagger: 0.04,
+          ease: 'back.out(1.8)',
           immediateRender: false,
-          scrollTrigger: {
-            trigger: cloudRef.current,
-            start: 'top 80%',
-            once: true,
-          },
-        },
-      );
-
-      gsap.fromTo(
-        '.category-btn',
-        { y: 20, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.5,
-          stagger: 0.1,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top 70%',
-            once: true,
-          },
+          clearProps: 'transform',
+          scrollTrigger: { trigger: cloudRef.current, start: 'top 85%', once: true },
         },
       );
     }, sectionRef);
@@ -124,182 +92,113 @@ export default function Skills() {
   }, []);
 
   return (
-    <section
-      ref={sectionRef}
-      id="skills"
-      className="section-shell relative min-h-screen py-24 overflow-hidden"
-    >
-      <div className="container mx-auto px-6">
-        <div className="mb-16">
-          <div className="skills-heading flex items-center gap-4 mb-4">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center">
-              <Cpu className="w-6 h-6 text-white" />
-            </div>
-            <h2 className="font-orbitron font-black text-4xl sm:text-5xl text-white">
-              THE <span className="text-gradient">ARSENAL</span>
-            </h2>
-          </div>
-          <div className="neon-divider w-32" />
-        </div>
+    <section ref={sectionRef} id="skills" className="relative px-6 py-20">
+      <div className="mx-auto max-w-5xl">
+        <SectionHeading label="what i work with" title="the" accent="toolbox" className="skills-intro" />
 
-        <div className="grid lg:grid-cols-5 gap-12">
-          <div className="lg:col-span-2">
-            <div className="skills-bio glass rounded-2xl p-8 mb-8">
-              <h3 className="font-orbitron font-bold text-2xl text-cyan-400 mb-4">
-                CLASS SPECIALIZATION
-              </h3>
-              <p className="text-slate-200/95 leading-8 mb-6">
-                Core stack from resume: Python, TypeScript, TensorFlow, PyTorch,
-                OpenCV, React, Django/DRF, Flutter, PostgreSQL, MySQL, and Docker.
-                Strong focus on LLM-powered product features and production ML delivery.
+        <div className="grid gap-10 md:grid-cols-5">
+          {/* Left: the note about how I work */}
+          <div className="md:col-span-2">
+            <SketchCard tone="white" decoration="tape" className="skills-intro -rotate-1 p-6" solid>
+              <h3 className="font-kalam text-2xl">how i work</h3>
+              <Squiggle className="my-3 text-marker" />
+              <p className="font-hand text-lg leading-relaxed text-ink-soft">
+                Sketch the flow first, then build it. Python and TypeScript for most of
+                it, TensorFlow and PyTorch when it needs to learn something, Docker when
+                it needs to run somewhere that isn&apos;t my laptop.
               </p>
-              <div className="flex items-center gap-4">
-                <div className="flex -space-x-2">
+
+              <div className="mt-5 flex items-center gap-3">
+                <div className="flex -space-x-3">
                   {[Brain, Code2, Database, Cloud].map((Icon, i) => (
-                    <div
+                    <span
                       key={i}
-                      className="w-10 h-10 rounded-full glass flex items-center justify-center border-2 border-dark"
+                      className={`flex h-10 w-10 items-center justify-center rounded-blob border-2 border-ink bg-paper ${TILTS[i]}`}
                     >
-                      <Icon className="w-5 h-5 text-purple-400" />
-                    </div>
+                      <Icon className="h-5 w-5" strokeWidth={2.5} />
+                    </span>
                   ))}
                 </div>
-                <span className="text-sm text-slate-400">
-                  +15 more technologies
-                </span>
+                <span className="font-hand text-base text-ink-faint">+ a dozen more</span>
               </div>
-            </div>
+            </SketchCard>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="glass rounded-xl p-6 text-center">
-                <div className="font-orbitron font-black text-4xl text-purple-400 mb-2">
-                  25+
-                </div>
-                <div className="text-sm text-slate-400">Core Technologies</div>
+            <div className="skills-intro mt-6 grid grid-cols-2 gap-4">
+              <div className="jiggle flex aspect-square flex-col items-center justify-center rounded-blob border-[3px] border-ink bg-postit p-4 text-center shadow-sketch">
+                <span className="font-kalam text-4xl">25+</span>
+                <span className="font-hand text-base leading-tight">technologies</span>
               </div>
-              <div className="glass rounded-xl p-6 text-center">
-                <div className="font-orbitron font-black text-4xl text-cyan-400 mb-2">
-                  3
-                </div>
-                <div className="text-sm text-slate-400">Core Domains</div>
+              <div className="jiggle flex aspect-square flex-col items-center justify-center rounded-blobAlt border-[3px] border-ink bg-white p-4 text-center shadow-sketch">
+                <span className="font-kalam text-4xl text-marker">3</span>
+                <span className="font-hand text-base leading-tight">core domains</span>
               </div>
             </div>
           </div>
 
-          <div className="lg:col-span-3" ref={cloudRef}>
-            <div className="flex flex-wrap gap-2 mb-8">
-              {categories.map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => setActiveCategory(cat)}
-                  className={`category-btn px-4 py-2 rounded-lg font-orbitron text-sm transition-all duration-300 ${activeCategory === cat
-                      ? 'bg-purple-500 text-white'
-                      : 'glass text-slate-400 hover:text-white hover:bg-white/5'
-                    }`}
-                >
-                  {cat}
-                </button>
-              ))}
+          {/* Right: the chips */}
+          <div className="md:col-span-3" ref={cloudRef}>
+            <div className="mb-6 flex flex-wrap gap-2">
+              {categories.map((cat, i) => {
+                const isActive = activeCategory === cat;
+                return (
+                  <button
+                    key={cat}
+                    onClick={() => setActiveCategory(cat)}
+                    className={`rounded-wobblySm border-2 border-ink px-3 py-1.5 font-hand text-base transition-all duration-100 hover:rotate-0 ${TILTS[i % TILTS.length]} ${isActive
+                      ? 'bg-marker text-white shadow-sketchSm'
+                      : 'bg-white text-ink shadow-sketchSm hover:bg-postit'
+                      }`}
+                  >
+                    {cat}
+                  </button>
+                );
+              })}
             </div>
 
-            <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
               {filteredSkills.map((skill, index) => {
                 const Icon = skill.icon;
-                const isHovered = hoveredSkill === skill.name;
-
                 return (
                   <div
                     key={skill.name}
-                    className="skill-orb relative group"
-                    onMouseEnter={() => setHoveredSkill(skill.name)}
-                    onMouseLeave={() => setHoveredSkill(null)}
-                    style={{ animationDelay: `${index * 0.05}s` }}
+                    className={`skill-chip flex flex-col items-center justify-center gap-2 rounded-wobblyMd border-2 border-ink bg-white px-3 py-5 text-center shadow-sketchSoft transition-all duration-100 hover:rotate-0 hover:shadow-sketch ${TILTS[index % TILTS.length]}`}
                   >
-                    <div
-                      className={`relative glass rounded-2xl p-6 aspect-square flex flex-col items-center justify-center cursor-pointer transition-all duration-300 ${isHovered ? 'scale-110 border-glow-purple' : ''
-                        }`}
-                      style={{
-                        borderColor: isHovered ? skill.color : undefined,
-                      }}
-                    >
-                      <Icon
-                        className="w-10 h-10 mb-3 transition-all duration-300"
-                        style={{ color: skill.color }}
-                      />
-                      <span className="font-orbitron text-xs text-center text-slate-300">
-                        {skill.name}
-                      </span>
-
-                      <svg
-                        className="absolute inset-0 w-full h-full -rotate-90"
-                        viewBox="0 0 100 100"
-                      >
-                        <circle
-                          cx="50"
-                          cy="50"
-                          r="45"
-                          fill="none"
-                          stroke="rgba(255,255,255,0.1)"
-                          strokeWidth="2"
-                        />
-                        <circle
-                          cx="50"
-                          cy="50"
-                          r="45"
-                          fill="none"
-                          stroke={skill.color}
-                          strokeWidth="2"
-                          strokeDasharray={`${skill.level * 2.83} 283`}
-                          strokeLinecap="round"
-                          className={`transition-all duration-500 ${isHovered ? 'opacity-100' : 'opacity-0'
-                            }`}
-                        />
-                      </svg>
-                    </div>
-
-                    <div
-                      className={`absolute -top-12 left-1/2 -translate-x-1/2 glass rounded-lg px-3 py-2 whitespace-nowrap z-20 transition-all duration-300 ${isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'
-                        }`}
-                    >
-                      <div className="font-orbitron text-xs text-cyan-400">
-                        {skill.level}% MASTERY
-                      </div>
-                    </div>
+                    <span className="flex h-11 w-11 items-center justify-center rounded-blob border-2 border-ink bg-paper">
+                      <Icon className="h-5 w-5" strokeWidth={2.5} />
+                    </span>
+                    <span className="font-hand text-base leading-tight">{skill.name}</span>
                   </div>
                 );
               })}
             </div>
 
-            <div className="mt-8 glass rounded-2xl p-6">
-              <h4 className="font-orbitron text-sm text-slate-400 mb-4">
-                TECHNOLOGY SYNERGIES
-              </h4>
-              <div className="flex flex-wrap gap-3">
-                {[
-                  { from: 'React + TS', to: 'RTK Query', color: '#06b6d4' },
-                  { from: 'RTK Query', to: 'Django/DRF APIs', color: '#a855f7' },
-                  { from: 'LLMs / NLP', to: 'AI Assistant', color: '#f472b6' },
-                  { from: 'OpenCV', to: 'Retail Vision', color: '#22c55e' },
-                ].map((conn, i) => (
-                  <div
-                    key={i}
-                    className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5"
+            {/* Pairings — scribbled connections */}
+            <SketchCard tone="paper" className="mt-8 rotate-[0.6deg] p-5">
+              <h4 className="mb-3 font-kalam text-xl">things that pair well</h4>
+              <div className="flex flex-wrap gap-2">
+                {pairings.map((pair) => (
+                  <span
+                    key={pair.from + pair.to}
+                    className="inline-flex items-center gap-2 rounded-wobblySm border-2 border-dashed border-ink px-3 py-1.5 font-hand text-base"
                   >
-                    <span className="text-xs" style={{ color: conn.color }}>
-                      {conn.from}
-                    </span>
-                    <span className="text-slate-500">-&gt;</span>
-                    <span className="text-xs text-slate-300">{conn.to}</span>
-                  </div>
+                    {pair.from}
+                    <span className="text-marker">→</span>
+                    {pair.to}
+                  </span>
                 ))}
               </div>
+            </SketchCard>
+
+            <div className="mt-6 flex flex-wrap gap-2">
+              {['Git', 'REST APIs', 'RabbitMQ', 'FastAPI', 'Technical SEO'].map((extra, i) => (
+                <SketchTag key={extra} className={i % 2 ? 'rotate-1' : '-rotate-1'}>
+                  {extra}
+                </SketchTag>
+              ))}
             </div>
           </div>
         </div>
       </div>
-
-      <div className="absolute top-20 right-10 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-20 left-10 w-48 h-48 bg-cyan-500/10 rounded-full blur-3xl" />
     </section>
   );
 }

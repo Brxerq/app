@@ -1,0 +1,116 @@
+import { useEffect, useState } from 'react';
+
+type Day = { date: string; count: number; level: number };
+
+// Blue-ballpoint ramp: blank paper for empty days, ink density for busy ones.
+const LEVELS = ['#e5e0d8', '#c3d5ec', '#7fa4d1', '#4574ad', '#1e4478'];
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+const CELL = 11;
+const GAP = 3;
+const gridStyle = {
+  gridAutoFlow: 'column' as const,
+  gridTemplateRows: `repeat(7, ${CELL}px)`,
+  gridAutoColumns: `${CELL}px`,
+  gap: `${GAP}px`,
+};
+
+export function ContributionGraph({ username }: { username: string }) {
+  const [days, setDays] = useState<Day[] | null>(null);
+  const [failed, setFailed] = useState(false);
+  const [total, setTotal] = useState(0);
+
+  useEffect(() => {
+    let active = true;
+    fetch(`https://github-contributions-api.jogruber.de/v4/${username}?y=last`)
+      .then((response) => (response.ok ? response.json() : Promise.reject(new Error('bad status'))))
+      .then((data) => {
+        if (!active) return;
+        setDays(data.contributions);
+        setTotal(data.total?.lastYear ?? 0);
+      })
+      .catch(() => active && setFailed(true));
+    return () => {
+      active = false;
+    };
+  }, [username]);
+
+  if (failed) return null;
+
+  if (!days) {
+    return <div className="h-[125px] rounded-wobblySm border-2 border-dashed border-ink/30 bg-paper-aged/50 animate-pulse" />;
+  }
+
+  // Pad so the first column starts on the correct weekday row.
+  const offset = new Date(days[0].date).getUTCDay();
+  const cells: (Day | null)[] = [...Array(offset).fill(null), ...days];
+
+  const columnCount = Math.ceil(cells.length / 7);
+
+  // Label the first column that *starts* in a new month.
+  const marks: { column: number; text: string }[] = [];
+  for (let column = 0; column < columnCount; column += 1) {
+    const day = cells[column * 7] ?? days[0];
+    const month = new Date(day.date).getUTCMonth();
+    if (marks.length === 0 || marks[marks.length - 1].text !== MONTHS[month]) {
+      marks.push({ column, text: MONTHS[month] });
+    }
+  }
+  // Drop a stub month too narrow to label without colliding with the next one.
+  const labels = marks.filter((mark, index) => {
+    const next = marks[index + 1];
+    return !next || next.column - mark.column >= 3;
+  });
+
+  return (
+    <div>
+      <div
+        className="grid mb-2"
+        style={{
+          gridTemplateColumns: `repeat(${columnCount}, ${CELL}px)`,
+          columnGap: `${GAP}px`,
+        }}
+      >
+        {labels.map((label) => (
+          <span
+            key={`${label.text}-${label.column}`}
+            className="text-[10px] font-hand text-ink-faint whitespace-nowrap"
+            style={{ gridRow: 1, gridColumn: `${label.column + 1} / span 4` }}
+          >
+            {label.text}
+          </span>
+        ))}
+      </div>
+
+      <div className="grid" style={gridStyle}>
+        {cells.map((day, index) =>
+          day ? (
+            <div
+              key={day.date}
+              title={`${day.count} contribution${day.count === 1 ? '' : 's'} on ${day.date}`}
+              className="rounded-[3px_1px_3px_1px]"
+              style={{ backgroundColor: LEVELS[day.level] }}
+            />
+          ) : (
+            <div key={`pad-${index}`} />
+          )
+        )}
+      </div>
+
+      <div className="mt-4 flex items-center justify-between gap-4 text-[11px] font-hand text-ink-soft">
+        <span>{total.toLocaleString()} contributions in the last year</span>
+        <span className="flex items-center gap-1.5">
+          Less
+          {LEVELS.map((shade) => (
+            <span
+              key={shade}
+              className="w-2.5 h-2.5 rounded-[3px_1px_3px_1px] border border-ink/20"
+              style={{ backgroundColor: shade }}
+            />
+          ))}
+          More
+        </span>
+      </div>
+    </div>
+  );
+}

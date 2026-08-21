@@ -1,12 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
-import { Menu, X, Gamepad2, User, Code2, Briefcase, FolderGit2, Mail } from 'lucide-react';
+import { SketchButton } from '@/components/ui/sketch';
+import { DrawnUnderline } from '@/components/ui/drawn-underline';
+import { Menu, X, Pencil } from 'lucide-react';
 
 const navItems = [
-  { id: 'hero', label: 'STATUS', icon: User },
-  { id: 'skills', label: 'ARSENAL', icon: Code2 },
-  { id: 'experience', label: 'LOG', icon: Briefcase },
-  { id: 'projects', label: 'QUESTS', icon: FolderGit2 },
-  { id: 'contact', label: 'UPLINK', icon: Mail },
+  { id: 'hero', label: 'hello' },
+  { id: 'skills', label: 'toolbox' },
+  { id: 'experience', label: 'history' },
+  { id: 'projects', label: 'things i built' },
+  { id: 'contact', label: 'say hi' },
 ];
 
 export default function Navigation() {
@@ -14,7 +16,6 @@ export default function Navigation() {
   const [activeSection, setActiveSection] = useState('hero');
   const [isScrolled, setIsScrolled] = useState(false);
   const activeSectionRef = useRef(activeSection);
-  const navRootRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     activeSectionRef.current = activeSection;
@@ -72,92 +73,82 @@ export default function Navigation() {
 
   return (
     <>
-      {/* Desktop Navigation */}
-      <nav
-        ref={navRootRef}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${isScrolled ? 'py-3' : 'py-6'
-          }`}
-      >
-        <div
-          className={`mx-auto px-6 transition-all duration-500 ${isScrolled
-            ? 'max-w-4xl glass rounded-full mx-4 sm:mx-auto mt-4'
-            : 'max-w-7xl'
-            }`}
-        >
-          <div className="flex items-center justify-between">
-            {/* Logo */}
-            <div className="flex items-center gap-3">
-              <div className="relative">
-                <Gamepad2 className="w-8 h-8 text-purple-500" />
-                <div className="absolute inset-0 animate-glow-pulse text-purple-500" />
-              </div>
-              {/* Mobile: always show short name. sm+: show full or short based on scroll */}
-              <span className="font-orbitron font-bold text-gradient sm:hidden text-base">
-                HASSAAN
-              </span>
-              <span className="font-orbitron font-bold text-xl text-gradient hidden sm:block">
-                {isScrolled ? 'HASSAAN' : 'SYED MUHAMMAD HASSAAN'}
-              </span>
-            </div>
+      <nav className={`fixed left-0 right-0 top-0 z-50 transition-all duration-200 ${isScrolled ? 'py-3' : 'py-5'}`}>
+        <div className="mx-auto max-w-5xl px-4">
+          <div
+            className={`flex -rotate-[0.4deg] items-center justify-between gap-4 rounded-wobblyMd border-2 border-ink bg-white px-4 py-2.5 transition-shadow duration-200 ${isScrolled ? 'shadow-sketch' : 'shadow-sketchSoft'
+              }`}
+          >
+            {/* Signature */}
+            <button
+              onClick={() => scrollToSection('hero')}
+              className="flex items-center gap-2 font-kalam text-lg leading-none sm:text-xl"
+            >
+              <Pencil className="h-5 w-5 -rotate-12 text-marker" strokeWidth={2.5} />
+              <span className="squiggle-underline">Hassaan</span>
+            </button>
 
-            {/* Desktop Menu */}
-            <div className="hidden md:flex items-center gap-1">
+            {/* Desktop links */}
+            <div className="hidden items-center gap-1 md:flex">
               {navItems.map((item) => {
-                const Icon = item.icon;
                 const isActive = activeSection === item.id;
                 return (
-                  <button
-                    key={item.id}
-                    onClick={() => scrollToSection(item.id)}
-                    className={`btn-holo relative px-4 py-2 rounded-lg transition-all duration-300 group ${isActive ? 'text-cyan-300' : 'text-slate-400 hover:text-white'
-                      }`}
-                  >
-                    <span className="flex items-center gap-2">
-                      <Icon className="w-4 h-4" />
-                      <span className="font-orbitron text-sm tracking-wider">{item.label}</span>
-                    </span>
-                    {isActive && (
-                      <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 bg-fuchsia-400 rounded-full" />
-                    )}
-                    <span className="absolute inset-0 rounded-lg bg-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </button>
+                  // The current section keeps a permanent pen squiggle; the rest
+                  // get one scribbled in on hover.
+                  isActive ? (
+                    <button
+                      key={item.id}
+                      onClick={() => scrollToSection(item.id)}
+                      aria-current="true"
+                      className="squiggle-underline-pen px-3 py-1.5 font-hand text-lg text-pen"
+                    >
+                      {item.label}
+                    </button>
+                  ) : (
+                    <DrawnUnderline key={item.id}>
+                      <button
+                        onClick={() => scrollToSection(item.id)}
+                        className="rounded-wobblySm px-3 py-1.5 font-hand text-lg text-ink-soft transition-colors duration-100 hover:text-ink"
+                      >
+                        {item.label}
+                      </button>
+                    </DrawnUnderline>
+                  )
                 );
               })}
             </div>
 
-            {/* Mobile Menu Button */}
-            <button onClick={() => setIsOpen(!isOpen)} className="md:hidden p-2 text-white">
-              {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {/* Mobile toggle */}
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              aria-label={isOpen ? 'Close menu' : 'Open menu'}
+              className="flex h-10 w-10 items-center justify-center rounded-wobblySm border-2 border-ink bg-paper shadow-sketchSm transition-transform duration-100 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none md:hidden"
+            >
+              {isOpen ? <X className="h-5 w-5" strokeWidth={2.5} /> : <Menu className="h-5 w-5" strokeWidth={2.5} />}
             </button>
           </div>
         </div>
       </nav>
 
-      {/* Mobile Navigation */}
+      {/* Mobile menu — a note taped over the page */}
       <div
-        className={`fixed inset-0 z-40 md:hidden transition-all duration-500 ${isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        className={`fixed inset-0 z-40 transition-opacity duration-200 md:hidden ${isOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
           }`}
       >
-        <div className="absolute inset-0 bg-dark/95 backdrop-blur-xl" onClick={() => setIsOpen(false)} />
-        <div className="absolute top-20 left-4 right-4 glass rounded-2xl p-6">
-          <div className="flex flex-col gap-2">
+        <div className="absolute inset-0 bg-paper/90" onClick={() => setIsOpen(false)} />
+        <div className="tape absolute left-4 right-4 top-24 rotate-1 rounded-wobblyMd border-[3px] border-ink bg-white p-5 shadow-sketchLg">
+          <div className="flex flex-col gap-1">
             {navItems.map((item) => {
-              const Icon = item.icon;
               const isActive = activeSection === item.id;
               return (
                 <button
                   key={item.id}
                   onClick={() => scrollToSection(item.id)}
-                  className={`flex items-center gap-4 px-4 py-4 rounded-xl transition-all duration-300 ${isActive
-                    ? 'bg-purple-500/20 text-cyan-400 border border-purple-500/50'
-                    : 'text-slate-400 hover:bg-white/5 hover:text-white'
+                  className={`flex items-center gap-3 rounded-wobblySm px-3 py-3 text-left font-hand text-xl transition-transform duration-100 ${isActive ? 'bg-postit text-ink' : 'text-ink-soft'
                     }`}
                 >
-                  <Icon className="w-5 h-5" />
-                  <span className="font-orbitron text-lg tracking-wider">{item.label}</span>
-                  {isActive && (
-                    <span className="ml-auto w-2 h-2 bg-cyan-400 rounded-full animate-pulse" />
-                  )}
+                  <span className="text-marker">{isActive ? '→' : '·'}</span>
+                  {item.label}
                 </button>
               );
             })}
@@ -165,37 +156,14 @@ export default function Navigation() {
         </div>
       </div>
 
-      {/* Level Indicator — only shows after scrolling */}
+      {/* Floating CTA — appears once you start reading */}
       <div
-        className={`fixed bottom-6 left-6 z-50 transition-all duration-500 ${isScrolled ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+        className={`fixed bottom-6 right-6 z-50 transition-all duration-300 ${isScrolled ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-8 opacity-0'
           }`}
       >
-        <div className="glass rounded-xl px-4 py-3 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center">
-            <span className="font-orbitron font-bold text-white text-sm">LV</span>
-          </div>
-          <div>
-            <div className="font-orbitron text-xs text-slate-400">LEVEL</div>
-            <div className="font-orbitron font-bold text-white">26</div>
-          </div>
-          <div className="w-24 h-2 bg-slate-700 rounded-full overflow-hidden">
-            <div className="h-full w-3/4 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-full" />
-          </div>
-        </div>
-      </div>
-
-      {/* Quick Actions — only shows after scrolling */}
-      <div
-        className={`fixed bottom-6 right-6 z-50 transition-all duration-500 ${isScrolled ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-          }`}
-      >
-        <button
-          onClick={() => scrollToSection('contact')}
-          className="btn-holo glass rounded-xl px-4 py-3 flex items-center gap-3 hover:bg-purple-500/20 transition-colors group"
-        >
-          <Mail className="w-5 h-5 text-cyan-300 group-hover:scale-110 transition-transform" />
-          <span className="font-orbitron text-sm text-white hidden sm:block">INITIATE CONTACT</span>
-        </button>
+        <SketchButton onClick={() => scrollToSection('contact')} variant="primary" className="rotate-1">
+          say hi
+        </SketchButton>
       </div>
     </>
   );
