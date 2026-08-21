@@ -1,4 +1,5 @@
 ﻿import { useEffect, useRef, useState } from 'react';
+import { HudButton } from '@/components/ui/hud-button';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import {
@@ -231,31 +232,27 @@ export default function Contact() {
                   )}
                 </div>
 
-                <button
+                <HudButton
                   type="submit"
+                  variant={isSubmitted ? 'primary' : 'secondary'}
                   disabled={isSubmitting || isSubmitted}
-                  className={`btn-holo w-full py-4 rounded-xl font-orbitron font-bold text-lg transition-all duration-500 flex items-center justify-center gap-3 ${isSubmitted
-                      ? 'bg-green-500 text-white'
-                      : 'bg-gradient-to-r from-purple-500 via-fuchsia-500 to-cyan-400 text-white hover:shadow-glow-purple hover:scale-[1.02]'
-                    }`}
+                  className="w-full h-[52px]"
+                  icon={
+                    isSubmitting ? (
+                      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : isSubmitted ? (
+                      <CheckCircle className="w-4 h-4 text-cyan-300" />
+                    ) : (
+                      <Send className="w-4 h-4 text-fuchsia-300" />
+                    )
+                  }
                 >
-                  {isSubmitting ? (
-                    <>
-                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      <span>TRANSMITTING...</span>
-                    </>
-                  ) : isSubmitted ? (
-                    <>
-                      <CheckCircle className="w-5 h-5" />
-                      <span>TRANSMISSION COMPLETE</span>
-                    </>
-                  ) : (
-                    <>
-                      <Send className="w-5 h-5" />
-                      <span>INITIATE TRANSMISSION</span>
-                    </>
-                  )}
-                </button>
+                  {isSubmitting
+                    ? 'TRANSMITTING...'
+                    : isSubmitted
+                      ? 'TRANSMISSION COMPLETE'
+                      : 'INITIATE TRANSMISSION'}
+                </HudButton>
               </form>
             </div>
           </div>

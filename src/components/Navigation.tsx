@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { HudButton } from '@/components/ui/hud-button';
 import { Menu, X, Gamepad2, User, Code2, Briefcase, FolderGit2, Mail } from 'lucide-react';
 
 const navItems = [
@@ -189,13 +190,13 @@ export default function Navigation() {
         className={`fixed bottom-6 right-6 z-50 transition-all duration-500 ${isScrolled ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
           }`}
       >
-        <button
+        <HudButton
           onClick={() => scrollToSection('contact')}
-          className="btn-holo glass rounded-xl px-4 py-3 flex items-center gap-3 hover:bg-purple-500/20 transition-colors group"
+          variant="primary"
+          icon={<Mail className="w-4 h-4 text-cyan-300" />}
         >
-          <Mail className="w-5 h-5 text-cyan-300 group-hover:scale-110 transition-transform" />
-          <span className="font-orbitron text-sm text-white hidden sm:block">INITIATE CONTACT</span>
-        </button>
+          INITIATE CONTACT
+        </HudButton>
       </div>
     </>
   );

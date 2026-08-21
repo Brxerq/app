@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { HudButton } from '@/components/ui/hud-button';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ChevronDown, Terminal, Cpu, Zap, Shield, GraduationCap } from 'lucide-react';
@@ -192,18 +193,12 @@ export default function Hero() {
 
             {/* CTA Buttons */}
             <div className="hero-text-line flex flex-wrap gap-4 justify-center lg:justify-start mt-8">
-              <a
-                href="#projects"
-                className="btn-holo px-8 py-4 bg-gradient-to-r from-purple-500 via-fuchsia-500 to-cyan-400 rounded-xl font-orbitron font-bold text-white hover:shadow-glow-purple transition-all duration-300 hover:scale-105"
-              >
+              <HudButton href="#projects" variant="primary">
                 VIEW QUESTS
-              </a>
-              <a
-                href="#contact"
-                className="btn-holo px-8 py-4 glass rounded-xl font-orbitron font-bold text-white hover:border-cyan-400/60 transition-all duration-300 hover:scale-105"
-              >
+              </HudButton>
+              <HudButton href="#contact" variant="secondary">
                 INITIATE CONTACT
-              </a>
+              </HudButton>
             </div>
           </div>
 

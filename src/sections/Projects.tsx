@@ -1,4 +1,6 @@
 ﻿import { useEffect, useRef, useState } from 'react';
+import { HudButton } from '@/components/ui/hud-button';
+import { ContributionGraph } from '@/components/ContributionGraph';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import {
@@ -7,7 +9,6 @@ import {
   Github,
   Star,
   Shield,
-  ArrowRight,
   Brain,
   Eye,
   Gamepad2,
@@ -15,6 +16,7 @@ import {
   Code2,
   Package,
   Calendar,
+  Activity,
 } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -587,17 +589,43 @@ export default function Projects() {
           </div>
         </div>
 
+        <div className="mt-24">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-fuchsia-500 to-purple-500 flex items-center justify-center">
+              <Activity className="w-6 h-6 text-white" />
+            </div>
+            <h2 className="font-orbitron font-black text-4xl sm:text-5xl text-white">
+              COMMIT <span className="text-gradient">LOG</span>
+            </h2>
+          </div>
+          <div className="neon-divider w-32 mb-4" />
+          <p className="text-slate-300/95 max-w-2xl leading-8 mb-8">
+            Live contribution activity, pulled straight from GitHub. Refreshes every time
+            this page loads.
+          </p>
+
+          <div className="glass rounded-2xl p-6">
+            <div className="flex items-center gap-2 mb-5 text-xs font-orbitron text-slate-400">
+              <Github className="w-3.5 h-3.5" />
+              <span>@Brxerq</span>
+            </div>
+            <div className="overflow-x-auto">
+              <div className="min-w-[740px]">
+                <ContributionGraph username="Brxerq" />
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div className="mt-12 text-center">
-          <a
+          <HudButton
             href="https://github.com/Brxerq"
             target="_blank"
             rel="noopener noreferrer"
-            className="btn-holo inline-flex items-center gap-3 px-8 py-4 glass rounded-xl font-orbitron font-bold text-white hover:bg-fuchsia-500/20 transition-all duration-300 group"
+            variant="secondary"
           >
-            <Github className="w-5 h-5" />
-            <span>VIEW ALL QUESTS</span>
-            <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
-          </a>
+            ALL QUESTS
+          </HudButton>
         </div>
       </div>
 
