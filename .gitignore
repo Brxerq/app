@@ -1,7 +1,4 @@
-dist/assets/BackgroundGrid-Uw8S49kx.js
-/dist
-/node_modules
-/node_modules
-/node_modules
-/node_modules
-/node_modules
+node_modules
+dist
+.DS_Store
+*.local
