@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 
 type Day = { date: string; count: number; level: number };
 
-// Pencil ramp: faint eraser marks up to full graphite.
-const LEVELS = ['#efece5', '#cfc9bd', '#a29b8f', '#6b665d', '#2d2d2d'];
+// Blue-ballpoint ramp: blank paper for empty days, ink density for busy ones.
+const LEVELS = ['#e5e0d8', '#c3d5ec', '#7fa4d1', '#4574ad', '#1e4478'];
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 const CELL = 11;

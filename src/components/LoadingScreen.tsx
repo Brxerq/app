@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { PencilLoader } from '@/components/ui/pencil-loader';
 
 type LoadingScreenProps = {
   onComplete: () => void;
@@ -73,9 +74,12 @@ export default function LoadingScreen({
     >
       <div className="relative z-10 flex min-h-screen items-center justify-center px-6">
         <div className="w-full max-w-md -rotate-1 rounded-wobblyMd border-[3px] border-ink bg-white p-7 shadow-sketchLg">
-          <span className="mb-4 inline-block rotate-2 rounded-wobblySm border-2 border-ink bg-postit px-3 py-1 font-hand text-sm shadow-sketchSm">
-            work in progress
-          </span>
+          <div className="mb-2 flex items-center justify-between gap-3">
+            <span className="inline-block rotate-2 rounded-wobblySm border-2 border-ink bg-postit px-3 py-1 font-hand text-sm shadow-sketchSm">
+              work in progress
+            </span>
+            <PencilLoader className="-mr-2 -mt-2 h-24 w-24 shrink-0" />
+          </div>
 
           <h1 className="font-kalam text-3xl leading-tight">
             drawing the <span className="text-marker">portfolio</span>...
@@ -100,16 +104,6 @@ export default function LoadingScreen({
             </div>
           </div>
 
-          {/* Little doodle in the corner of the page */}
-          <svg viewBox="0 0 120 40" aria-hidden className="mt-6 h-8 w-32 text-ink-faint">
-            <path
-              d="M2 30 Q 14 6 26 30 T 50 30 T 74 30 T 98 30 T 118 26"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-            />
-          </svg>
         </div>
       </div>
     </div>

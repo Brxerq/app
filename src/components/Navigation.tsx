@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { SketchButton } from '@/components/ui/sketch';
+import { DrawnUnderline } from '@/components/ui/drawn-underline';
 import { Menu, X, Pencil } from 'lucide-react';
 
 const navItems = [
@@ -92,14 +93,27 @@ export default function Navigation() {
               {navItems.map((item) => {
                 const isActive = activeSection === item.id;
                 return (
-                  <button
-                    key={item.id}
-                    onClick={() => scrollToSection(item.id)}
-                    className={`rounded-wobblySm px-3 py-1.5 font-hand text-lg transition-transform duration-100 hover:-rotate-2 hover:bg-postit ${isActive ? 'squiggle-underline-pen text-pen' : 'text-ink-soft hover:text-ink'
-                      }`}
-                  >
-                    {item.label}
-                  </button>
+                  // The current section keeps a permanent pen squiggle; the rest
+                  // get one scribbled in on hover.
+                  isActive ? (
+                    <button
+                      key={item.id}
+                      onClick={() => scrollToSection(item.id)}
+                      aria-current="true"
+                      className="squiggle-underline-pen px-3 py-1.5 font-hand text-lg text-pen"
+                    >
+                      {item.label}
+                    </button>
+                  ) : (
+                    <DrawnUnderline key={item.id}>
+                      <button
+                        onClick={() => scrollToSection(item.id)}
+                        className="rounded-wobblySm px-3 py-1.5 font-hand text-lg text-ink-soft transition-colors duration-100 hover:text-ink"
+                      >
+                        {item.label}
+                      </button>
+                    </DrawnUnderline>
+                  )
                 );
               })}
             </div>
