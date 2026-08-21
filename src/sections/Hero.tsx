@@ -121,17 +121,13 @@ export default function Hero() {
           {/* Taped-up photo */}
           <div className="order-1 flex justify-center md:order-2">
             <div ref={avatarRef} className="relative">
-              <div
-                className="tape relative -rotate-3 border-[3px] border-ink bg-white p-3 pb-12 shadow-sketchLg transition-transform duration-100 hover:rotate-1"
-                style={{ borderRadius: '10px 6px 12px 8px' }}
-              >
+              <div className="tape relative -rotate-3 transition-transform duration-100 hover:rotate-1">
                 <img
                   src="/avatar.png"
                   alt="Syed Muhammad Hassaan"
-                  className="h-64 w-64 object-cover sm:h-72 sm:w-72"
-                  style={{ borderRadius: '6px 10px 6px 10px' }}
+                  className="h-72 w-72 object-contain sm:h-80 sm:w-80"
                 />
-                <span className="absolute bottom-3 left-1/2 -translate-x-1/2 font-kalam text-lg text-ink-soft">
+                <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 font-kalam text-lg text-ink-soft">
                   that&apos;s me
                 </span>
               </div>
