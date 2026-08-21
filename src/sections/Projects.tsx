@@ -604,13 +604,13 @@ export default function Projects() {
             this page loads.
           </p>
 
-          <div className="glass rounded-2xl p-6">
+          <div className="glass rounded-2xl p-6 w-fit max-w-full mx-auto">
             <div className="flex items-center gap-2 mb-5 text-xs font-orbitron text-slate-400">
               <Github className="w-3.5 h-3.5" />
               <span>@Brxerq</span>
             </div>
             <div className="overflow-x-auto">
-              <div className="min-w-[740px]">
+              <div className="w-[740px]">
                 <ContributionGraph username="Brxerq" />
               </div>
             </div>

@@ -45,25 +45,37 @@ export function ContributionGraph({ username }: { username: string }) {
   const offset = new Date(days[0].date).getUTCDay();
   const cells: (Day | null)[] = [...Array(offset).fill(null), ...days];
 
-  // One label per column where a new month begins.
-  const labels: { column: number; text: string }[] = [];
-  for (let column = 0; column * 7 < cells.length; column += 1) {
-    const day = cells[column * 7 + 6] ?? cells[column * 7];
-    if (!day) continue;
+  const columnCount = Math.ceil(cells.length / 7);
+
+  // Label the first column that *starts* in a new month.
+  const marks: { column: number; text: string }[] = [];
+  for (let column = 0; column < columnCount; column += 1) {
+    const day = cells[column * 7] ?? days[0];
     const month = new Date(day.date).getUTCMonth();
-    if (labels.length === 0 || labels[labels.length - 1].text !== MONTHS[month]) {
-      labels.push({ column, text: MONTHS[month] });
+    if (marks.length === 0 || marks[marks.length - 1].text !== MONTHS[month]) {
+      marks.push({ column, text: MONTHS[month] });
     }
   }
+  // Drop a stub month too narrow to label without colliding with the next one.
+  const labels = marks.filter((mark, index) => {
+    const next = marks[index + 1];
+    return !next || next.column - mark.column >= 3;
+  });
 
   return (
     <div>
-      <div className="grid mb-2" style={{ ...gridStyle, gridTemplateRows: 'auto', gridAutoFlow: 'row' }}>
+      <div
+        className="grid mb-2"
+        style={{
+          gridTemplateColumns: `repeat(${columnCount}, ${CELL}px)`,
+          columnGap: `${GAP}px`,
+        }}
+      >
         {labels.map((label) => (
           <span
             key={`${label.text}-${label.column}`}
             className="text-[10px] font-orbitron text-slate-500 whitespace-nowrap"
-            style={{ gridRow: 1, gridColumn: label.column + 1 }}
+            style={{ gridRow: 1, gridColumn: `${label.column + 1} / span 4` }}
           >
             {label.text}
           </span>
