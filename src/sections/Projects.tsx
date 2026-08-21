@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { SketchButton, SectionHeading, SketchCard, SketchTag } from '@/components/ui/sketch';
+import { asset } from '@/lib/utils';
 import { ContributionGraph } from '@/components/ContributionGraph';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -279,7 +280,7 @@ export default function Projects() {
               >
                 <div className="h-36 overflow-hidden border-b-2 border-dashed border-ink bg-paper-aged">
                   <img
-                    src={site.image}
+                    src={asset(site.image)}
                     alt={`${site.name} website`}
                     loading="lazy"
                     className="h-full w-full object-cover object-top"
@@ -290,7 +291,7 @@ export default function Projects() {
                   <div className="mb-2 flex items-center gap-2">
                     <span className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-wobblySm border-2 border-ink bg-white">
                       <img
-                        src={site.favicon}
+                        src={asset(site.favicon)}
                         alt=""
                         loading="lazy"
                         className="h-4 w-4 object-contain"
@@ -346,7 +347,7 @@ export default function Projects() {
                   >
                     {project.image ? (
                       <img
-                        src={project.image}
+                        src={asset(project.image)}
                         alt={project.title}
                         loading="lazy"
                         className="h-full w-full object-cover object-top transition-transform duration-200 group-hover:scale-[1.04]"

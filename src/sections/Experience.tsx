@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SectionHeading, SketchCard, SketchTag, Squiggle } from '@/components/ui/sketch';
+import { asset } from '@/lib/utils';
 import { Calendar, MapPin, ChevronRight, ExternalLink, Check } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -265,7 +266,7 @@ export default function Experience() {
                           <span className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-wobblySm border-2 border-ink bg-paper">
                             {exp.logo ? (
                               <img
-                                src={exp.logo}
+                                src={asset(exp.logo)}
                                 alt=""
                                 className="h-7 w-7 object-contain"
                                 loading="lazy"

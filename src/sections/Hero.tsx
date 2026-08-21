@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { SketchButton, SketchArrow } from '@/components/ui/sketch';
+import { asset } from '@/lib/utils';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowDown, GraduationCap, Cpu, Clock, Sparkles } from 'lucide-react';
@@ -123,7 +124,7 @@ export default function Hero() {
             <div ref={avatarRef} className="relative">
               <div className="tape relative -rotate-3 transition-transform duration-100 hover:rotate-1">
                 <img
-                  src="/avatar.png"
+                  src={asset('/avatar.png')}
                   alt="Syed Muhammad Hassaan"
                   className="h-72 w-72 object-contain sm:h-80 sm:w-80"
                 />
