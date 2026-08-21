@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="672" height="481" viewBox="0 0 672 481"
+     role="img" aria-labelledby="title desc">
+  <title id="title">Stylized R logo</title>
+  <desc id="desc">A white stylized R with an orange angular accent.</desc>
+
+  <path fill="#ffffff" d="
+    M 63 32
+    L 470 32
+    C 541 32 595 83 595 158
+    C 595 229 546 275 464 282
+    L 648 480
+    L 526 480
+    C 506 480 488 472 476 457
+    L 331 307
+    L 337 301
+    L 465 192
+    C 475 183 476 171 472 162
+    C 469 151 461 145 452 145
+    L 182 145
+    Z"/>
+
+  <path fill="#ff7a24" d="
+    M 43 478
+    L 226 200
+    L 377 200
+    Z"/>
+</svg>

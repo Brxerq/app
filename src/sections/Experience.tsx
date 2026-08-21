@@ -1,67 +1,156 @@
 ﻿import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Briefcase, Calendar, MapPin, ChevronRight, Code2, Brain, TrendingUp } from 'lucide-react';
+import { Briefcase, Calendar, MapPin, ChevronRight, Code2, Brain, TrendingUp, ExternalLink } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const experiences = [
   {
     id: 1,
-    company: 'Aerlou',
-    role: 'Frontend & AI Engineer',
+    company: 'Global Health',
+    website: 'https://www.myglobalhealth.online',
+    logo: '/logos/myglobalhealth-online.png',
+    role: 'Lead Software Engineer',
     period: 'Dec 2025 - Present',
-    location: 'Dubai (Remote)',
-    level: 35,
+    location: 'County Dublin, Ireland (Remote)',
+    level: 40,
     description:
-      'Building AI-powered SaaS for automated customer communication across dealerships, healthcare, and real estate.',
+      'Leading a production healthcare platform connecting patients with licensed clinicians across 6 markets, owning architecture, security, automation, and deployment.',
     achievements: [
-      'Developing frontend dashboards and AI workflows for call handling and smart routing',
-      'Contributing to CRM integrations and appointment automation pipelines',
-      'Enhancing scalable LLM-based communication architecture',
+      'Rebuilt the platform for 60+ clinicians, 210 services, 1,200+ patients, and 1,400+ appointments',
+      'Shipped multilingual, multi-country journeys across Ireland, Portugal, Spain, Czechia, Romania, and Brazil',
+      'Cut the same-day GP booking journey from 5 steps to 3, end to end',
+      'Automated bookings, clinician assignment, and documents so 86.5% of bookings need no admin touch',
+      'Ran 4,500+ automation executions in 90 days at a 0.4% failure rate across WhatsApp, email, and portal',
+      'Implemented PHI controls, encryption, consent, and role-based access under GDPR and LGPD',
+      'Reached 96-98 desktop Lighthouse performance across the platform',
     ],
-    tech: ['React', 'TypeScript', 'LLMs', 'CRM Integrations', 'Automation'],
+    tech: ['TypeScript', 'PostgreSQL', 'Payments', 'Automation', 'PHI Security', 'GDPR/LGPD'],
     color: '#22c55e',
-    icon: Brain,
-    logo: '/aerlou.png',
+    icon: Code2,
   },
   {
     id: 2,
-    company: 'Nashaa | نشء',
-    role: 'Full-Stack Developer',
-    period: 'Oct 2025 - Present',
-    location: 'Saudi Arabia (Remote)',
-    level: 32,
+    company: 'Upwork',
+    website: 'https://www.upwork.com',
+    logo: '/logos/upwork-com.png',
+    role: 'Freelance AI/ML Engineer & Web Developer',
+    period: 'Jul 2024 - Present',
+    location: 'Remote',
+    level: 36,
     description:
-      'Shipped production features with React + TypeScript (RTK Query) and Django/DRF in a bilingual EN/AR platform.',
+      'Delivering AI products, full-stack apps, automation systems, and SEO-focused websites for clients from discovery to deployment.',
     achievements: [
-      'Implemented full RTL/LTR experience with strong UX compliance',
-      'Delivered scheduling and publishing workflows connected to backend services',
-      'Built subscription, enrollment, and checkout flows aligned with billing/session rules',
-      'Shipped reliably through Docker + PostgreSQL CI deployments',
+      'Built a ChatGPT-style internal assistant with OCR extraction, RAG, async processing, and Docker deploys',
+      'Developed AI voice/calling agents covering prompt design, model integration, APIs, and latency tuning',
+      'Shipped backend services, APIs, database integrations, and background-processing workflows',
+      'Improved client sites through technical SEO: structure, crawlability, indexing, metadata, and performance',
+    ],
+    tech: ['Python', 'LLMs', 'RAG', 'Docker', 'RabbitMQ', 'Technical SEO'],
+    color: '#06b6d4',
+    icon: Brain,
+  },
+  {
+    id: 3,
+    company: 'Endifaa | اندفاع',
+    website: 'https://endifaa.com',
+    logo: '/logos/endifaa-com.png',
+    role: 'Full-Stack Developer',
+    period: 'Oct 2025 - Jun 2026',
+    location: 'Saudi Arabia (Remote)',
+    level: 34,
+    description:
+      'Built and maintained the Endifaa sports academy platform with React, TypeScript, RTK Query, Django REST Framework, and PostgreSQL.',
+    achievements: [
+      'Developed multi-portal architecture for User, Academy, and Admin with role-based access control',
+      'Integrated billing: subscriptions, invoices, cart, checkout, and payment logic',
+      'Delivered bilingual EN/AR with RTL/LTR support, responsive layouts, and accessible UI',
+      'Supported production readiness with Docker, secure API config, and PostgreSQL',
     ],
     tech: ['React', 'TypeScript', 'RTK Query', 'Django/DRF', 'PostgreSQL', 'Docker'],
     color: '#06b6d4',
     icon: Code2,
-    logo: '/nashaa.png',
+  },
+
+  {
+    id: 4,
+    company: 'Jordy',
+    website: 'https://hirejordy.com',
+    logo: '/logos/hirejordy-com.png',
+    role: 'Co-Founder',
+    period: 'Mar 2026 - Present',
+    location: 'Dubai, UAE (Hybrid)',
+    level: 32,
+    description:
+      'Co-building Jordy, an AI outbound sales platform that finds prospects, researches them, and runs personalized campaigns that convert.',
+    achievements: [
+      'Built prospect discovery on LinkedIn search signals, ICP filters, and company-level research',
+      'Shipped AI campaign generation for research, message personalization, and outreach sequencing',
+      'Developed full-stack modules across frontend, APIs, campaign management, and analytics dashboards',
+      'Drove product architecture, workflow automation, API integrations, and deployment-ready features',
+    ],
+    tech: ['React', 'TypeScript', 'LLMs', 'APIs', 'Automation', 'Analytics'],
+    color: '#a855f7',
+    icon: Brain,
   },
   {
-    id: 3,
-    company: 'Quest Marketing SDN BHD',
-    role: 'Software Developer, Machine Learning Engineer',
-    period: 'Feb 2024 - Dec 2024',
-    location: 'Kuching, Malaysia',
+    id: 5,
+    company: 'Aertonic',
+    website: 'https://aertonic.com',
+    logo: '/logos/aertonic-com.svg',
+    role: 'Founding Engineer',
+    period: 'Nov 2025 - Present',
+    location: 'Dubai, UAE (Remote)',
+    level: 30,
+    description:
+      'Founding engineer on Aertonic, the intelligence layer for construction operations.',
+    achievements: [
+      'Building core product engineering from the ground up',
+      'Shaping architecture and technical direction as an early team member',
+    ],
+    tech: ['TypeScript', 'AI', 'Product Engineering'],
+    color: '#f97316',
+    icon: TrendingUp,
+  },
+  {
+    id: 6,
+    company: 'Stackloom Technologies',
+    website: '',
+    logo: '',
+    role: 'AI & Prompt Engineer',
+    period: 'Jan 2025 - Sep 2025',
+    location: 'Riyadh, Saudi Arabia (Remote)',
+    level: 28,
+    description:
+      'Built conversational AI agents and prompt systems for voice and text booking assistants across 10+ clients weekly.',
+    achievements: [
+      'Delivered 30+ prompt sets, cutting average turnaround time by 40%',
+      'Built backend and conversational workflows for booking agents at 95% booking accuracy',
+      'Integrated MySQL, FastAPI, and messaging flows covering reschedules, cancellations, and failures',
+    ],
+    tech: ['FastAPI', 'MySQL', 'LLMs', 'Prompt Engineering', 'Voice AI'],
+    color: '#a855f7',
+    icon: Brain,
+  },
+  {
+    id: 7,
+    company: 'Quest Marketing Kuching',
+    website: '',
+    logo: '',
+    role: 'Lead AI & Software Engineer',
+    period: 'Mar 2024 - Dec 2024',
+    location: 'Kuching, Malaysia (On-site)',
     level: 26,
     description:
-      'Developed cloud CRM for 50+ users and integrated AI assistant + NLP chatbot to improve operational speed and adoption.',
+      'Built and shipped a CRM mobile app with an AI sales assistant, published on Google Play and used by 50+ users.',
     achievements: [
-      'Automated sales pipelines and reduced manual tasks by 30%',
-      'Built real-time analytics dashboards with live KPI and forecasting views',
-      'Integrated OpenAI/LLM assistant to reduce support response time by 40%',
-      'Partnered with product and sales teams, improving user adoption by 25%',
+      'Developed the CRM app with Flutter, Python, PHP, and MySQL, live on Google Play Store',
+      'Built AI sales assistant and NLP chatbot features on OpenAI APIs, cutting manual work by 40%',
+      'Created sales analytics dashboards and automated reporting for KPI monitoring and forecasting',
     ],
     tech: ['Flutter', 'Python', 'PHP', 'MySQL', 'OpenAI API', 'LLMs'],
-    color: '#a855f7',
+    color: '#f97316',
     icon: Brain,
   },
 ];
@@ -71,8 +160,8 @@ const education = [
     id: 4,
     company: 'Swinburne University of Technology',
     role: 'Bachelor of Computer Science (Dual Major: Data Science & AI)',
-    period: 'Aug 2021 - Jan 2025',
-    location: 'Australia',
+    period: 'Sep 2021 - Dec 2024',
+    location: 'Sarawak, Malaysia',
     level: 20,
     description:
       'Relevant coursework includes Advanced Data Analytics, Applied Machine Learning, NLP, Big Data Architecture, and Statistics.',
@@ -255,13 +344,18 @@ export default function Experience() {
                       <div className={`flex items-center gap-4 mb-4 ${isLeft ? 'lg:justify-end' : ''}`}>
                         <div
                           className="w-14 h-14 rounded-xl flex items-center justify-center overflow-hidden"
-                          style={{ background: `linear-gradient(135deg, ${exp.color}40, ${exp.color}20)` }}
+                          style={
+                            exp.logo
+                              ? { background: 'rgba(255,255,255,0.92)' }
+                              : { background: `linear-gradient(135deg, ${exp.color}40, ${exp.color}20)` }
+                          }
                         >
-                          {'logo' in exp && exp.logo ? (
+                          {exp.logo ? (
                             <img
                               src={exp.logo}
                               alt={`${exp.company} logo`}
-                              className="w-10 h-10 object-contain"
+                              className="w-9 h-9 object-contain"
+                              loading="lazy"
                             />
                           ) : (
                             <Icon className="w-7 h-7" style={{ color: exp.color }} />
@@ -276,7 +370,21 @@ export default function Experience() {
                       </div>
 
                       <h3 className="font-orbitron font-bold text-2xl text-white mb-2">
-                        {exp.company}
+                        {exp.website ? (
+                          <a
+                            href={exp.website}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className={`inline-flex items-center gap-2 hover:text-cyan-400 transition-colors ${isLeft ? 'lg:flex-row-reverse' : ''
+                              }`}
+                          >
+                            {exp.company}
+                            <ExternalLink className="w-4 h-4 opacity-60" />
+                          </a>
+                        ) : (
+                          exp.company
+                        )}
                       </h3>
                       <p className="text-cyan-400 font-rajdhani text-lg mb-4">
                         {exp.role}
@@ -402,9 +510,9 @@ export default function Experience() {
         <div className="mt-24 grid grid-cols-2 sm:grid-cols-4 gap-6 max-w-4xl mx-auto">
           {[
             { label: 'Years Active', value: '2+', color: '#a855f7' },
-            { label: 'Companies', value: '3', color: '#06b6d4' },
-            { label: 'Production Roles', value: '3', color: '#f97316' },
-            { label: 'Level Reached', value: '35', color: '#22c55e' },
+            { label: 'Companies', value: '7', color: '#06b6d4' },
+            { label: 'Production Roles', value: '5', color: '#f97316' },
+            { label: 'Level Reached', value: '40', color: '#22c55e' },
           ].map((stat, i) => (
             <div
               key={i}
