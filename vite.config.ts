@@ -12,7 +12,6 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          three: ['three', '@react-three/fiber'],
           gsap: ['gsap', 'gsap/ScrollTrigger'],
           icons: ['lucide-react'],
         },
