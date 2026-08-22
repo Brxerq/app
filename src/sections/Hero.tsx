@@ -19,7 +19,7 @@ const marqueeItems = [
   'FULL-STACK DEV',
   'SHIPS TO PRODUCTION',
   '6 COUNTRIES',
-  'NOT DEMOS — REAL USERS',
+  'REAL USERS, REAL IMPACT',
 ];
 
 export default function Hero() {

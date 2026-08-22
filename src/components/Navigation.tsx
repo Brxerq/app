@@ -5,10 +5,10 @@ import { Menu, X, Zap } from 'lucide-react';
 
 const navItems = [
   { id: 'hero', label: 'home' },
-  { id: 'skills', label: 'arsenal' },
-  { id: 'experience', label: 'record' },
+  { id: 'skills', label: 'skills' },
+  { id: 'experience', label: 'experience' },
   { id: 'projects', label: 'work' },
-  { id: 'contact', label: 'hire me' },
+  { id: 'contact', label: 'contact' },
 ];
 
 export default function Navigation() {

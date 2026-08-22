@@ -113,7 +113,7 @@ export default function Skills() {
   return (
     <section ref={sectionRef} id="skills" className="relative px-4 py-24 sm:px-6">
       <div className="mx-auto max-w-6xl">
-        <SectionHeading kicker="what i work with" title="the" accent="arsenal" accentTone="pink">
+        <SectionHeading kicker="what i work with" title="the" accent="toolbox" accentTone="pink">
           Sketch the flow first, then build it. Python and TypeScript for most of it,
           TensorFlow and PyTorch when it needs to learn something, Docker when it needs
           to run somewhere that isn't my laptop.

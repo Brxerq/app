@@ -285,7 +285,7 @@ export default function Experience() {
   return (
     <section ref={sectionRef} id="experience" className="relative px-4 py-24 sm:px-6">
       <div className="mx-auto max-w-6xl">
-        <SectionHeading kicker="where i've been" title="the" accent="record" accentTone="blue">
+        <SectionHeading kicker="where i've been" title="the" accent="experience" accentTone="blue">
           Seven teams, five production roles, one habit: sketch it, ship it, then
           measure whether it actually helped.
         </SectionHeading>
@@ -357,7 +357,7 @@ export default function Experience() {
                         onClick={() => setExpandedId(isExpanded ? null : exp.id)}
                         className="brut-press flex items-center gap-1 border-[3px] border-void bg-brick-yell px-3 py-1.5 font-display text-xs uppercase shadow-brutSm"
                       >
-                        {isExpanded ? 'hide the receipts' : 'what i did there'}
+                        {isExpanded ? 'hide the details' : 'what i actually did'}
                         <ChevronRight
                           className={`h-3.5 w-3.5 transition-transform duration-100 ${isExpanded ? 'rotate-90' : ''}`}
                           strokeWidth={3.5}
