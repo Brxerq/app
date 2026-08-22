@@ -117,7 +117,7 @@ export default function Contact() {
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <Sticker tone="orange" className="mb-5 -rotate-2">the last page</Sticker>
 
-        <h2 className="contact-title-line text-[clamp(2.8rem,9vw,7rem)] leading-[0.95]">
+        <h2 className="contact-title-line text-[clamp(1.9rem,10.5vw,7rem)] leading-[0.95]">
           LET'S <span className="text-outline">TALK.</span>
         </h2>
 

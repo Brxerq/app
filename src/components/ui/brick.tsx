@@ -134,12 +134,12 @@ export function SectionHeading({
   return (
     <div className={cn('brut-heading mb-12', align === 'center' && 'text-center', className)}>
       <Sticker tone={accentTone} className="mb-4">{kicker}</Sticker>
-      <h2 className="text-4xl sm:text-5xl lg:text-6xl">
+      <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl">
         {title}
         {accent && (
           <>
             {' '}
-            <span className={cn('inline-block -rotate-1 border-[3px] border-void px-3 shadow-brutSm', variantMap[accentTone])}>
+            <span className={cn('inline-block max-w-full -rotate-1 border-[3px] border-void px-2 shadow-brutSm sm:px-3', variantMap[accentTone])}>
               {accent}
             </span>
           </>
