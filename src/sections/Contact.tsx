@@ -13,7 +13,6 @@ import {
   Check,
   MapPin,
   Clock,
-  Phone,
   ArrowUp,
 } from 'lucide-react';
 
@@ -33,8 +32,7 @@ const socialLinks = [
 const facts = [
   { icon: Clock, text: 'I reply within about a day' },
   { icon: MapPin, text: 'Based in Karachi, Pakistan' },
-  { icon: Phone, text: '(+92) 3400804611' },
-  { icon: Mail, text: 'kinghassaan99@gmail.com' },
+  { icon: Mail, text: 'sm.hassaan99@gmail.com' },
 ];
 
 const fieldClasses =
@@ -107,7 +105,7 @@ export default function Contact() {
     ].join('\n');
 
     setIsSubmitted(true);
-    window.location.href = `mailto:kinghassaan99@gmail.com?subject=${encodeURIComponent(
+    window.location.href = `mailto:sm.hassaan99@gmail.com?subject=${encodeURIComponent(
       subject,
     )}&body=${encodeURIComponent(body)}`;
   };
