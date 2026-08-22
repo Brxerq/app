@@ -7,10 +7,10 @@ import { ArrowDown, GraduationCap, Cpu, Clock, Sparkles } from 'lucide-react';
 gsap.registerPlugin(ScrollTrigger);
 
 const notes = [
-  { icon: GraduationCap, label: 'studied', value: 'BSc Computer Science', tilt: '-rotate-2', tone: 'bg-white' },
-  { icon: Cpu, label: 'i build', value: 'AI + data products', tilt: 'rotate-1', tone: 'bg-postit' },
-  { icon: Clock, label: 'been at it', value: '2+ years', tilt: '-rotate-1', tone: 'bg-white' },
-  { icon: Sparkles, label: 'best win', value: '40% faster support', tilt: 'rotate-2', tone: 'bg-postit' },
+  { icon: GraduationCap, label: 'studied', value: 'BSc CS — Data Science & AI', tilt: '-rotate-2', tone: 'bg-white' },
+  { icon: Cpu, label: 'i build', value: 'AI + full-stack products', tilt: 'rotate-1', tone: 'bg-postit' },
+  { icon: Clock, label: 'proof of work', value: '4,500+ live automations', tilt: '-rotate-1', tone: 'bg-white' },
+  { icon: Sparkles, label: 'best win', value: '86.5% bookings, zero admin', tilt: 'rotate-2', tone: 'bg-postit' },
 ];
 
 export default function Hero() {
@@ -79,14 +79,14 @@ export default function Hero() {
             </h1>
 
             <p className="hero-line mt-5 font-hand text-xl md:text-2xl">
-              <span className="marker-highlight">AI engineer</span> &amp; full-stack developer
+              <span className="marker-highlight">AI engineer</span> who ships to production, not demos
             </p>
 
             <p className="hero-line mt-4 max-w-lg font-hand text-lg leading-relaxed text-ink-soft md:text-xl">
-              I ship whole systems, not slices: CRM automation, NLP copilots, and
-              computer-vision workflows that survive real users. Currently deep in
-              data science and AI, still drawing boxes and arrows before I write a
-              line of code.
+              Healthcare platform across 6 countries. Voice agents booking at 95%
+              accuracy. A CRM that cut support load 40%. I sketch the system,
+              ship it, then measure whether it actually worked — currently deep
+              in data science and AI.
             </p>
 
             {/* Sticky notes */}
