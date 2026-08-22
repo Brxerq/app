@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SectionHeading, SketchCard, SketchTag, Squiggle } from '@/components/ui/sketch';
-import { asset, prefersReducedMotion } from '@/lib/utils';
+import { asset } from '@/lib/utils';
+import { revealHeadings, drawOnScrub, inkDots, slideIn, placeIn, drawIn } from '@/lib/motion';
 import { Calendar, MapPin, ChevronRight, ExternalLink, Check } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -197,38 +198,29 @@ export default function Experience() {
   const [expandedId, setExpandedId] = useState<number | null>(1);
 
   useEffect(() => {
-    if (prefersReducedMotion()) return;
-
     const ctx = gsap.context(() => {
-      gsap.fromTo(
-        '.exp-card',
-        { x: -24, opacity: 0 },
-        {
-          x: 0,
-          opacity: 1,
-          duration: 0.5,
-          stagger: 0.1,
-          ease: 'power2.out',
-          scrollTrigger: { trigger: timelineRef.current, start: 'top 80%', once: true },
-        },
-      );
+      revealHeadings(sectionRef.current!);
 
-      gsap.fromTo(
-        '.archive-card',
-        { y: 24, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.45,
-          stagger: 0.08,
-          ease: 'power2.out',
-          scrollTrigger: { trigger: '.archive-grid', start: 'top 85%', once: true },
-        },
-      );
+      // The pencil line keeps pace with the reader instead of drawing itself
+      // all at once — this is the section's one real motion moment.
+      drawOnScrub('.timeline-spine path', timelineRef.current!);
+      inkDots('.timeline-dot', timelineRef.current!);
+
+      slideIn('.exp-card', timelineRef.current!, 0.1);
+      placeIn('.archive-card', '.archive-grid', { stagger: 0.08 });
+      drawIn('.exp-draw', '.exp-rule');
+      placeIn('.exp-stat', '.exp-stats', { stagger: 0.09, from: 'center' });
     }, sectionRef);
 
     return () => ctx.revert();
   }, []);
+
+  // Expanding a role changes the page height by hundreds of pixels, which moves
+  // every trigger below it. Re-measure once the new height is painted.
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => ScrollTrigger.refresh());
+    return () => cancelAnimationFrame(raf);
+  }, [expandedId]);
 
   return (
     <section ref={sectionRef} id="experience" className="relative px-6 py-20">
@@ -238,9 +230,30 @@ export default function Experience() {
           measure whether it actually helped.
         </SectionHeading>
 
-        {/* Timeline — a pencil line drawn down the margin */}
+        {/* Timeline — a pencil line drawn down the margin. An SVG rather than
+            a border so it can actually be drawn, and so it wanders the way a
+            hand-ruled margin line does. */}
         <div ref={timelineRef} className="relative pl-8 sm:pl-12">
-          <div className="absolute bottom-4 left-[9px] top-4 w-0 border-l-[3px] border-dashed border-ink/40 sm:left-[17px]" />
+          <svg
+            aria-hidden
+            preserveAspectRatio="none"
+            viewBox="0 0 8 1000"
+            // Explicit height, not top+bottom: an SVG falls back to its
+            // viewBox aspect ratio and would render 1000px tall regardless.
+            // left-[6px] centres the 8-wide box on the dots, which sit at the
+            // container's padding-box edge at every breakpoint.
+            className="timeline-spine absolute left-[6px] top-4 h-[calc(100%-2rem)] w-2 overflow-visible"
+          >
+            <path
+              d="M4 0 C 1 120, 7 240, 4 360 C 1 480, 7 600, 4 720 C 1 840, 6 930, 4 1000"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeLinecap="round"
+              className="text-ink/45"
+              vectorEffect="non-scaling-stroke"
+            />
+          </svg>
 
           <div className="space-y-8">
             {experiences.map((exp, index) => {
@@ -250,7 +263,7 @@ export default function Experience() {
                 <div key={exp.id} className="exp-card relative">
                   {/* Hand-drawn dot on the line */}
                   <span
-                    className="absolute -left-8 top-7 h-5 w-5 rounded-blob border-[3px] border-ink bg-marker sm:-left-12"
+                    className="timeline-dot absolute -left-8 top-7 h-5 w-5 rounded-blob border-[3px] border-ink bg-marker sm:-left-12"
                     aria-hidden
                   />
 
@@ -422,10 +435,10 @@ export default function Experience() {
           </div>
         </div>
 
-        <Squiggle className="mx-auto mt-16 max-w-sm text-ink/40" />
+        <Squiggle className="exp-rule mx-auto mt-16 max-w-sm text-ink/40" drawClassName="exp-draw" />
 
         {/* Counted on fingers */}
-        <div className="mt-10 grid grid-cols-2 gap-6 sm:grid-cols-4">
+        <div className="exp-stats mt-10 grid grid-cols-2 gap-6 sm:grid-cols-4">
           {[
             { label: 'years active', value: '2+' },
             { label: 'teams', value: '7' },
@@ -434,7 +447,7 @@ export default function Experience() {
           ].map((stat, i) => (
             <div
               key={stat.label}
-              className="jiggle flex flex-col items-center justify-center rounded-blob border-[3px] border-ink bg-white p-5 text-center shadow-sketch"
+              className="exp-stat jiggle flex flex-col items-center justify-center rounded-blob border-[3px] border-ink bg-white p-5 text-center shadow-sketch"
               style={{ transform: `rotate(${TILTS[i % TILTS.length]})` }}
             >
               <span className="font-kalam text-3xl">{stat.value}</span>

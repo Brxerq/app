@@ -181,24 +181,54 @@ export function SectionHeading({
   align?: 'left' | 'center';
 }) {
   return (
-    <div className={cn('mb-12', align === 'center' && 'text-center', className)}>
+    <div
+      data-section-heading
+      className={cn('mb-14', align === 'center' && 'text-center', className)}
+    >
       <span
+        data-heading-label
         className="mb-4 inline-block -rotate-2 rounded-wobblySm border-2 border-ink bg-postit px-3 py-1 font-hand text-sm shadow-sketchSm"
       >
         {label}
       </span>
 
-      <h2 className="font-kalam text-4xl leading-tight md:text-5xl">
-        {title}{' '}
+      {/* Bigger than it was: a section title should own its opening, not sit at
+          the same weight as the card headings under it. */}
+      <h2 className="font-kalam text-[2.75rem] leading-[1.08] md:text-6xl">
+        <span data-heading-ink className="inline-block">
+          {title}
+        </span>{' '}
         {accent && (
-          <span className="squiggle-underline text-marker">{accent}</span>
+          <span className="relative inline-block">
+            <span data-heading-ink className="inline-block text-marker">
+              {accent}
+            </span>
+            {/* Drawn on scroll rather than painted as a background image, so
+                the underline arrives as a stroke instead of a rectangle. */}
+            <svg
+              viewBox="0 0 200 14"
+              preserveAspectRatio="none"
+              aria-hidden
+              className="absolute -bottom-1 left-0 h-3 w-full overflow-visible"
+            >
+              <path
+                data-heading-rule
+                d="M3 9 Q 26 2 52 8 T 104 7 T 150 9 T 197 5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="3"
+                strokeLinecap="round"
+                className="text-marker"
+              />
+            </svg>
+          </span>
         )}
       </h2>
 
       {children && (
         <div
           className={cn(
-            'mt-4 max-w-2xl text-lg text-ink-soft md:text-xl',
+            'mt-5 max-w-[62ch] font-hand text-lg leading-relaxed text-ink-soft md:text-xl',
             align === 'center' && 'mx-auto',
           )}
         >
@@ -213,8 +243,19 @@ export function SectionHeading({
 /* Doodles                                                             */
 /* ------------------------------------------------------------------ */
 
-/** Wobbly hand-drawn horizontal rule. */
-export function Squiggle({ className }: { className?: string }) {
+/**
+ * Wobbly hand-drawn horizontal rule.
+ *
+ * `drawClassName` tags the path so a caller can hand it to the motion helpers
+ * and have the rule draw itself rather than simply appear.
+ */
+export function Squiggle({
+  className,
+  drawClassName,
+}: {
+  className?: string;
+  drawClassName?: string;
+}) {
   return (
     <svg
       viewBox="0 0 300 12"
@@ -223,6 +264,7 @@ export function Squiggle({ className }: { className?: string }) {
       className={cn('h-3 w-full text-ink', className)}
     >
       <path
+        className={drawClassName}
         d="M2 8 Q 25 1 50 7 T 100 7 T 150 6 T 200 8 T 250 5 T 298 7"
         fill="none"
         stroke="currentColor"
@@ -234,10 +276,17 @@ export function Squiggle({ className }: { className?: string }) {
 }
 
 /** Curved dashed arrow, used to point at things. */
-export function SketchArrow({ className }: { className?: string }) {
+export function SketchArrow({
+  className,
+  drawClassName,
+}: {
+  className?: string;
+  drawClassName?: string;
+}) {
   return (
     <svg viewBox="0 0 120 80" aria-hidden className={cn('text-ink', className)}>
       <path
+        className={drawClassName}
         d="M6 8 C 40 4, 88 18, 96 58"
         fill="none"
         stroke="currentColor"
@@ -246,6 +295,7 @@ export function SketchArrow({ className }: { className?: string }) {
         strokeDasharray="7 7"
       />
       <path
+        className={drawClassName}
         d="M84 46 L 97 62 L 108 44"
         fill="none"
         stroke="currentColor"

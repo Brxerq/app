@@ -214,12 +214,30 @@
   }
 
   /* ---- Motion --------------------------------------------------------- */
+
+  /* One hover gesture for the whole site: the paper lifts off the desk and its
+     shadow grows to match. 100ms reads as a twitch; 220ms with a soft
+     exponential out reads as something with weight. */
   .jiggle {
-    transition: transform 100ms ease-out, box-shadow 100ms ease-out;
+    transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 220ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .jiggle:hover {
-    transform: rotate(-1.2deg) translate(-1px, -1px);
+    transform: rotate(-1.2deg) translate(-2px, -3px);
+    box-shadow: 7px 8px 0 0 var(--ink);
+  }
+
+  /* Cards that already carry a hard shadow: same idea, shifted for the paper
+     to travel up-left while the shadow lengthens beneath it. */
+  .lift {
+    transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 220ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .lift:hover {
+    transform: translate(-2px, -4px) rotate(0deg);
+    box-shadow: 8px 10px 0 0 var(--ink);
   }
 }
 

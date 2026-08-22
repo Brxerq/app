@@ -1,11 +1,12 @@
 import { useEffect, useRef } from 'react';
 import { SketchButton, SketchArrow } from '@/components/ui/sketch';
 import { asset, prefersReducedMotion } from '@/lib/utils';
+import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowDown, GraduationCap, Cpu, Clock, Sparkles } from 'lucide-react';
 
-gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(ScrollTrigger, DrawSVGPlugin);
 
 const notes = [
   { icon: GraduationCap, label: 'studied', value: 'BSc Computer Science', tilt: '-rotate-2', tone: 'bg-white' },
@@ -18,40 +19,65 @@ export default function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
   const avatarRef = useRef<HTMLDivElement>(null);
 
-  // Single entrance animation — runs once on mount, after the loading screen is gone.
+  // The page's opening statement: the photo gets taped down, the name is
+  // written across, the marks around it are drawn, and the notes land last.
+  // Runs once on mount, after the loading screen is gone.
   useEffect(() => {
     if (prefersReducedMotion()) return;
 
     const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ delay: 0.15 });
+      const tl = gsap.timeline({ defaults: { ease: 'power3.out' }, delay: 0.1 });
 
-      tl.fromTo(
-        avatarRef.current,
-        { y: 30, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.7, ease: 'back.out(1.6)' },
-      );
+      // Heavily overlapped on purpose: the whole thing lands in ~1.2s. An
+      // entrance the reader has to sit through stops being an entrance.
+      tl.from(avatarRef.current, {
+        y: 26,
+        rotation: -6,
+        opacity: 0,
+        duration: 0.5,
+        ease: 'back.out(1.5)',
+      });
 
-      tl.fromTo(
-        '.hero-line',
-        { y: 24, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.5, stagger: 0.07, ease: 'power2.out' },
-        '-=0.45',
-      );
+      tl.from('.hero-tag', { y: 12, scale: 0.9, opacity: 0, duration: 0.28 }, '-=0.34');
 
-      tl.fromTo(
-        '.hero-note',
-        { y: 16, opacity: 0 },
+      // Written, not faded: ink laid across the name from left to right.
+      tl.from(
+        '.hero-write',
         {
-          y: 0,
-          opacity: 1,
-          duration: 0.4,
-          stagger: 0.06,
-          ease: 'back.out(2)',
-          // Hand back to the CSS tilt/hover classes once the entrance is done.
-          clearProps: 'transform',
+          clipPath: 'inset(0 100% -0.35em 0)',
+          duration: 0.5,
+          stagger: 0.1,
+          ease: 'power2.inOut',
+          clearProps: 'clipPath',
         },
-        '-=0.25',
+        '-=0.16',
       );
+
+      tl.from('.hero-line', { y: 18, opacity: 0, duration: 0.36, stagger: 0.055 }, '-=0.4');
+
+      tl.fromTo(
+        '.hero-draw',
+        { drawSVG: '0%' },
+        { drawSVG: '100%', duration: 0.45, stagger: 0.07, ease: 'power1.inOut' },
+        '-=0.3',
+      );
+
+      tl.from(
+        '.hero-note',
+        {
+          y: -14,
+          scale: 0.95,
+          opacity: 0,
+          duration: 0.34,
+          stagger: 0.05,
+          ease: 'back.out(1.8)',
+          // Hand back to the CSS tilt/hover classes once the entrance is done.
+          clearProps: 'transform,opacity',
+        },
+        '-=0.42',
+      );
+
+      tl.from('.hero-badge', { scale: 0, duration: 0.38, ease: 'back.out(2.2)' }, '-=0.3');
     }, sectionRef);
 
     return () => ctx.revert();
@@ -67,18 +93,37 @@ export default function Hero() {
         <div className="grid items-center gap-12 md:grid-cols-2">
           {/* Words */}
           <div className="order-2 md:order-1">
-            <span className="hero-line mb-5 inline-block -rotate-2 rounded-wobblySm border-2 border-ink bg-postit px-3 py-1 font-hand text-base shadow-sketchSm">
+            <span className="hero-tag mb-5 inline-block -rotate-2 rounded-wobblySm border-2 border-ink bg-postit px-3 py-1 font-hand text-base shadow-sketchSm">
               hi there, i&apos;m —
             </span>
 
-            <h1 className="hero-line font-kalam text-5xl leading-[1.05] md:text-6xl">
-              Syed Muhammad
+            {/* Bigger and tighter than it was. This is the one line on the page
+                that should be unmissable. */}
+            <h1 className="font-kalam text-[3.25rem] leading-[0.98] tracking-[-0.01em] sm:text-6xl md:text-7xl">
+              <span className="hero-write inline-block">Syed Muhammad</span>
               <br />
-              <span className="text-marker">Hassaan</span>
-              <span className="ml-1 inline-block rotate-12 text-pen">!</span>
+              <span className="relative inline-block">
+                <span className="hero-write inline-block text-marker">Hassaan</span>
+                <svg
+                  viewBox="0 0 220 16"
+                  preserveAspectRatio="none"
+                  aria-hidden
+                  className="absolute -bottom-2 left-0 h-4 w-full overflow-visible text-marker"
+                >
+                  <path
+                    className="hero-draw"
+                    d="M4 10 Q 30 3 58 9 T 114 8 T 166 10 T 216 6"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </span>
+              <span className="hero-line ml-2 inline-block rotate-12 text-pen">!</span>
             </h1>
 
-            <p className="hero-line mt-5 font-hand text-xl md:text-2xl">
+            <p className="hero-line mt-7 font-hand text-xl md:text-2xl">
               <span className="marker-highlight">AI engineer</span> &amp; full-stack developer
             </p>
 
@@ -96,7 +141,7 @@ export default function Hero() {
                 return (
                   <div
                     key={note.label}
-                    className={`hero-note rounded-wobblySm border-2 border-ink p-3 shadow-sketch transition-transform duration-100 hover:rotate-0 ${note.tilt} ${note.tone}`}
+                    className={`hero-note lift rounded-wobblySm border-2 border-ink p-3 shadow-sketch ${note.tilt} ${note.tone}`}
                   >
                     <Icon className="mb-1 h-5 w-5 text-marker-deep" strokeWidth={2.5} />
                     <div className="font-hand text-sm text-ink-faint">{note.label}</div>
@@ -108,7 +153,7 @@ export default function Hero() {
 
             {/* Buttons + a scribbled arrow pointing at the main one */}
             <div className="hero-line relative mt-10 flex flex-wrap items-center gap-4">
-              <SketchArrow className="absolute -left-24 -top-6 hidden h-16 w-24 -scale-x-100 md:block" />
+              <SketchArrow className="absolute -left-24 -top-6 hidden h-16 w-24 -scale-x-100 md:block" drawClassName="hero-draw" />
               <SketchButton href="#projects" variant="primary">
                 see my work
               </SketchButton>
@@ -138,13 +183,13 @@ export default function Hero() {
               {/* Doodled blob that keeps bouncing. Availability and location
                   are the two facts a recruiter scans for, so they stay on
                   screen at every width — just tucked in closer on phones. */}
-              <div className="absolute -right-2 -top-4 flex h-16 w-16 animate-doodle-bounce items-center justify-center rounded-blob border-[3px] border-ink bg-postit text-center font-kalam text-sm shadow-sketch sm:-right-6 sm:-top-6">
+              <div className="hero-badge absolute -right-2 -top-4 flex h-16 w-16 animate-doodle-bounce items-center justify-center rounded-blob border-[3px] border-ink bg-postit text-center font-kalam text-sm shadow-sketch sm:-right-6 sm:-top-6">
                 open to
                 <br />
                 work
               </div>
 
-              <div className="absolute -bottom-3 -left-2 rotate-6 rounded-wobblySm border-2 border-ink bg-white px-3 py-1 font-hand text-base shadow-sketchSm sm:-bottom-4 sm:-left-6">
+              <div className="hero-badge absolute -bottom-3 -left-2 rotate-6 rounded-wobblySm border-2 border-ink bg-white px-3 py-1 font-hand text-base shadow-sketchSm sm:-bottom-4 sm:-left-6">
                 Karachi, PK
               </div>
             </div>

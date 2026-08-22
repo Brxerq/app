@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SectionHeading, SketchCard, SketchTag, Squiggle } from '@/components/ui/sketch';
-import { prefersReducedMotion } from '@/lib/utils';
+import { revealHeadings, placeIn, slideIn, drawIn } from '@/lib/motion';
 import {
   ArrowRight,
   Code2,
@@ -68,37 +68,14 @@ export default function Skills() {
       : skills.filter((s) => s.category === activeCategory).length;
 
   useEffect(() => {
-    if (prefersReducedMotion()) return;
-
     const ctx = gsap.context(() => {
-      gsap.fromTo(
-        '.skills-intro',
-        { y: 30, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.6,
-          stagger: 0.12,
-          ease: 'power2.out',
-          clearProps: 'transform',
-          scrollTrigger: { trigger: sectionRef.current, start: 'top 80%', once: true },
-        },
-      );
-
-      gsap.fromTo(
-        '.skill-chip',
-        { y: 18, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.4,
-          stagger: 0.04,
-          ease: 'back.out(1.8)',
-          immediateRender: false,
-          clearProps: 'transform',
-          scrollTrigger: { trigger: cloudRef.current, start: 'top 85%', once: true },
-        },
-      );
+      revealHeadings(sectionRef.current!);
+      drawIn('.skills-draw', sectionRef.current!, 0.2);
+      slideIn('.skills-intro', sectionRef.current!, 0.12);
+      // Chips land like a handful of cards tossed onto the desk, from the
+      // middle out, so it reads as scattering rather than a list filling in.
+      placeIn('.skill-chip', cloudRef.current!, { stagger: 0.035, from: 'center' });
+      placeIn('.pairing', '.pairings', { stagger: 0.06 });
     }, sectionRef);
 
     return () => ctx.revert();
@@ -114,7 +91,7 @@ export default function Skills() {
           <div className="md:col-span-2">
             <SketchCard tone="white" decoration="tape" className="skills-intro -rotate-1 p-6" solid>
               <h3 className="font-kalam text-2xl">how i work</h3>
-              <Squiggle className="my-3 text-marker" />
+              <Squiggle className="skills-rule my-3 text-marker" drawClassName="skills-draw" />
               <p className="font-hand text-lg leading-relaxed text-ink-soft">
                 Sketch the flow first, then build it. Python and TypeScript for most of
                 it, TensorFlow and PyTorch when it needs to learn something, Docker when
@@ -187,7 +164,7 @@ export default function Skills() {
                   // readable contrast.
                   <div
                     key={skill.name}
-                    className={`skill-chip flex flex-col items-center justify-center gap-2 rounded-wobblyMd border-2 px-3 py-5 text-center transition-all duration-200 hover:rotate-0 ${TILTS[index % TILTS.length]} ${dimmed
+                    className={`skill-chip flex flex-col items-center justify-center gap-2 rounded-wobblyMd border-2 px-3 py-5 text-center lift transition-all duration-200 ${TILTS[index % TILTS.length]} ${dimmed
                       ? 'border-ink/30 bg-paper text-ink-soft shadow-none'
                       : picked
                         ? 'border-ink bg-white shadow-sketch'
@@ -210,13 +187,13 @@ export default function Skills() {
             </div>
 
             {/* Pairings — scribbled connections */}
-            <SketchCard tone="paper" className="mt-8 rotate-[0.6deg] p-5">
+            <SketchCard tone="paper" className="pairings mt-8 rotate-[0.6deg] p-5">
               <h4 className="mb-3 font-kalam text-xl">things that pair well</h4>
               <div className="flex flex-wrap gap-2">
                 {pairings.map((pair) => (
                   <span
                     key={pair.from + pair.to}
-                    className="inline-flex items-center gap-2 rounded-wobblySm border-2 border-dashed border-ink px-3 py-1.5 font-hand text-base"
+                    className="pairing inline-flex items-center gap-2 rounded-wobblySm border-2 border-dashed border-ink px-3 py-1.5 font-hand text-base"
                   >
                     {pair.from}
                     <ArrowRight className="h-4 w-4 shrink-0 text-marker-deep" strokeWidth={2.5} aria-hidden />

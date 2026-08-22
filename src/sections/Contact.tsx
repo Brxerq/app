@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { SketchButton, SectionHeading, SketchCard, Squiggle } from '@/components/ui/sketch';
-import { prefersReducedMotion } from '@/lib/utils';
+import { revealHeadings, placeIn, slideIn, drawIn } from '@/lib/motion';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import {
@@ -48,22 +48,11 @@ export default function Contact() {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    if (prefersReducedMotion()) return;
-
     const ctx = gsap.context(() => {
-      gsap.fromTo(
-        '.contact-panel',
-        { y: 32, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.55,
-          stagger: 0.12,
-          ease: 'power2.out',
-          clearProps: 'transform',
-          scrollTrigger: { trigger: sectionRef.current, start: 'top 75%', once: true },
-        },
-      );
+      revealHeadings(sectionRef.current!);
+      placeIn('.contact-panel', sectionRef.current!, { stagger: 0.12 });
+      drawIn('.contact-draw', sectionRef.current!, 0.3);
+      slideIn('.contact-link', '.contact-links', 0.07);
     }, sectionRef);
 
     return () => ctx.revert();
@@ -121,7 +110,7 @@ export default function Contact() {
           <div className="md:col-span-3">
             <SketchCard tone="white" decoration="tape" className="contact-panel -rotate-1 p-6 sm:p-8" solid>
               <h3 className="font-kalam text-2xl">write me a note</h3>
-              <Squiggle className="my-3 text-marker" />
+              <Squiggle className="my-3 text-marker" drawClassName="contact-draw" />
 
               <form onSubmit={handleSubmit} className="mt-5 space-y-5">
                 <div>
@@ -238,7 +227,7 @@ export default function Contact() {
 
             <SketchCard tone="white" className="contact-panel -rotate-1 p-6">
               <h3 className="font-kalam text-2xl">elsewhere</h3>
-              <div className="mt-4 space-y-3">
+              <div className="contact-links mt-4 space-y-3">
                 {socialLinks.map((link) => {
                   const Icon = link.icon;
                   return (
@@ -247,7 +236,7 @@ export default function Contact() {
                       href={link.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="group flex items-center gap-3 rounded-wobblySm border-2 border-dashed border-ink px-3 py-2.5 transition-transform duration-100 hover:-rotate-1 hover:border-solid hover:bg-postit"
+                      className="contact-link group flex items-center gap-3 rounded-wobblySm border-2 border-dashed border-ink px-3 py-2.5 transition-all duration-200 hover:-rotate-1 hover:border-solid hover:bg-postit hover:shadow-sketchSm"
                     >
                       <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-blob border-2 border-ink bg-paper">
                         <Icon className="h-4 w-4" strokeWidth={2.5} />

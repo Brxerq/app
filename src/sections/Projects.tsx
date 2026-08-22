@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { SketchButton, SectionHeading, SketchCard, SketchTag } from '@/components/ui/sketch';
-import { asset, prefersReducedMotion } from '@/lib/utils';
+import { asset } from '@/lib/utils';
+import { revealHeadings, placeIn } from '@/lib/motion';
 import { ContributionGraph } from '@/components/ContributionGraph';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -218,7 +219,13 @@ const sites = [
   },
 ];
 
-const TILTS = ['-rotate-2', 'rotate-1', '-rotate-1', 'rotate-2'];
+// A 2-degree tilt on a full-width phone card throws its corner ~12px past
+// the viewport and the edge gets clipped. The hand-drawn wobble is a
+// desk-sized gesture; on a phone the cards sit straight.
+const TILTS = ['sm:-rotate-2', 'sm:rotate-1', 'sm:-rotate-1', 'sm:rotate-2'];
+
+const featured = projects.filter((p) => p.featured);
+const older = projects.filter((p) => !p.featured);
 
 export default function Projects() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -232,36 +239,13 @@ export default function Projects() {
   }, []);
 
   useEffect(() => {
-    if (prefersReducedMotion()) return;
-
     const ctx = gsap.context(() => {
-      gsap.fromTo(
-        '.project-card',
-        { y: 40, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.55,
-          stagger: 0.1,
-          ease: 'power2.out',
-          clearProps: 'transform',
-          scrollTrigger: { trigger: cardsRef.current, start: 'top 82%', once: true },
-        },
-      );
+      revealHeadings(sectionRef.current!);
 
-      gsap.fromTo(
-        '.site-card',
-        { y: 30, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.45,
-          stagger: 0.06,
-          ease: 'power2.out',
-          clearProps: 'transform',
-          scrollTrigger: { trigger: sitesRef.current, start: 'top 85%', once: true },
-        },
-      );
+      // Screenshots going up on a board, corner first.
+      placeIn('.site-card', sitesRef.current!, { stagger: 0.055 });
+      placeIn('.project-card', cardsRef.current!, { stagger: 0.1 });
+      placeIn('.older-card', '.older-grid', { stagger: 0.08 });
     }, sectionRef);
 
     return () => ctx.revert();
@@ -287,7 +271,7 @@ export default function Projects() {
                 href={site.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex h-full flex-col overflow-hidden rounded-wobblyMd border-2 border-ink bg-white shadow-sketchSoft transition-all duration-100 hover:shadow-sketch"
+                className="lift group flex h-full flex-col overflow-hidden rounded-wobblyMd border-2 border-ink bg-white shadow-sketchSoft"
               >
                 <div className="h-36 overflow-hidden border-b-2 border-dashed border-ink bg-paper-aged">
                   <img
@@ -341,21 +325,135 @@ export default function Projects() {
           running where people could actually break them.
         </SectionHeading>
 
-        {/* Featured — pinned like photos on a corkboard */}
-        <div ref={cardsRef} className="grid gap-10 md:grid-cols-2">
-          {projects
-            .filter((p) => p.featured)
-            .map((project, index) => {
+        {/* Featured work. The lead piece gets a spread of its own and the rest
+            sit under it — a portfolio where every project is the same size is
+            a portfolio with no opinion about its own best work. */}
+        <div ref={cardsRef} className="space-y-10">
+          {featured.map((project, index) => {
+            const Icon = project.icon;
+            const lead = index === 0;
+
+            const frame = (
+              <div
+                className={`relative overflow-hidden border-2 border-ink bg-paper-aged ${lead ? 'h-64 md:h-full md:min-h-[22rem]' : 'h-48'
+                  }`}
+                style={{ borderRadius: '8px 12px 8px 12px' }}
+              >
+                {project.image ? (
+                  <img
+                    src={asset(project.image)}
+                    alt={project.title}
+                    loading={lead ? 'eager' : 'lazy'}
+                    className="h-full w-full object-cover object-top transition-transform duration-500 ease-out group-hover:scale-[1.05]"
+                  />
+                ) : (
+                  <div className="flex h-full w-full flex-col items-center justify-center gap-2 border-2 border-dashed border-ink/40 text-ink-soft">
+                    <Icon className="h-10 w-10" strokeWidth={2.5} />
+                    <span className="font-hand text-base text-ink-soft">no screenshot, sorry</span>
+                  </div>
+                )}
+              </div>
+            );
+
+            const body = (
+              <div className={lead ? 'flex flex-col justify-center px-2 py-2' : 'px-2 pb-1 pt-4'}>
+                <div className="mb-1 flex flex-wrap items-baseline justify-between gap-2">
+                  <h3 className={`font-kalam leading-tight ${lead ? 'text-3xl md:text-4xl' : 'text-2xl'}`}>
+                    {project.title}
+                  </h3>
+                  <span className="tabular font-hand text-base text-ink-faint">{project.date}</span>
+                </div>
+                <p className={`font-hand text-marker-deep ${lead ? 'text-xl' : 'text-lg'}`}>
+                  {project.subtitle}
+                </p>
+
+                <p className="mt-3 max-w-[60ch] font-hand text-lg leading-relaxed text-ink-soft">
+                  {project.description}
+                </p>
+
+                {Object.keys(project.stats).length > 0 && (
+                  <div className="mt-5 flex flex-wrap gap-3">
+                    {Object.entries(project.stats).map(([key, value]) => (
+                      <div
+                        key={key}
+                        className="rounded-wobblySm border-2 border-dashed border-ink px-3 py-1 text-center"
+                      >
+                        <div className="font-kalam text-lg leading-tight">{value}</div>
+                        <div className="font-hand text-sm text-ink-faint">{key}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {project.tags.map((tag) => (
+                    <SketchTag key={tag} tone="paper">
+                      {tag}
+                    </SketchTag>
+                  ))}
+                </div>
+
+                {(project.demoUrl || project.repoUrl) && (
+                  <div className="mt-5 flex flex-wrap gap-4 border-t-[3px] border-dashed border-ink/30 pt-4">
+                    {project.demoUrl && (
+                      <a
+                        href={project.demoUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex min-h-[44px] items-center gap-1.5 font-hand text-lg text-pen underline-offset-4 hover:underline"
+                      >
+                        <ExternalLink className="h-4 w-4" strokeWidth={2.5} />
+                        open it
+                      </a>
+                    )}
+                    {project.repoUrl && (
+                      <a
+                        href={project.repoUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex min-h-[44px] items-center gap-1.5 font-hand text-lg text-pen underline-offset-4 hover:underline"
+                      >
+                        <Github className="h-4 w-4" strokeWidth={2.5} />
+                        read the code
+                      </a>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+
+            if (lead) {
+              return (
+                <article
+                  key={project.id}
+                  className="project-card lift tape group relative -rotate-[0.6deg] border-[3px] border-ink bg-white p-3 shadow-sketchLg md:p-4"
+                  style={{ borderRadius: '14px 10px 16px 12px' }}
+                >
+                  <span className="absolute -top-3 right-6 z-10 rotate-3 rounded-wobblySm border-2 border-ink bg-marker-deep px-2.5 py-0.5 font-hand text-sm text-white shadow-sketchSm">
+                    pick of the lot
+                  </span>
+                  <div className="grid gap-5 md:grid-cols-[1.15fr_1fr] md:gap-7">
+                    {frame}
+                    {body}
+                  </div>
+                </article>
+              );
+            }
+            return null;
+          })}
+
+          {/* The rest, three across — smaller, so the lead reads as the lead. */}
+          <div className="grid gap-8 md:grid-cols-3">
+            {featured.slice(1).map((project, index) => {
               const Icon = project.icon;
               return (
                 <article
                   key={project.id}
-                  className={`project-card group relative border-[3px] border-ink bg-white p-3 shadow-sketchLg transition-transform duration-100 hover:rotate-0 ${TILTS[index % TILTS.length]}`}
+                  className={`project-card lift group relative flex flex-col border-[3px] border-ink bg-white p-3 shadow-sketch ${TILTS[index % TILTS.length]}`}
                   style={{ borderRadius: '12px 8px 14px 10px' }}
                 >
-                  {/* Screenshot in a scrappy frame */}
                   <div
-                    className="relative h-52 overflow-hidden border-2 border-ink bg-paper-aged"
+                    className="relative h-40 overflow-hidden border-2 border-ink bg-paper-aged"
                     style={{ borderRadius: '8px 12px 8px 12px' }}
                   >
                     {project.image ? (
@@ -363,57 +461,55 @@ export default function Projects() {
                         src={asset(project.image)}
                         alt={project.title}
                         loading="lazy"
-                        className="h-full w-full object-cover object-top transition-transform duration-200 group-hover:scale-[1.04]"
+                        className="h-full w-full object-cover object-top transition-transform duration-500 ease-out group-hover:scale-[1.05]"
                       />
                     ) : (
                       <div className="flex h-full w-full flex-col items-center justify-center gap-2 border-2 border-dashed border-ink/40 text-ink-soft">
-                        <Icon className="h-10 w-10" strokeWidth={2.5} />
-                        <span className="font-hand text-base text-ink-soft">no screenshot, sorry</span>
+                        <Icon className="h-9 w-9" strokeWidth={2.5} />
+                        <span className="font-hand text-sm text-ink-soft">no screenshot, sorry</span>
                       </div>
                     )}
                   </div>
 
-                  <div className="px-2 pb-1 pt-4">
-                    <div className="mb-1 flex flex-wrap items-baseline justify-between gap-2">
-                      <h3 className="font-kalam text-2xl leading-tight">{project.title}</h3>
-                      <span className="tabular font-hand text-base text-ink-faint">{project.date}</span>
-                    </div>
-                    <p className="font-hand text-lg text-marker-deep">{project.subtitle}</p>
+                  <div className="flex flex-1 flex-col px-1 pb-1 pt-4">
+                    <h3 className="font-kalam text-xl leading-tight">{project.title}</h3>
+                    <p className="font-hand text-base text-marker-deep">{project.subtitle}</p>
+                    <p className="tabular font-hand text-sm text-ink-faint">{project.date}</p>
 
-                    <p className="mt-3 font-hand text-lg leading-relaxed text-ink-soft">
+                    <p className="mt-2 font-hand text-base leading-relaxed text-ink-soft">
                       {project.description}
                     </p>
 
                     {Object.keys(project.stats).length > 0 && (
-                      <div className="mt-4 flex flex-wrap gap-3">
+                      <div className="mt-3 flex flex-wrap gap-2">
                         {Object.entries(project.stats).map(([key, value]) => (
                           <div
                             key={key}
-                            className="rounded-wobblySm border-2 border-dashed border-ink px-3 py-1 text-center"
+                            className="rounded-wobblySm border-2 border-dashed border-ink px-2 py-0.5 text-center"
                           >
-                            <div className="font-kalam text-lg leading-tight">{value}</div>
-                            <div className="font-hand text-sm text-ink-faint">{key}</div>
+                            <div className="font-kalam text-base leading-tight">{value}</div>
+                            <div className="font-hand text-xs text-ink-faint">{key}</div>
                           </div>
                         ))}
                       </div>
                     )}
 
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      {project.tags.map((tag) => (
-                        <SketchTag key={tag} tone="paper">
+                    <div className="mt-3 flex flex-wrap gap-1.5">
+                      {project.tags.slice(0, 4).map((tag) => (
+                        <SketchTag key={tag} tone="paper" className="text-xs">
                           {tag}
                         </SketchTag>
                       ))}
                     </div>
 
                     {(project.demoUrl || project.repoUrl) && (
-                      <div className="mt-5 flex flex-wrap gap-4 border-t-[3px] border-dashed border-ink/30 pt-4">
+                      <div className="mt-auto flex flex-wrap gap-4 border-t-[3px] border-dashed border-ink/30 pt-3">
                         {project.demoUrl && (
                           <a
                             href={project.demoUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex min-h-[44px] items-center gap-1.5 font-hand text-lg text-pen underline-offset-4 hover:underline"
+                            className="flex min-h-[44px] items-center gap-1.5 font-hand text-base text-pen underline-offset-4 hover:underline"
                           >
                             <ExternalLink className="h-4 w-4" strokeWidth={2.5} />
                             open it
@@ -424,10 +520,10 @@ export default function Projects() {
                             href={project.repoUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex min-h-[44px] items-center gap-1.5 font-hand text-lg text-pen underline-offset-4 hover:underline"
+                            className="flex min-h-[44px] items-center gap-1.5 font-hand text-base text-pen underline-offset-4 hover:underline"
                           >
                             <Github className="h-4 w-4" strokeWidth={2.5} />
-                            read the code
+                            code
                           </a>
                         )}
                       </div>
@@ -436,6 +532,7 @@ export default function Projects() {
                 </article>
               );
             })}
+          </div>
         </div>
 
         {/* Older work — margin scribbles */}
@@ -443,16 +540,15 @@ export default function Projects() {
           <span className="squiggle-underline-pen">older experiments</span>
         </h3>
 
-        <div className="grid gap-6 sm:grid-cols-3">
-          {projects
-            .filter((p) => !p.featured)
+        <div className="older-grid grid gap-6 sm:grid-cols-3">
+          {older
             .map((project, index) => {
               const Icon = project.icon;
               return (
                 <SketchCard
                   key={project.id}
                   tone="paper"
-                  className="project-card p-5 transition-transform duration-100 hover:-rotate-1"
+                  className="older-card lift p-5"
                 >
                   <div className={TILTS[index % TILTS.length]}>
                     <span className="mb-3 flex h-11 w-11 items-center justify-center rounded-blob border-2 border-ink bg-white">

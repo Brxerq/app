@@ -37,6 +37,24 @@ function App() {
     void Promise.all([loadHero(), loadSkills(), loadExperience(), loadProjects(), loadContact()]);
   }, []);
 
+  // Scroll triggers are measured when their section mounts, which is before
+  // the screenshots below them have loaded and settled the page height. Without
+  // this the trigger positions drift and the scroll animations fire against
+  // stale offsets — the timeline spine finishes drawing before you reach it.
+  useEffect(() => {
+    if (!isLoaded) return;
+
+    const refresh = () => ScrollTrigger.refresh();
+    const raf = requestAnimationFrame(refresh);
+    window.addEventListener('load', refresh);
+    void document.fonts?.ready.then(refresh);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('load', refresh);
+    };
+  }, [isLoaded]);
+
   const handleLoadComplete = () => {
     setIsFading(true);
     window.setTimeout(() => setIsLoaded(true), FADE_MS);
