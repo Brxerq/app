@@ -39,47 +39,48 @@ module.exports = {
           foreground: "hsl(var(--card-foreground))",
         },
 
-        /* Hand-drawn palette — the only colors this site should use. */
-        paper: {
-          DEFAULT: '#fdfbf7', // warm paper
-          card: '#ffffff',    // fresh sheet
-          aged: '#e5e0d8',    // old paper / erased pencil
+        /* Neo-brutalist palette — loud, flat, zero gradients. */
+        void: '#141414',      // the only black. borders, type, shadows.
+        bone: '#F2EEE3',      // page background
+        brick: {
+          white: '#FFFFFF',
+          yell: '#FFC900',
+          pink: '#FF90E8',
+          blue: '#6C8CFF',
+          lime: '#B9FF66',
+          orange: '#FF6B4A',
         },
-        ink: {
-          DEFAULT: '#2d2d2d', // soft pencil black, never pure black
-          soft: '#5a5a5a',
-          faint: '#8a857c',
-        },
-        marker: '#ff4d4d',  // red correction marker
-        pen: '#2d5da1',     // blue ballpoint
-        postit: '#fff9c4',  // sticky note yellow
       },
       fontFamily: {
-        kalam: ['Kalam', 'Comic Sans MS', 'cursive'],
-        hand: ['"Patrick Hand"', 'Kalam', 'cursive'],
+        display: ['"Archivo Black"', 'Arial Black', 'sans-serif'],
+        grotesk: ['"Space Grotesk"', 'system-ui', 'sans-serif'],
+        mono: ['"Space Mono"', 'ui-monospace', 'monospace'],
       },
       borderRadius: {
-        /* Wobbly, hand-drawn edges. Never perfect circles or even corners. */
-        wobbly: '255px 15px 225px 15px / 15px 225px 15px 255px',
-        wobblyLg: '60px 14px 48px 18px / 18px 52px 16px 56px',
-        wobblyMd: '14px 30px 16px 26px / 26px 15px 28px 15px',
-        wobblySm: '9px 16px 11px 14px / 14px 9px 16px 11px',
-        blob: '48% 52% 41% 59% / 56% 44% 56% 44%',
-        blobAlt: '62% 38% 55% 45% / 40% 58% 42% 60%',
+        none: '0',
+        /* shadcn compat */
         xl: "calc(var(--radius) + 4px)",
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
         xs: "calc(var(--radius) - 6px)",
       },
+      borderWidth: {
+        3: '3px',
+        6: '6px',
+        8: '8px',
+      },
       boxShadow: {
-        /* Hard offsets only — no blur, ever. Cut-paper collage. */
-        sketch: '4px 4px 0px 0px #2d2d2d',
-        sketchSm: '2px 2px 0px 0px #2d2d2d',
-        sketchLg: '8px 8px 0px 0px #2d2d2d',
-        sketchSoft: '3px 3px 0px 0px rgba(45, 45, 45, 0.12)',
-        sketchMarker: '4px 4px 0px 0px #ff4d4d',
-        sketchPen: '4px 4px 0px 0px #2d5da1',
+        /* Hard offsets only. No blur. Ever. */
+        brut: '6px 6px 0 0 #141414',
+        brutSm: '3px 3px 0 0 #141414',
+        brutLg: '10px 10px 0 0 #141414',
+        brutXl: '16px 16px 0 0 #141414',
+        brutYell: '6px 6px 0 0 #FFC900',
+        brutPink: '6px 6px 0 0 #FF90E8',
+        brutBlue: '6px 6px 0 0 #6C8CFF',
+        brutLime: '6px 6px 0 0 #B9FF66',
+        brutNone: '0 0 0 0 #141414',
         xs: "0 1px 2px 0 rgb(0 0 0 / 0.05)",
       },
       keyframes: {
@@ -95,26 +96,21 @@ module.exports = {
           "0%,70%,100%": { opacity: "1" },
           "20%,50%": { opacity: "0" },
         },
-        "doodle-bounce": {
-          "0%, 100%": { transform: "translateY(0) rotate(-3deg)" },
-          "50%": { transform: "translateY(-10px) rotate(3deg)" },
+        "spin-slow": {
+          from: { transform: "rotate(0deg)" },
+          to: { transform: "rotate(360deg)" },
         },
-        "wiggle": {
-          "0%, 100%": { transform: "rotate(-1.5deg)" },
-          "50%": { transform: "rotate(1.5deg)" },
-        },
-        "draw": {
-          "0%": { strokeDashoffset: "1000" },
-          "100%": { strokeDashoffset: "0" },
+        "float-hard": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-12px)" },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "caret-blink": "caret-blink 1.25s ease-out infinite",
-        "doodle-bounce": "doodle-bounce 3s ease-in-out infinite",
-        "wiggle": "wiggle 2.5s ease-in-out infinite",
-        "draw": "draw 1.6s ease-out forwards",
+        "spin-slow": "spin-slow 14s linear infinite",
+        "float-hard": "float-hard 3.2s ease-in-out infinite",
       },
     },
   },

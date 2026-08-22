@@ -1,6 +1,7 @@
-import { Suspense, lazy, useState } from 'react';
+import { Suspense, lazy, useState, useEffect } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { getLenis } from './lib/lenis';
 import Navigation from './components/Navigation';
 import LoadingScreen from './components/LoadingScreen';
 
@@ -15,11 +16,24 @@ gsap.registerPlugin(ScrollTrigger);
 const FADE_MS = 500; // loading screen fade-out duration
 
 function App() {
-  // Two states only:
-  //   isFading — loading screen is actively fading out
-  //   isLoaded — loading screen gone, site fully mounted
   const [isFading, setIsFading] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+
+  // Lenis smooth scroll, driven by GSAP's ticker so ScrollTrigger stays in sync.
+  useEffect(() => {
+    if (!isLoaded) return;
+    const lenis = getLenis();
+
+    lenis.on('scroll', ScrollTrigger.update);
+    const raf = (time: number) => lenis.raf(time * 1000);
+    gsap.ticker.add(raf);
+    gsap.ticker.lagSmoothing(0);
+
+    return () => {
+      gsap.ticker.remove(raf);
+      lenis.off('scroll', ScrollTrigger.update);
+    };
+  }, [isLoaded]);
 
   const handleLoadComplete = () => {
     setIsFading(true);
@@ -28,7 +42,6 @@ function App() {
 
   return (
     <div className="relative min-h-screen overflow-x-hidden">
-      {/* Loading screen stays in DOM during its own fade-out, then unmounts */}
       {!isLoaded && (
         <LoadingScreen
           onComplete={handleLoadComplete}
@@ -37,8 +50,6 @@ function App() {
         />
       )}
 
-      {/* Main site — only mounts once the loading screen is completely gone.
-          Hero runs its own GSAP entrance on mount. */}
       {isLoaded && (
         <>
           <Navigation />

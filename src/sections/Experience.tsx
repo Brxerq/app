@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { SectionHeading, SketchCard, SketchTag, Squiggle } from '@/components/ui/sketch';
+import { SectionHeading, BrutalCard, Sticker } from '@/components/ui/brick';
 import { asset } from '@/lib/utils';
-import { Calendar, MapPin, ChevronRight, ExternalLink, Check } from 'lucide-react';
+import { Calendar, MapPin, ChevronRight, ExternalLink, Plus } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -16,6 +16,7 @@ const experiences = [
     role: 'Lead Software Engineer',
     period: 'Dec 2025 - Present',
     location: 'County Dublin, Ireland (Remote)',
+    tone: 'bg-brick-yell',
     description:
       'Leading a production healthcare platform connecting patients with licensed clinicians across 6 markets, owning architecture, security, automation, and deployment.',
     achievements: [
@@ -37,6 +38,7 @@ const experiences = [
     role: 'Freelance AI/ML Engineer & Web Developer',
     period: 'Jul 2024 - Present',
     location: 'Remote',
+    tone: 'bg-brick-pink',
     description:
       'Delivering AI products, full-stack apps, automation systems, and SEO-focused websites for clients from discovery to deployment.',
     achievements: [
@@ -55,6 +57,7 @@ const experiences = [
     role: 'Full-Stack Developer',
     period: 'Oct 2025 - Jun 2026',
     location: 'Saudi Arabia (Remote)',
+    tone: 'bg-brick-lime',
     description:
       'Built and maintained the Endifaa sports academy platform with React, TypeScript, RTK Query, Django REST Framework, and PostgreSQL.',
     achievements: [
@@ -73,6 +76,7 @@ const experiences = [
     role: 'Co-Founder',
     period: 'Mar 2026 - Present',
     location: 'Dubai, UAE (Hybrid)',
+    tone: 'bg-brick-blue',
     description:
       'Co-building Jordy, an AI outbound sales platform that finds prospects, researches them, and runs personalized campaigns that convert.',
     achievements: [
@@ -91,6 +95,7 @@ const experiences = [
     role: 'Founding Engineer',
     period: 'Nov 2025 - Present',
     location: 'Dubai, UAE (Remote)',
+    tone: 'bg-brick-orange',
     description:
       'Founding engineer on Aertonic, the intelligence layer for construction operations.',
     achievements: [
@@ -107,6 +112,7 @@ const experiences = [
     role: 'AI & Prompt Engineer',
     period: 'Jan 2025 - Sep 2025',
     location: 'Riyadh, Saudi Arabia (Remote)',
+    tone: 'bg-brick-yell',
     description:
       'Built conversational AI agents and prompt systems for voice and text booking assistants across 10+ clients weekly.',
     achievements: [
@@ -124,6 +130,7 @@ const experiences = [
     role: 'Lead AI & Software Engineer',
     period: 'Mar 2024 - Dec 2024',
     location: 'Kuching, Malaysia (On-site)',
+    tone: 'bg-brick-pink',
     description:
       'Built and shipped a CRM mobile app with an AI sales assistant, published on Google Play and used by 50+ users.',
     achievements: [
@@ -149,8 +156,7 @@ const education = [
     school: 'Swinburne University of Technology, Sarawak',
     degree: 'Foundation, Information Technology / Multimedia',
     period: 'Jan 2020 - Jun 2021',
-    description:
-      'Foundation program covering core computing, programming, and development fundamentals.',
+    description: 'Foundation program covering core computing, programming, and development fundamentals.',
   },
 ];
 
@@ -189,167 +195,200 @@ const certifications = [
   },
 ];
 
-const TILTS = ['-1.2deg', '0.8deg', '-0.6deg', '1.1deg'];
+const counters = [
+  { value: 2, suffix: '+', label: 'years active' },
+  { value: 7, suffix: '', label: 'teams' },
+  { value: 5, suffix: '', label: 'production roles' },
+  { value: 6, suffix: '', label: 'countries shipped to' },
+];
 
 export default function Experience() {
   const sectionRef = useRef<HTMLElement>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
+  const progressRef = useRef<HTMLDivElement>(null);
   const [expandedId, setExpandedId] = useState<number | null>(1);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
+      // Header banner slide.
       gsap.fromTo(
-        '.exp-card',
-        { x: -24, opacity: 0 },
+        '.brut-heading',
+        { x: -80, opacity: 0 },
         {
           x: 0,
           opacity: 1,
-          duration: 0.5,
-          stagger: 0.1,
-          ease: 'power2.out',
-          scrollTrigger: { trigger: timelineRef.current, start: 'top 80%', once: true },
+          duration: 0.6,
+          ease: 'power3.out',
+          scrollTrigger: { trigger: sectionRef.current, start: 'top 75%', once: true },
         },
       );
 
-      gsap.fromTo(
-        '.archive-card',
-        { y: 24, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.45,
-          stagger: 0.08,
-          ease: 'power2.out',
-          scrollTrigger: { trigger: '.archive-grid', start: 'top 85%', once: true },
+      // Cards alternate in from left / right.
+      document.querySelectorAll<HTMLElement>('.exp-card').forEach((card, i) => {
+        gsap.fromTo(
+          card,
+          { x: i % 2 === 0 ? -90 : 90, opacity: 0, rotate: i % 2 === 0 ? -3 : 3 },
+          {
+            x: 0,
+            opacity: 1,
+            rotate: 0,
+            duration: 0.55,
+            ease: 'power3.out',
+            scrollTrigger: { trigger: card, start: 'top 85%', once: true },
+          },
+        );
+      });
+
+      // Timeline rail fills as you scroll — scrubbed.
+      if (progressRef.current && timelineRef.current) {
+        gsap.fromTo(
+          progressRef.current,
+          { scaleY: 0 },
+          {
+            scaleY: 1,
+            ease: 'none',
+            transformOrigin: 'top center',
+            scrollTrigger: {
+              trigger: timelineRef.current,
+              start: 'top 70%',
+              end: 'bottom 60%',
+              scrub: 0.6,
+            },
+          },
+        );
+      }
+
+      // Bottom counters roll up.
+      ScrollTrigger.create({
+        trigger: '.exp-counters',
+        start: 'top 85%',
+        once: true,
+        onEnter: () => {
+          document.querySelectorAll<HTMLElement>('.counter-number').forEach((el) => {
+            const end = parseFloat(el.dataset.value || '0');
+            const obj = { val: 0 };
+            gsap.to(obj, {
+              val: end,
+              duration: 1.2,
+              ease: 'power2.out',
+              onUpdate: () => {
+                el.textContent = String(Math.round(obj.val));
+              },
+            });
+          });
         },
-      );
+      });
     }, sectionRef);
 
     return () => ctx.revert();
   }, []);
 
   return (
-    <section ref={sectionRef} id="experience" className="relative px-6 py-20">
-      <div className="mx-auto max-w-5xl">
-        <SectionHeading label="where i've been" title="the" accent="history">
+    <section ref={sectionRef} id="experience" className="relative px-4 py-24 sm:px-6">
+      <div className="mx-auto max-w-6xl">
+        <SectionHeading kicker="where i've been" title="the" accent="experience" accentTone="blue">
           Seven teams, five production roles, one habit: sketch it, ship it, then
           measure whether it actually helped.
         </SectionHeading>
 
-        {/* Timeline — a pencil line drawn down the margin */}
-        <div ref={timelineRef} className="relative pl-8 sm:pl-12">
-          <div className="absolute bottom-4 left-[9px] top-4 w-0 border-l-[3px] border-dashed border-ink/40 sm:left-[17px]" />
+        {/* Timeline */}
+        <div ref={timelineRef} className="relative pl-8 sm:pl-14">
+          {/* Rail */}
+          <div className="absolute bottom-4 left-[11px] top-4 w-[6px] border-x-[3px] border-void bg-transparent sm:left-[21px]">
+            <div ref={progressRef} className="h-full w-full bg-brick-blue" />
+          </div>
 
           <div className="space-y-8">
-            {experiences.map((exp, index) => {
+            {experiences.map((exp) => {
               const isExpanded = expandedId === exp.id;
 
               return (
                 <div key={exp.id} className="exp-card relative">
-                  {/* Hand-drawn dot on the line */}
+                  {/* Node */}
                   <span
-                    className="absolute -left-8 top-7 h-5 w-5 rounded-blob border-[3px] border-ink bg-marker sm:-left-12"
+                    className={`absolute -left-8 top-7 flex h-7 w-7 items-center justify-center border-[3px] border-void ${exp.tone} sm:-left-14`}
                     aria-hidden
-                  />
-
-                  <SketchCard
-                    tone="white"
-                    className="p-5 transition-transform duration-100 sm:p-7"
                   >
-                    <div style={{ transform: `rotate(${TILTS[index % TILTS.length]})` }}>
+                    <Plus className="h-3.5 w-3.5" strokeWidth={4} />
+                  </span>
+
+                  <BrutalCard tone="white" className="p-5 sm:p-7">
+                    {/* Company strip */}
+                    <div className={`mb-4 flex items-center gap-3 border-[3px] border-void p-2 ${exp.tone}`}>
+                      <span className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden border-[3px] border-void bg-white">
+                        {exp.logo ? (
+                          <img src={asset(exp.logo)} alt="" className="h-7 w-7 object-contain" loading="lazy" />
+                        ) : (
+                          <span className="font-display text-lg">{exp.company[0]}</span>
+                        )}
+                      </span>
+                      <div className="min-w-0">
+                        <h3 className="truncate text-xl leading-tight">{exp.company}</h3>
+                        <p className="truncate font-mono text-xs font-bold uppercase tracking-wider">{exp.role}</p>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => setExpandedId(isExpanded ? null : exp.id)}
+                      className="w-full text-left"
+                      aria-expanded={isExpanded}
+                    >
+                      <div className="mb-3 flex flex-wrap gap-x-5 gap-y-1 font-mono text-xs uppercase tracking-wider text-void/60">
+                        <span className="flex items-center gap-1.5">
+                          <Calendar className="h-3.5 w-3.5" strokeWidth={3} />
+                          {exp.period}
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <MapPin className="h-3.5 w-3.5" strokeWidth={3} />
+                          {exp.location}
+                        </span>
+                      </div>
+
+                      <p className="font-medium leading-relaxed text-void/80">{exp.description}</p>
+                    </button>
+
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {exp.tech.map((tech) => (
+                        <Sticker key={tech} tone="white" className="text-[10px]">{tech}</Sticker>
+                      ))}
+                    </div>
+
+                    <div className="mt-4 flex flex-wrap items-center gap-4">
                       <button
                         onClick={() => setExpandedId(isExpanded ? null : exp.id)}
-                        className="w-full text-left"
-                        aria-expanded={isExpanded}
+                        className="brut-press flex items-center gap-1 border-[3px] border-void bg-brick-yell px-3 py-1.5 font-display text-xs uppercase shadow-brutSm"
                       >
-                        <div className="mb-3 flex items-start gap-4">
-                          <span className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-wobblySm border-2 border-ink bg-paper">
-                            {exp.logo ? (
-                              <img
-                                src={asset(exp.logo)}
-                                alt=""
-                                className="h-7 w-7 object-contain"
-                                loading="lazy"
-                              />
-                            ) : (
-                              <span className="font-kalam text-xl">{exp.company[0]}</span>
-                            )}
-                          </span>
-
-                          <div className="min-w-0">
-                            <h3 className="font-kalam text-2xl leading-tight">
-                              {exp.company}
-                            </h3>
-                            <p className="font-hand text-lg text-marker">{exp.role}</p>
-                          </div>
-                        </div>
-
-                        <div className="mb-3 flex flex-wrap gap-x-5 gap-y-1 font-hand text-base text-ink-faint">
-                          <span className="flex items-center gap-1.5">
-                            <Calendar className="h-4 w-4" strokeWidth={2.5} />
-                            {exp.period}
-                          </span>
-                          <span className="flex items-center gap-1.5">
-                            <MapPin className="h-4 w-4" strokeWidth={2.5} />
-                            {exp.location}
-                          </span>
-                        </div>
-
-                        <p className="font-hand text-lg leading-relaxed text-ink-soft">
-                          {exp.description}
-                        </p>
+                        {isExpanded ? 'hide the details' : 'what i actually did'}
+                        <ChevronRight
+                          className={`h-3.5 w-3.5 transition-transform duration-100 ${isExpanded ? 'rotate-90' : ''}`}
+                          strokeWidth={3.5}
+                        />
                       </button>
 
-                      <div className="mt-4 flex flex-wrap gap-2">
-                        {exp.tech.map((tech) => (
-                          <SketchTag key={tech} tone="paper">
-                            {tech}
-                          </SketchTag>
-                        ))}
-                      </div>
-
-                      <div className="mt-4 flex flex-wrap items-center gap-4">
-                        <button
-                          onClick={() => setExpandedId(isExpanded ? null : exp.id)}
-                          className="flex items-center gap-1 font-hand text-lg text-pen"
+                      {exp.website && (
+                        <a
+                          href={exp.website}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1 font-mono text-xs font-bold uppercase tracking-wider text-void/60 underline decoration-[3px] underline-offset-4 hover:text-void"
                         >
-                          {isExpanded ? 'hide the details' : 'what i actually did'}
-                          <ChevronRight
-                            className={`h-4 w-4 transition-transform duration-100 ${isExpanded ? 'rotate-90' : ''}`}
-                            strokeWidth={3}
-                          />
-                        </button>
-
-                        {exp.website && (
-                          <a
-                            href={exp.website}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-1 font-hand text-lg text-ink-faint hover:text-marker hover:line-through"
-                          >
-                            visit site
-                            <ExternalLink className="h-4 w-4" strokeWidth={2.5} />
-                          </a>
-                        )}
-                      </div>
-
-                      {isExpanded && (
-                        <ul className="mt-5 space-y-2.5 border-t-[3px] border-dashed border-ink/30 pt-5">
-                          {exp.achievements.map((achievement) => (
-                            <li key={achievement} className="flex items-start gap-3">
-                              <Check
-                                className="mt-1 h-4 w-4 shrink-0 text-marker"
-                                strokeWidth={3}
-                              />
-                              <span className="font-hand text-lg leading-relaxed">
-                                {achievement}
-                              </span>
-                            </li>
-                          ))}
-                        </ul>
+                          visit site
+                          <ExternalLink className="h-3.5 w-3.5" strokeWidth={3} />
+                        </a>
                       )}
                     </div>
-                  </SketchCard>
+
+                    {isExpanded && (
+                      <ul className="mt-5 space-y-2.5 border-t-[3px] border-dashed border-void/30 pt-5">
+                        {exp.achievements.map((achievement) => (
+                          <li key={achievement} className="flex items-start gap-3">
+                            <span className="mt-1.5 h-3 w-3 shrink-0 border-2 border-void bg-brick-lime" />
+                            <span className="leading-relaxed">{achievement}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </BrutalCard>
                 </div>
               );
             })}
@@ -357,82 +396,66 @@ export default function Experience() {
         </div>
 
         {/* School + certificates */}
-        <div className="archive-grid mt-20 grid gap-8 md:grid-cols-2">
+        <div className="archive-grid mt-20 grid gap-10 md:grid-cols-2">
           <div>
-            <h3 className="mb-4 font-kalam text-3xl">
-              <span className="squiggle-underline-pen">school</span>
+            <h3 className="mb-5 inline-block border-[3px] border-void bg-brick-lime px-4 py-1.5 text-2xl shadow-brutSm">
+              school
             </h3>
             <div className="space-y-5">
-              {education.map((edu, i) => (
-                <SketchCard
-                  key={edu.id}
-                  tone="paper"
-                  className="archive-card p-5"
-                >
-                  <div style={{ transform: `rotate(${TILTS[i % TILTS.length]})` }}>
-                    <div className="mb-1 flex flex-wrap items-start justify-between gap-2">
-                      <h4 className="font-kalam text-xl leading-tight">{edu.school}</h4>
-                      <SketchTag tone="note">{edu.period}</SketchTag>
-                    </div>
-                    <p className="font-hand text-lg text-marker">{edu.degree}</p>
-                    <p className="mt-2 font-hand text-base text-ink-soft">{edu.description}</p>
+              {education.map((edu) => (
+                <BrutalCard key={edu.id} tone="white" className="archive-card p-5">
+                  <div className="mb-1 flex flex-wrap items-start justify-between gap-2">
+                    <h4 className="text-base leading-snug">{edu.school}</h4>
+                    <Sticker tone="primary" className="text-[10px]">{edu.period}</Sticker>
                   </div>
-                </SketchCard>
+                  <p className="font-mono text-xs font-bold uppercase tracking-wider text-void/70">{edu.degree}</p>
+                  <p className="mt-2 text-sm leading-relaxed text-void/70">{edu.description}</p>
+                </BrutalCard>
               ))}
             </div>
           </div>
 
           <div>
-            <h3 className="mb-4 font-kalam text-3xl">
-              <span className="squiggle-underline-pen">certificates</span>
+            <h3 className="mb-5 inline-block border-[3px] border-void bg-brick-pink px-4 py-1.5 text-2xl shadow-brutSm">
+              certificates
             </h3>
             <div className="space-y-5">
-              {certifications.map((cert, i) => (
-                <SketchCard key={cert.id} tone="white" className="archive-card p-5">
-                  <div style={{ transform: `rotate(${TILTS[(i + 1) % TILTS.length]})` }}>
-                    <div className="mb-1 flex flex-wrap items-start justify-between gap-2">
-                      <h4 className="font-kalam text-xl leading-tight">{cert.title}</h4>
-                      <SketchTag tone="aged">{cert.date}</SketchTag>
-                    </div>
-                    <p className="font-hand text-lg text-pen">{cert.issuer}</p>
-                    {cert.credentialId && (
-                      <p className="font-hand text-sm text-ink-faint">
-                        id: {cert.credentialId}
-                      </p>
-                    )}
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {cert.skills.map((skill) => (
-                        <SketchTag key={skill} tone="paper">
-                          {skill}
-                        </SketchTag>
-                      ))}
-                    </div>
+              {certifications.map((cert) => (
+                <BrutalCard key={cert.id} tone="white" className="archive-card p-5">
+                  <div className="mb-1 flex flex-wrap items-start justify-between gap-2">
+                    <h4 className="text-base leading-snug">{cert.title}</h4>
+                    <Sticker tone="dark" className="text-[10px]">{cert.date}</Sticker>
                   </div>
-                </SketchCard>
+                  <p className="font-mono text-xs font-bold uppercase tracking-wider text-void/70">{cert.issuer}</p>
+                  {cert.credentialId && (
+                    <p className="mt-1 font-mono text-[10px] uppercase tracking-widest text-void/40">
+                      id: {cert.credentialId}
+                    </p>
+                  )}
+                  <div className="mt-3 flex flex-wrap gap-1.5">
+                    {cert.skills.map((skill) => (
+                      <Sticker key={skill} tone="white" className="text-[10px]">{skill}</Sticker>
+                    ))}
+                  </div>
+                </BrutalCard>
               ))}
             </div>
           </div>
         </div>
 
-        <Squiggle className="mx-auto mt-16 max-w-sm text-ink/40" />
-
-        {/* Counted on fingers */}
-        <div className="mt-10 grid grid-cols-2 gap-6 sm:grid-cols-4">
-          {[
-            { label: 'years active', value: '2+' },
-            { label: 'teams', value: '7' },
-            { label: 'production roles', value: '5' },
-            { label: 'countries shipped to', value: '6' },
-          ].map((stat, i) => (
-            <div
-              key={stat.label}
-              className="jiggle flex flex-col items-center justify-center rounded-blob border-[3px] border-ink bg-white p-5 text-center shadow-sketch"
-              style={{ transform: `rotate(${TILTS[i % TILTS.length]})` }}
-            >
-              <span className="font-kalam text-3xl">{stat.value}</span>
-              <span className="font-hand text-base leading-tight text-ink-soft">
+        {/* Counters */}
+        <div className="exp-counters mt-16 grid grid-cols-2 gap-6 sm:grid-cols-4">
+          {counters.map((stat) => (
+            <div key={stat.label} className="brut-press border-[3px] border-void bg-void p-5 text-center shadow-brut">
+              <div className="font-display text-4xl text-brick-yell">
+                <span className="counter-number tabular-nums" data-value={stat.value}>
+                  0
+                </span>
+                {stat.suffix}
+              </div>
+              <div className="mt-1 font-mono text-[11px] font-bold uppercase tracking-wider text-white/60">
                 {stat.label}
-              </span>
+              </div>
             </div>
           ))}
         </div>

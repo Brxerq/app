@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Patrick+Hand&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,34 +6,30 @@
 
 @layer base {
   :root {
-    /* shadcn tokens, remapped onto the paper/pencil palette */
-    --background: 40 60% 98%;
-    --foreground: 0 0% 18%;
+    /* shadcn tokens, remapped onto the neo-brutalist palette */
+    --background: 42 31% 92%;
+    --foreground: 0 0% 8%;
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 18%;
+    --card-foreground: 0 0% 8%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 18%;
-    --primary: 0 100% 65%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 215 56% 40%;
-    --secondary-foreground: 0 0% 100%;
-    --muted: 37 20% 87%;
-    --muted-foreground: 40 6% 45%;
-    --accent: 0 100% 65%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 100% 65%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 18%;
-    --input: 0 0% 18%;
-    --ring: 215 56% 40%;
-    --radius: 0.5rem;
+    --popover-foreground: 0 0% 8%;
+    --primary: 45 100% 50%;
+    --primary-foreground: 0 0% 8%;
+    --secondary: 253 100% 71%;
+    --secondary-foreground: 0 0% 8%;
+    --muted: 42 20% 85%;
+    --muted-foreground: 0 0% 35%;
+    --accent: 305 100% 78%;
+    --accent-foreground: 0 0% 8%;
+    --destructive: 11 100% 64%;
+    --destructive-foreground: 0 0% 8%;
+    --border: 0 0% 8%;
+    --input: 0 0% 8%;
+    --ring: 45 100% 50%;
+    --radius: 0rem;
 
-    --paper: #fdfbf7;
-    --paper-aged: #e5e0d8;
-    --ink: #2d2d2d;
-    --marker: #ff4d4d;
-    --pen: #2d5da1;
-    --postit: #fff9c4;
+    --void: #141414;
+    --bone: #F2EEE3;
   }
 }
 
@@ -43,19 +39,19 @@
   }
 
   html {
-    scroll-behavior: smooth;
+    scroll-behavior: auto; /* Lenis owns scrolling */
   }
 
   body {
-    @apply bg-paper text-ink;
-    font-family: 'Patrick Hand', 'Kalam', cursive;
-    font-size: 1.0625rem;
+    @apply bg-bone text-void font-grotesk;
     overflow-x: hidden;
     min-height: 100vh;
-    /* Notebook grain: dot pattern on warm paper */
-    background-color: var(--paper);
-    background-image: radial-gradient(var(--paper-aged) 1px, transparent 1px);
-    background-size: 24px 24px;
+    /* Blueprint grid on raw concrete */
+    background-color: var(--bone);
+    background-image:
+      linear-gradient(rgba(20, 20, 20, 0.055) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(20, 20, 20, 0.055) 1px, transparent 1px);
+    background-size: 32px 32px;
     color-scheme: light;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
@@ -63,223 +59,111 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Kalam', cursive;
-    font-weight: 700;
-    line-height: 1.15;
-  }
-
-  p {
-    line-height: 1.7;
+    font-family: 'Archivo Black', 'Arial Black', sans-serif;
+    line-height: 1.02;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
   }
 
   ::selection {
-    background: var(--postit);
-    color: var(--ink);
+    background: #FFC900;
+    color: var(--void);
   }
 
-  /* Wobbly focus ring instead of a hard rectangle */
   :focus-visible {
-    outline: 2px dashed var(--pen);
+    outline: 3px solid var(--void);
     outline-offset: 3px;
   }
 }
 
 @layer utilities {
-  /* ---- Paper surfaces ------------------------------------------------ */
-  .paper-sheet {
+  /* ---- Brutal surfaces ------------------------------------------------ */
+  .brut-panel {
     background: #ffffff;
-    border: 2px solid var(--ink);
-    box-shadow: 3px 3px 0 0 rgba(45, 45, 45, 0.12);
+    border: 3px solid var(--void);
+    box-shadow: 6px 6px 0 0 var(--void);
   }
 
-  .paper-note {
-    background: var(--postit);
-    border: 2px solid var(--ink);
-    box-shadow: 4px 4px 0 0 var(--ink);
+  /* Pressable: hover lifts, active slams into the shadow */
+  .brut-press {
+    transition: transform 120ms ease, box-shadow 120ms ease;
+  }
+  .brut-press:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 8px 8px 0 0 var(--void);
+  }
+  .brut-press:active {
+    transform: translate(4px, 4px);
+    box-shadow: 0 0 0 0 var(--void);
   }
 
-  .paper-lined {
+  /* ---- Backgrounds ----------------------------------------------------- */
+  .bg-halftone {
+    background-image: radial-gradient(var(--void) 1.6px, transparent 1.6px);
+    background-size: 14px 14px;
+  }
+
+  .bg-halftone-faint {
+    background-image: radial-gradient(rgba(20, 20, 20, 0.16) 1.6px, transparent 1.6px);
+    background-size: 14px 14px;
+  }
+
+  .bg-stripes {
     background-image: repeating-linear-gradient(
-      var(--paper-aged) 0px,
-      var(--paper-aged) 1px,
-      transparent 1px,
-      transparent 28px
+      -45deg,
+      var(--void) 0px,
+      var(--void) 10px,
+      transparent 10px,
+      transparent 22px
     );
   }
 
-  /* ---- Hand-drawn decorations ---------------------------------------- */
-  /* Masking-tape strip across the top edge of a card */
-  .tape::before {
-    content: '';
-    position: absolute;
-    top: -12px;
-    left: 50%;
-    width: 84px;
-    height: 24px;
-    transform: translateX(-50%) rotate(-3deg);
-    background: rgba(45, 45, 45, 0.13);
-    border-left: 1px dashed rgba(45, 45, 45, 0.25);
-    border-right: 1px dashed rgba(45, 45, 45, 0.25);
-    pointer-events: none;
+  /* ---- Type treatments -------------------------------------------------- */
+  .text-outline {
+    -webkit-text-stroke: 2.5px var(--void);
+    color: transparent;
   }
 
-  /* Thumbtack pinning a card to the wall */
-  .tack::before {
-    content: '';
-    position: absolute;
-    top: -10px;
-    left: 50%;
-    width: 18px;
-    height: 18px;
-    transform: translateX(-50%);
-    background: var(--marker);
-    border: 2px solid var(--ink);
-    border-radius: 52% 48% 45% 55% / 50% 55% 45% 50%;
-    pointer-events: none;
+  .text-outline-white {
+    -webkit-text-stroke: 2px #fff;
+    color: transparent;
   }
 
-  /* Scribbled underline under a word */
-  .squiggle-underline {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 8' preserveAspectRatio='none'%3E%3Cpath d='M0 5 Q 12 1 24 5 T 48 5 T 72 5 T 100 4' fill='none' stroke='%23ff4d4d' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: 0 100%;
-    background-size: 100% 8px;
-    padding-bottom: 7px;
+  .sticker-label {
+    @apply inline-block border-[3px] border-void bg-brick-yell px-2 py-0.5 font-mono text-xs font-bold uppercase tracking-widest text-void shadow-brutSm;
   }
 
-  .squiggle-underline-pen {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 8' preserveAspectRatio='none'%3E%3Cpath d='M0 5 Q 12 1 24 5 T 48 5 T 72 5 T 100 4' fill='none' stroke='%232d5da1' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: 0 100%;
-    background-size: 100% 8px;
-    padding-bottom: 7px;
+  /* ---- Marquee ---------------------------------------------------------- */
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    will-change: transform;
   }
 
-  /* Highlighter swipe behind text */
-  .marker-highlight {
-    background-image: linear-gradient(transparent 55%, var(--postit) 55%, var(--postit) 92%, transparent 92%);
-  }
-
-  /* Dashed hand-torn divider */
-  .sketch-divider {
-    height: 0;
-    border-top: 3px dashed var(--ink);
-    opacity: 0.45;
-  }
-
-  /* ---- Motion --------------------------------------------------------- */
-  .jiggle {
-    transition: transform 100ms ease-out, box-shadow 100ms ease-out;
-  }
-
-  .jiggle:hover {
-    transform: rotate(-1.2deg) translate(-1px, -1px);
+  .marquee-mask {
+    overflow: hidden;
+    white-space: nowrap;
   }
 }
 
-/* Pencil-drawn scrollbar */
+/* Square brutal scrollbar */
 ::-webkit-scrollbar {
-  width: 12px;
-  height: 8px;
+  width: 14px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--paper);
-  border-left: 2px dashed var(--paper-aged);
+  background: var(--bone);
+  border-left: 3px solid var(--void);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--ink);
-  border: 2px solid var(--paper);
-  border-radius: 40% 60% 55% 45% / 50% 45% 55% 50%;
+  background: var(--void);
+  border: 3px solid var(--bone);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--marker);
-}
-
-/* ---- Pencil loader --------------------------------------------------
-   The pencil orbits while drawing its own circle. Keyframes assume each
-   animated element transforms around its local origin, so pin them to 0 0
-   (SVG defaults to the viewBox centre, which would fling them off-screen). */
-.pencil__body1,
-.pencil__body2,
-.pencil__body3,
-.pencil__eraser,
-.pencil__eraser-skew,
-.pencil__point,
-.pencil__rotate,
-.pencil__stroke {
-  animation-duration: 3s;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-  transform-origin: 0 0;
-}
-
-.pencil__rotate { animation-name: pencilRotate; }
-.pencil__stroke { animation-name: pencilStroke; }
-.pencil__body1 { animation-name: pencilBody1; }
-.pencil__body2 { animation-name: pencilBody2; }
-.pencil__body3 { animation-name: pencilBody3; }
-.pencil__eraser { animation-name: pencilEraser; }
-.pencil__point { animation-name: pencilPoint; }
-
-.pencil__eraser-skew {
-  animation-name: pencilEraserSkew;
-  animation-timing-function: ease-in-out;
-}
-
-@keyframes pencilBody1 {
-  from, to { stroke-dashoffset: 351.86; transform: rotate(-90deg); }
-  50% { stroke-dashoffset: 150.8; transform: rotate(-225deg); }
-}
-
-@keyframes pencilBody2 {
-  from, to { stroke-dashoffset: 406.84; transform: rotate(-90deg); }
-  50% { stroke-dashoffset: 174.36; transform: rotate(-225deg); }
-}
-
-@keyframes pencilBody3 {
-  from, to { stroke-dashoffset: 296.88; transform: rotate(-90deg); }
-  50% { stroke-dashoffset: 127.23; transform: rotate(-225deg); }
-}
-
-@keyframes pencilEraser {
-  from, to { transform: rotate(-45deg) translate(49px, 0); }
-  50% { transform: rotate(0deg) translate(49px, 0); }
-}
-
-@keyframes pencilEraserSkew {
-  from, 32.5%, 67.5%, to { transform: skewX(0); }
-  35%, 65% { transform: skewX(-4deg); }
-  37.5%, 62.5% { transform: skewX(8deg); }
-  40%, 45%, 50%, 55%, 60% { transform: skewX(-15deg); }
-  42.5%, 47.5%, 52.5%, 57.5% { transform: skewX(15deg); }
-}
-
-@keyframes pencilPoint {
-  from, to { transform: rotate(-90deg) translate(49px, -30px); }
-  50% { transform: rotate(-225deg) translate(49px, -30px); }
-}
-
-@keyframes pencilRotate {
-  from { transform: translate(100px, 100px) rotate(0); }
-  to { transform: translate(100px, 100px) rotate(720deg); }
-}
-
-@keyframes pencilStroke {
-  from { stroke-dashoffset: 439.82; transform: translate(100px, 100px) rotate(-113deg); }
-  50% { stroke-dashoffset: 164.93; transform: translate(100px, 100px) rotate(-113deg); }
-  75%, to { stroke-dashoffset: 439.82; transform: translate(100px, 100px) rotate(112deg); }
-}
-
-@keyframes site-fadein {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-.site-fadein {
-  animation: site-fadein 500ms ease forwards;
+  background: #FFC900;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -287,21 +171,8 @@
     scroll-behavior: auto;
   }
 
-  .jiggle:hover {
-    transform: none;
-  }
-
-  .animate-doodle-bounce,
-  .animate-wiggle,
-  .animate-draw,
-  .pencil__body1,
-  .pencil__body2,
-  .pencil__body3,
-  .pencil__eraser,
-  .pencil__eraser-skew,
-  .pencil__point,
-  .pencil__rotate,
-  .pencil__stroke {
+  .animate-spin-slow,
+  .animate-float-hard {
     animation: none !important;
   }
 }

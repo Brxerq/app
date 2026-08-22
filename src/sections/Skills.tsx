@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { SectionHeading, SketchCard, SketchTag, Squiggle } from '@/components/ui/sketch';
+import { SectionHeading, BrutalCard, Sticker } from '@/components/ui/brick';
 import {
   Code2,
   Database,
@@ -13,6 +13,7 @@ import {
   Eye,
   MessageSquare,
   BarChart3,
+  Wrench,
 } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -38,8 +39,12 @@ const skills = [
 
 const categories = ['everything', 'Languages', 'AI / Data', 'Frameworks', 'Backend', 'Tools'];
 
-// Small deterministic tilts so the grid never looks machine-aligned.
-const TILTS = ['-rotate-2', 'rotate-1', '-rotate-1', 'rotate-2', '-rotate-1', 'rotate-2'];
+const chipTones = [
+  'hover:bg-brick-yell',
+  'hover:bg-brick-pink',
+  'hover:bg-brick-lime',
+  'hover:bg-brick-blue',
+];
 
 const pairings = [
   { from: 'React + TypeScript', to: 'RTK Query' },
@@ -58,32 +63,46 @@ export default function Skills() {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
+      // Section header slides across like a banner.
       gsap.fromTo(
-        '.skills-intro',
-        { y: 30, opacity: 0 },
+        '.brut-heading',
+        { x: -80, opacity: 0 },
         {
-          y: 0,
+          x: 0,
           opacity: 1,
           duration: 0.6,
-          stagger: 0.12,
-          ease: 'power2.out',
-          clearProps: 'transform',
-          scrollTrigger: { trigger: sectionRef.current, start: 'top 80%', once: true },
+          ease: 'power3.out',
+          scrollTrigger: { trigger: sectionRef.current, start: 'top 75%', once: true },
         },
       );
 
+      // Chips pop in with elastic overshoot.
       gsap.fromTo(
         '.skill-chip',
-        { y: 18, opacity: 0 },
+        { scale: 0, rotate: () => gsap.utils.random(-30, 30), opacity: 0 },
+        {
+          scale: 1,
+          rotate: 0,
+          opacity: 1,
+          duration: 0.45,
+          ease: 'back.out(2)',
+          stagger: 0.035,
+          immediateRender: false,
+          clearProps: 'transform',
+          scrollTrigger: { trigger: cloudRef.current, start: 'top 82%', once: true },
+        },
+      );
+
+      // Side panel drops in.
+      gsap.fromTo(
+        '.skills-panel',
+        { y: 60, opacity: 0 },
         {
           y: 0,
           opacity: 1,
-          duration: 0.4,
-          stagger: 0.04,
-          ease: 'back.out(1.8)',
-          immediateRender: false,
-          clearProps: 'transform',
-          scrollTrigger: { trigger: cloudRef.current, start: 'top 85%', once: true },
+          duration: 0.5,
+          ease: 'power2.out',
+          scrollTrigger: { trigger: '.skills-panel', start: 'top 85%', once: true },
         },
       );
     }, sectionRef);
@@ -92,62 +111,75 @@ export default function Skills() {
   }, []);
 
   return (
-    <section ref={sectionRef} id="skills" className="relative px-6 py-20">
-      <div className="mx-auto max-w-5xl">
-        <SectionHeading label="what i work with" title="the" accent="toolbox" className="skills-intro" />
+    <section ref={sectionRef} id="skills" className="relative px-4 py-24 sm:px-6">
+      <div className="mx-auto max-w-6xl">
+        <SectionHeading kicker="what i work with" title="the" accent="toolbox" accentTone="pink">
+          Sketch the flow first, then build it. Python and TypeScript for most of it,
+          TensorFlow and PyTorch when it needs to learn something, Docker when it needs
+          to run somewhere that isn't my laptop.
+        </SectionHeading>
 
-        <div className="grid gap-10 md:grid-cols-5">
-          {/* Left: the note about how I work */}
-          <div className="md:col-span-2">
-            <SketchCard tone="white" decoration="tape" className="skills-intro -rotate-1 p-6" solid>
-              <h3 className="font-kalam text-2xl">how i work</h3>
-              <Squiggle className="my-3 text-marker" />
-              <p className="font-hand text-lg leading-relaxed text-ink-soft">
-                Sketch the flow first, then build it. Python and TypeScript for most of
-                it, TensorFlow and PyTorch when it needs to learn something, Docker when
-                it needs to run somewhere that isn&apos;t my laptop.
-              </p>
+        <div className="grid gap-10 lg:grid-cols-5">
+          {/* Left: manifesto + counters */}
+          <div className="lg:col-span-2">
+            <BrutalCard tone="dark" className="skills-panel p-6 text-white">
+              <div className="flex items-center gap-3">
+                <span className="flex h-10 w-10 items-center justify-center border-[3px] border-white bg-brick-yell text-void">
+                  <Wrench className="h-5 w-5" strokeWidth={3} />
+                </span>
+                <h3 className="text-xl text-brick-yell">how i work</h3>
+              </div>
+              <ul className="mt-5 space-y-3 font-mono text-sm uppercase tracking-wide text-white/80">
+                <li className="border-l-[3px] border-brick-yell pl-3">01 — sketch the system</li>
+                <li className="border-l-[3px] border-brick-pink pl-3">02 — ship the ugly version</li>
+                <li className="border-l-[3px] border-brick-lime pl-3">03 — measure what happened</li>
+                <li className="border-l-[3px] border-brick-blue pl-3">04 — make it fast, then pretty</li>
+              </ul>
 
-              <div className="mt-5 flex items-center gap-3">
-                <div className="flex -space-x-3">
-                  {[Brain, Code2, Database, Cloud].map((Icon, i) => (
-                    <span
-                      key={i}
-                      className={`flex h-10 w-10 items-center justify-center rounded-blob border-2 border-ink bg-paper ${TILTS[i]}`}
-                    >
-                      <Icon className="h-5 w-5" strokeWidth={2.5} />
+              <div className="mt-6 border-t-[3px] border-dashed border-white/25 pt-4 font-mono text-xs uppercase tracking-widest text-white/50">
+                25+ technologies · 3 core domains · zero fear of legacy code
+              </div>
+            </BrutalCard>
+
+            {/* Marquee rows running opposite directions */}
+            <div className="mt-8 space-y-3 overflow-hidden">
+              <div className="marquee-mask border-[3px] border-void bg-brick-pink py-2">
+                <div className="marquee-track" style={{ animation: 'marquee-scroll 18s linear infinite' }}>
+                  {[0, 1].map((n) => (
+                    <span key={n} className="flex shrink-0 items-center whitespace-nowrap px-2 font-display text-sm uppercase" aria-hidden={n === 1}>
+                      {['Python', 'TypeScript', 'PyTorch', 'Docker', 'React'].map((s) => (
+                        <span key={s} className="mx-4">{s} ✦</span>
+                      ))}
                     </span>
                   ))}
                 </div>
-                <span className="font-hand text-base text-ink-faint">+ a dozen more</span>
               </div>
-            </SketchCard>
-
-            <div className="skills-intro mt-6 grid grid-cols-2 gap-4">
-              <div className="jiggle flex aspect-square flex-col items-center justify-center rounded-blob border-[3px] border-ink bg-postit p-4 text-center shadow-sketch">
-                <span className="font-kalam text-4xl">25+</span>
-                <span className="font-hand text-base leading-tight">technologies</span>
-              </div>
-              <div className="jiggle flex aspect-square flex-col items-center justify-center rounded-blobAlt border-[3px] border-ink bg-white p-4 text-center shadow-sketch">
-                <span className="font-kalam text-4xl text-marker">3</span>
-                <span className="font-hand text-base leading-tight">core domains</span>
+              <div className="marquee-mask border-[3px] border-void bg-brick-lime py-2">
+                <div className="marquee-track" style={{ animation: 'marquee-scroll 22s linear infinite reverse' }}>
+                  {[0, 1].map((n) => (
+                    <span key={n} className="flex shrink-0 items-center whitespace-nowrap px-2 font-display text-sm uppercase" aria-hidden={n === 1}>
+                      {['TensorFlow', 'PostgreSQL', 'AWS', 'FastAPI', 'OpenCV'].map((s) => (
+                        <span key={s} className="mx-4">{s} ✦</span>
+                      ))}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Right: the chips */}
-          <div className="md:col-span-3" ref={cloudRef}>
+          {/* Right: filterable chip wall */}
+          <div className="lg:col-span-3" ref={cloudRef}>
             <div className="mb-6 flex flex-wrap gap-2">
-              {categories.map((cat, i) => {
+              {categories.map((cat) => {
                 const isActive = activeCategory === cat;
                 return (
                   <button
                     key={cat}
                     onClick={() => setActiveCategory(cat)}
-                    className={`rounded-wobblySm border-2 border-ink px-3 py-1.5 font-hand text-base transition-all duration-100 hover:rotate-0 ${TILTS[i % TILTS.length]} ${isActive
-                      ? 'bg-marker text-white shadow-sketchSm'
-                      : 'bg-white text-ink shadow-sketchSm hover:bg-postit'
-                      }`}
+                    className={`brut-press border-[3px] border-void px-3 py-1.5 font-display text-xs uppercase shadow-brutSm ${
+                      isActive ? 'bg-void text-brick-yell' : 'bg-white'
+                    }`}
                   >
                     {cat}
                   </button>
@@ -161,39 +193,31 @@ export default function Skills() {
                 return (
                   <div
                     key={skill.name}
-                    className={`skill-chip flex flex-col items-center justify-center gap-2 rounded-wobblyMd border-2 border-ink bg-white px-3 py-5 text-center shadow-sketchSoft transition-all duration-100 hover:rotate-0 hover:shadow-sketch ${TILTS[index % TILTS.length]}`}
+                    className={`skill-chip brut-press flex items-center gap-3 border-[3px] border-void bg-white p-3 shadow-brut transition-colors ${chipTones[index % chipTones.length]}`}
                   >
-                    <span className="flex h-11 w-11 items-center justify-center rounded-blob border-2 border-ink bg-paper">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center border-[3px] border-void bg-bone">
                       <Icon className="h-5 w-5" strokeWidth={2.5} />
                     </span>
-                    <span className="font-hand text-base leading-tight">{skill.name}</span>
+                    <span className="font-display text-xs uppercase leading-tight">{skill.name}</span>
                   </div>
                 );
               })}
             </div>
 
-            {/* Pairings — scribbled connections */}
-            <SketchCard tone="paper" className="mt-8 rotate-[0.6deg] p-5">
-              <h4 className="mb-3 font-kalam text-xl">things that pair well</h4>
-              <div className="flex flex-wrap gap-2">
-                {pairings.map((pair) => (
-                  <span
-                    key={pair.from + pair.to}
-                    className="inline-flex items-center gap-2 rounded-wobblySm border-2 border-dashed border-ink px-3 py-1.5 font-hand text-base"
-                  >
-                    {pair.from}
-                    <span className="text-marker">→</span>
-                    {pair.to}
-                  </span>
-                ))}
-              </div>
-            </SketchCard>
+            {/* Pairings */}
+            <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2">
+              {pairings.map((pair) => (
+                <Sticker key={pair.from + pair.to} tone="white" className="normal-case">
+                  <span className="font-mono text-xs">{pair.from}</span>
+                  <span className="mx-2 font-bold">→</span>
+                  <span className="font-mono text-xs">{pair.to}</span>
+                </Sticker>
+              ))}
+            </div>
 
             <div className="mt-6 flex flex-wrap gap-2">
-              {['Git', 'REST APIs', 'RabbitMQ', 'FastAPI', 'Technical SEO'].map((extra, i) => (
-                <SketchTag key={extra} className={i % 2 ? 'rotate-1' : '-rotate-1'}>
-                  {extra}
-                </SketchTag>
+              {['Git', 'REST APIs', 'RabbitMQ', 'FastAPI', 'Technical SEO'].map((extra) => (
+                <Sticker key={extra} tone="primary">{extra}</Sticker>
               ))}
             </div>
           </div>
