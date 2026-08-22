@@ -175,9 +175,11 @@ export default function Hero() {
               </span>
             </Sticker>
 
-            <h1 className="text-[clamp(2.6rem,7vw,5.5rem)] leading-[0.95]">
-              <span className="hero-title-line text-outline block">Syed Muhammad</span>
-              <span className="hero-title-line mt-1 inline-block border-[3px] border-void bg-brick-yell px-4 py-1 shadow-brut">
+            <h1 className="leading-[0.95]">
+              <span className="hero-title-line text-outline block whitespace-nowrap text-[clamp(1.55rem,7.2vw,4rem)]">
+                Syed Muhammad
+              </span>
+              <span className="hero-title-line mt-2 inline-block border-[3px] border-void bg-brick-yell px-4 py-1 text-[clamp(2.6rem,7vw,5.5rem)] shadow-brut">
                 Hassaan!
               </span>
             </h1>
