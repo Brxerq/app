@@ -7,6 +7,12 @@
       "runtimeArgs": ["run", "dev", "--", "--port", "5174", "--strictPort"],
       "port": 5174,
       "autoPort": false
+    },
+    {
+      "name": "single-file-preview",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["vite", "preview", "--outDir", "dist", "--port", "4173", "--strictPort"],
+      "port": 4173
     }
   ]
 }
