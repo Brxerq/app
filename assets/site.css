@@ -177,6 +177,7 @@ html.js .loader.is-done { opacity: 0; visibility: hidden; pointer-events: none; 
   html.js .ruler { display: block; }
   /* the current chapter's name stays lit on the ruler: keep full-width content clear of it */
   html.js .also, html.js .career, html.js .creds, html.js .toolbox { padding-right: calc(var(--gutter) + 110px); }
+  html.js.gl .case--flip .stage__copy { padding-right: 110px; }
 }
 
 /* labels pinned to points in the world */
@@ -314,6 +315,8 @@ section[id] { position: relative; }
 .contact__grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); grid-template-areas: "head form" "side form"; column-gap: clamp(24px, 6vw, 110px); row-gap: clamp(28px, 5vh, 56px); align-items: start; }
 .contact__head { grid-area: head; }
 .contact__now { margin-top: 26px; font: 400 12px var(--f-mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--signal); }
+.contact__fits { margin-top: clamp(24px, 4vh, 40px); }
+.contact__fits + .ticks { margin-top: 12px; max-width: 52ch; }
 .contact__side { grid-area: side; display: grid; gap: 34px; }
 .contact__side ul { margin-top: 14px; display: grid; gap: 4px; }
 .basics li { padding: 6px 0; color: rgba(236, 232, 223, 0.88); }
@@ -411,7 +414,7 @@ html.gl .commits .stage__pin { position: absolute; inset: 0; }
 html.gl .commits .stage__frame { inset: 44% 0 4% 0; }
 html.gl .commits__copy { position: sticky; top: calc(16 * var(--vh)); }
 html.gl .contact .stage__copy { padding-block: calc(14 * var(--vh)) calc(12 * var(--vh)); }
-html.gl .contact .stage__frame { inset: 10% 2% 6% 2%; }
+html.gl .contact .stage__frame { inset: 10% 8% 6% 2%; } /* a margin on the copy side */
 html.gl .contact__grid { display: block; }
 html.gl .contact__head { margin-bottom: calc(5 * var(--vh)); }
 html.gl .note { margin-bottom: calc(5 * var(--vh)); }

@@ -203,7 +203,7 @@ export const SCENES = {
     layer: LAYER.portrait2,
     pose(seg, p, base, ctx) {
       const eye = ctx.dir.eye || { x: 0.5, y: 0.7 };
-      const e = smooth(0, 0.7, p);
+      const e = smooth(0, 0.2, p); // settled before the contact copy is read, so it never sits on the zoomed face
       const k = Math.pow(e, 0.9);
       const zEye = LAYER_Z[LAYER.portrait2] + 0.28;
       return {
