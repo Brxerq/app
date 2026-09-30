@@ -125,12 +125,18 @@ if (!clients.length || clients.length > 12) throw new Error(`need 1–12 client 
   };
 
   const found = new Set(pick(clients).map((f) => f.properties.name));
-  if (found.size !== clients.length) throw new Error('not in world-atlas countries-110m (use its exact name): ' + clients.filter((n) => !found.has(n)));
+  // places too small for the 110m atlas (Singapore, Hong Kong) would be under a pixel anyway: no fill, the globe still
+  // gives them an arc, a pin and a label. The finer atlas only checks that the name is real.
+  const fine = JSON.parse(readFileSync(require.resolve('world-atlas/countries-50m.json'), 'utf8'));
+  const known = new Set(fine.objects.countries.geometries.map((g) => g.properties.name));
+  const unknown = clients.filter((n) => !found.has(n) && !known.has(n));
+  if (unknown.length) throw new Error('not a world-atlas country name (use its exact name): ' + unknown);
 
   const R = layer(feature(land, land.objects.land).features);
   // one binary layer per country, so antialiased borders can never decode as a neighbour's index
   const G = new Uint8Array(W * H);
   clients.forEach((name, k) => {
+    if (!found.has(name)) return;
     const L = layer(pick([name]));
     for (let i = 0; i < W * H; i++) if (L[i * 4] > 127) G[i] = (k + 1) * 20;
   });
@@ -147,5 +153,5 @@ if (!clients.length || clients.length > 12) throw new Error(`need 1–12 client 
   }
   g.putImageData(id, 0, 0);
   writeFileSync(out('earth.png'), c.toBuffer('image/png'));
-  console.log('earth.png', W, H, 'client countries:', clients.join(', '));
+  console.log('earth.png', W, H, 'client countries:', clients.join(', '), '| pin only:', clients.filter((n) => !found.has(n)).join(', ') || 'none');
 }
