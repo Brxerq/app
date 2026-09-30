@@ -33,7 +33,6 @@ export class Director {
     this.slabs = null;
     this.hud = null;
     this._hudFrame = -1;
-    this.orreryRing = -5;
   }
 
   // ---------- DOM measurement ----------
@@ -58,28 +57,15 @@ export class Director {
         box = { cx: fr.left + fr.width / 2, cy: fr.top - sr.top + fr.height / 2, w: Math.max(40, fr.width), h: Math.max(40, fr.height) };
       }
       const steps = [...el.querySelectorAll('.stage__copy .step, .step')].filter((s, i, a) => a.indexOf(s) === i);
-      const items = [...el.querySelectorAll('.role')].map((s) => {
-        const b = s.getBoundingClientRect();
-        return { c: b.top + sy + b.height / 2 };
-      });
-      const seg = {
-        el, def, id: el.id, top, bottom: top + r.height, len: r.height, box, items,
+      segs.push({
+        el, def, id: el.id, top, bottom: top + r.height, len: r.height, box,
         steps: steps.map((s) => {
           const b = s.getBoundingClientRect();
           return { el: s, c: b.top + sy + b.height / 2, top: b.top + sy, h: b.height };
         }),
-      };
-      segs.push(seg);
+      });
     }
-    // vision has three projects → three sub-segments sharing one section
-    const out = [];
-    for (const s of segs) {
-      if (s.def.split) {
-        const subs = s.def.split(s);
-        out.push(...subs);
-      } else out.push(s);
-    }
-    this.segs = out;
+    this.segs = segs;
     this.buildPhases();
   }
 

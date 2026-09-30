@@ -3,13 +3,12 @@
 Live: <https://brxerq.github.io/app/> (GitHub Pages, served straight from the repo root of the Pages branch, `main`).
 
 **Concept — "Long Exposure".** One substance, roughly 65,000 strokes of light, redraws itself as the subject of each
-chapter: his ink portrait, a hatch-engraved globe with the six markets lit, a call waveform that resolves into booked
-slots, a shelf with three detections, a 4-layer liveness stack, 200 species that scatter on validation, a sales funnel, a
-corridor of the nine live sites (their screenshots hang in it as textured slabs you can hover and click), a field of
-4,500 automation runs with the 0.4% misses (unlit under "Older experiments", then lit run by run), a vertical
-time-ruler of the career, the GitHub graph as a night skyline, a five-ring toolbox, and back out of the pupil to the portrait. Stroke
-colour temperature means maturity: cobalt = sketch, white = built, yellow = shipped. The spine is his own method:
-sketch the system, ship the ugly version, measure what happened, make it fast, then pretty.
+chapter, and every subject is him or his real output: his ink portrait; a hatch-engraved globe that turns from Karachi
+to each client country, an arc drawing out to it as its row is read; a corridor of his selected work, where the same
+strokes that drew his face sketch each live site from its own screenshot before the screenshot develops over the sketch
+(hover and click it); a quiet starfield under the reading chapters; the GitHub graph as a night skyline; and back out of
+the pupil to the portrait. Stroke colour temperature means maturity: cobalt = sketch, white = built, yellow = shipped.
+The spine is his own method: sketch the system, ship the ugly version, measure what happened, make it fast, then pretty.
 
 ## How it is put together
 
@@ -18,14 +17,16 @@ sketch the system, ship the ugly version, measure what happened, make it fast, t
 | `index.html` | **All content lives here**, as plain semantic HTML. Every role, project, site, stat and link. It is the whole site when JS is off, when the visitor prefers reduced motion, or when WebGL is unavailable. |
 | `assets/site.css` | Hand-written stylesheet: static layout first, `html.gl` rules layer the sticky "stage" grid on top. |
 | `src/` | ES modules, bundled by esbuild into `assets/app-*.js` + `assets/chunks/` (committed — no CI needed). |
-| `src/gl/` | The world: `strokes.js` (one instanced mesh, forms live in data textures, morphing in the vertex shader), `forms/` (generators), `scenes.js` (per-chapter camera + choreography), `director.js` (DOM + scroll → camera/morph), `slabs.js` (site screenshots as textured slabs), `stage.js` (renderer, bloom, quality governor). |
+| `src/gl/` | The world: `strokes.js` (one instanced mesh, forms live in data textures, morphing in the vertex shader), `forms/` (generators; `portrait.js` also holds `screenForm`, which sketches a screenshot), `scenes.js` (per-chapter camera + choreography), `director.js` (DOM + scroll → camera/morph), `slabs.js` (site screenshots as textured slabs that develop over their sketches), `hud.js` (the country label pinned to the globe), `stage.js` (renderer, bloom, quality governor). |
 | `src/ui/` | Navigation ruler + index, counters and reveals (GSAP inside `gsap.matchMedia()`), hero intro, pointer effects, contact form, GitHub data. |
 | `scripts/` | `build.mjs`, `make-assets.mjs` (portrait, globe mask, social card), `check.mjs` (pre-publish checks). |
-| `projects/`, `logos/` | Screenshots and favicons used by the page (unchanged). |
+| `projects/`, `logos/` | Screenshots and favicons used by the page. |
 
 The renderer reads the page rather than duplicating it: the sections say which scene they are (`data-scene`), where the
-subject sits (`.stage__frame`), which dates a role spans (`data-start` / `data-end`), how many runs the field draws
-(`data-runs`, `data-fail-rate`) and which confidence tags the shelf shows (`data-detections`). Change the HTML and the 3D follows.
+subject sits (`.stage__frame`), which countries the globe lights (`data-country`, `data-lat`, `data-lon` on the
+`#clients` rows) and which sites the corridor sketches (the `#work .site` screenshots and links). Change the HTML and the
+3D follows. One exception: adding or removing a client country changes the land mask, so run `npm run assets` after
+(reordering the rows does not need it).
 
 ## Working on it
 

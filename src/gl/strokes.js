@@ -1,12 +1,13 @@
 // The one substance: N light-strokes whose home positions live in per-form data textures.
-// The vertex shader morphs between any two forms; everything else (globe spin, voice, field…) is a
+// The vertex shader morphs between any two forms; everything else (globe spin, skyline growth, corridor fades…) is a
 // per-stroke "fx" switch driven by a handful of uniforms the director sets each frame.
 import {
   AdditiveBlending, BufferAttribute, DataArrayTexture, FloatType, InstancedBufferAttribute, InstancedBufferGeometry,
   Mesh, NearestFilter, RGBAFormat, ShaderMaterial, Vector2, Vector3, Vector4,
 } from 'three';
 
-export const MAX_FORMS = 16;
+export const MAX_FORMS = 16; // uniform slots per layer and reveal groups (the shader arrays are sized to match)
+const TEX_LAYERS = 8; // form layers held in the data textures: scenes.js LAYER uses 0..6
 
 const vert = /* glsl */ `
 precision highp float;
@@ -37,8 +38,7 @@ uniform vec2  uFormRot[16];
 uniform vec3  uFormOff[16];
 uniform float uFormScale[16];
 uniform float uReveal[16];
-uniform vec4  uFx;             // x voice, y run, z spread, w grow
-uniform vec4  uFx2;            // x orbit, y active, z focus, w scan
+uniform vec4  uFx;             // w: how far the skyline has grown
 uniform vec3  uFocus;          // focus plane z, focus range, fog k
 attribute float aId;
 
@@ -94,72 +94,11 @@ void applyFx(int layer, inout vec3 p, inout vec3 d, inout float w, inout float h
   int fx = int(aux.z + .5);
   if (fx == 0 || fx == 9 || fx == 10) return;
   float t = uTime;
-  if (fx == 1) {            // voice: continuous waveform on the left resolving into booked slots on the right
-    float x = p.x;
-    float k = smoothstep(.15, -.55, x / 3.6);                      // 1 on the wave side, 0 on the slot side
-    float env = uFx.x * (.35 + .65 * sin(x * .9 - t * 1.3) * sin(x * .37 + t * .8));
-    float ph = aux.y * 6.2831;
-    float y = sin(x * 2.3 - t * 2.6 + ph) * .34 + sin(x * 5.1 + t * 1.7 + ph * 2.) * .14 + sin(x * .8 + t * .6) * .22;
-    p.y += y * env * k * (1. + aux.w * .6);
-    float dy = (cos(x * 2.3 - t * 2.6 + ph) * .34 * 2.3 + cos(x * 5.1 + t * 1.7 + ph * 2.) * .14 * 5.1) * env * k;
-    d.xy = normalize(vec2(1., dy)) * length(d.xy);
-    float play = fract(t * .11) * 8. - 4.;                          // playhead sweeping left → right
-    w *= 1. + 1.4 * exp(-pow((x - play) * 1.2, 2.));
-    heat += .45 * exp(-pow((x - play) * 1.2, 2.));
-    return;
-  }
-  if (fx == 2) {            // funnel: everything flows down, brightness ramps as it converts
-    float s = fract(aux.y + t * (.045 + h * .03));                  // 0 top … 1 throat
-    float R0 = 3.0, R1 = .3, H = 3.3;
-    float r = mix(R0, R1, pow(s, .8)) * (.5 + .5 * hash11(h * 71.));
-    float a = aux.w * 6.2831 + s * 1.3 + t * .1;
-    p = vec3(cos(a) * r, H * (.5 - s) * 2. - .1, sin(a) * r * .55);
-    d = normalize(vec3(-sin(a) * .25, -1., cos(a) * .12)) * length(d);
-    heat = .05 + s * .95;
-    w *= .5 + s * .55;
-    return;
-  }
-  if (fx == 3) {            // field: marks light up as the run progresses, misses go red then get handled
-    float run = uFx.y;
-    float on = smoothstep(aux.y - .012, aux.y, run);
-    float missed = aux.w;
-    float flash = missed * on * (1. - smoothstep(aux.y + .05, aux.y + .16, run));
-    float handled = missed * smoothstep(aux.y + .1, aux.y + .2, run);
-    w *= .3 + on * (1.8 + flash * 2.6 + handled * 1.4);
-    heat = mix(.42, .95, handled);
-    if (flash > .02) heat = -1.;
-    d.y *= (.7 + on * .6) * (1. + missed * on * 1.6);
-    return;
-  }
-  if (fx == 4) {            // species: clusters are tight on train data, scatter on validation
-    vec3 j = hash31(h * 913. + aux.w * 17.) - .5;
-    p += j * uFx.z * (.35 + 1.9 * h);
-    heat = mix(heat, .05, uFx.z * step(.6441, aux.w));              // ~36% land in the wrong cluster
-    return;
-  }
   if (fx == 5) {            // skyline: towers grow from the ground
     float g = smoothstep(0., 1., clamp(uFx.w * 1.4 - aux.y * .5, 0., 1.));
     p.y = -1.2 + (p.y + 1.2) * g;
     d *= g;
     w *= .25 + .75 * g;
-    return;
-  }
-  if (fx == 6) {            // orrery: each ring turns about its own axis at its own speed
-    float ring = aux.w;
-    float ang = uFx2.x * (.35 + ring * .22) * (mod(ring, 2.) < 1. ? 1. : -1.);
-    float c = cos(ang), s = sin(ang);
-    p.xz = mat2(c, -s, s, c) * p.xz;
-    d.xz = mat2(c, -s, s, c) * d.xz;
-    float act = 1. - smoothstep(0., 1.2, abs(ring - uFx2.y));
-    w *= .55 + .9 * act;
-    heat += .25 * act;
-    return;
-  }
-  if (fx == 7) {            // scan: a bright band sweeps the frame
-    float s = uFx2.w;
-    float band = exp(-pow((p.y / 3. + .5 - s) * 9., 2.));
-    w *= 1. + 2.2 * band;
-    heat += .35 * band;
     return;
   }
   if (fx == 8) {            // tunnel dust drifts towards the camera
@@ -286,8 +225,9 @@ void main() {
 
   float twinkle = .82 + .18 * sin(uTime * (1.5 + h * 3.) + h * 40.);
   float thin = min(1., hw * 1.9);
+  // corridor frames: gone once passed (so they never sit over the image in focus), and only the next two drawn ahead
   float nearK = ((e > .5) ? ub.z : ua.z) > 9.5 ? 1. : 0.;
-  float passed = mix(1., smoothstep(uFocus.x - 6., uFocus.x - 1.6, dist), nearK);
+  float passed = mix(1., smoothstep(uFocus.x - 1.8, uFocus.x - .4, dist) * (1. - smoothstep(uFocus.x + 5., uFocus.x + 10.5, dist)), nearK);
   float a = uBright * w * twinkle * fog * thin * passed / (1. + coc * 1.8) * (1. + lit * 1.6);
   vec3 col = palette(heat < -.5 ? -1. : clamp(heat + uWarm, 0., 1.3));
   vUv = vec2(position.x, position.y);
@@ -312,7 +252,7 @@ export class Strokes {
    * @param {number} count strokes drawn at full quality
    * @param {number} layers number of form layers
    */
-  constructor(count, layers = MAX_FORMS) {
+  constructor(count, layers = TEX_LAYERS) {
     this.count = count;
     this.layers = layers;
     this.texW = Math.ceil(Math.sqrt(count));
@@ -369,7 +309,6 @@ export class Strokes {
       uFormScale: { value: new Float32Array(MAX_FORMS).fill(1) },
       uReveal: { value: new Float32Array(MAX_FORMS).fill(1) },
       uFx: { value: new Vector4(1, 0, 0, 1) },
-      uFx2: { value: new Vector4(0, 0, 0, 0) },
       uFocus: { value: new Vector3(9, 14, 0.012) },
     };
     this.material = new ShaderMaterial({

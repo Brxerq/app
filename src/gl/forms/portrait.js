@@ -29,6 +29,112 @@ function boxBlur(src, w, h, r) {
   return out;
 }
 
+// row/column CDFs of a density map, for sampling pixels in proportion to it
+function cdfOf(density, w, h) {
+  const rowCdf = new Float32Array(h);
+  const colCdf = new Float32Array(w * h);
+  let racc = 0;
+  for (let y = 0; y < h; y++) {
+    let cacc = 0;
+    for (let x = 0; x < w; x++) {
+      cacc += density[y * w + x];
+      colCdf[y * w + x] = cacc;
+    }
+    if (cacc > 0) for (let x = 0; x < w; x++) colCdf[y * w + x] /= cacc;
+    racc += cacc;
+    rowCdf[y] = racc;
+  }
+  for (let y = 0; y < h; y++) rowCdf[y] /= racc || 1;
+  return { rowCdf, colCdf };
+}
+
+// smoothed structure tensor of an image → per-pixel stroke orientation along the drawn lines
+function tensor(soft, w, h, r) {
+  const n = w * h;
+  const jxx = new Float32Array(n), jxy = new Float32Array(n), jyy = new Float32Array(n), mag = new Float32Array(n);
+  for (let y = 1; y < h - 1; y++) {
+    for (let x = 1; x < w - 1; x++) {
+      const i = y * w + x;
+      const gx = soft[i + 1] - soft[i - 1] + 0.5 * (soft[i - w + 1] - soft[i - w - 1] + soft[i + w + 1] - soft[i + w - 1]);
+      const gy = soft[i + w] - soft[i - w] + 0.5 * (soft[i + w - 1] - soft[i - w - 1] + soft[i + w + 1] - soft[i - w + 1]);
+      jxx[i] = gx * gx; jxy[i] = gx * gy; jyy[i] = gy * gy;
+      mag[i] = Math.sqrt(gx * gx + gy * gy);
+    }
+  }
+  return { bxx: boxBlur(jxx, w, h, r), bxy: boxBlur(jxy, w, h, r), byy: boxBlur(jyy, w, h, r), mag };
+}
+
+// stroke angle at pixel idx: along the structure where it is clear, `fallback` where it is not
+function orient({ bxx, bxy, byy }, idx, fallback, rand) {
+  const c2 = bxx[idx] - byy[idx], s2 = 2 * bxy[idx];
+  const coh = clamp(Math.hypot(c2, s2) / (bxx[idx] + byy[idx] + 1e-6), 0, 1);
+  const ang = 0.5 * Math.atan2(s2, c2) + Math.PI / 2;
+  const k = clamp(coh * 1.6, 0, 1);
+  const cx = Math.cos(2 * ang) * k + Math.cos(2 * fallback) * (1 - k);
+  const cy = Math.sin(2 * ang) * k + Math.sin(2 * fallback) * (1 - k);
+  return { ang: 0.5 * Math.atan2(cy, cx) + (rand() - 0.5) * 0.35, k };
+}
+
+/**
+ * A screenshot → a wireframe sketch in strokes that trace the page's edges. Edges of either polarity count, so dark and
+ * light UIs both work. The image is cover-fitted into a w×h frame exactly like the slab shader does, so the sketch
+ * lines up with the screenshot that later develops over it. Strongest edges come first (ties keep their halton order):
+ * low quality tiers only draw the first part of a form, and that part should hold the lines that carry the page.
+ * @param {CanvasImageSource & {width:number,height:number}} img
+ * @param {number} N number of strokes
+ * @param {{w:number, h:number, seed?:number}} o world size of the frame
+ */
+export function screenForm(img, N, o) {
+  const rand = mulberry32(o.seed ?? 5);
+  const iw = img.naturalWidth || img.width, ih = img.naturalHeight || img.height;
+  const fa = o.w / o.h;
+  let sx = 0, sy = 0, sw = iw, sh = ih;
+  if (iw / ih > fa) { sw = ih * fa; sx = (iw - sw) / 2; } else { sh = iw / fa; sy = (ih - sh) / 2; }
+  const A = 320, B = Math.round(A / fa); // analysis resolution
+  const cv = typeof OffscreenCanvas !== 'undefined' ? new OffscreenCanvas(A, B) : Object.assign(document.createElement('canvas'), { width: A, height: B });
+  const g = cv.getContext('2d', { willReadFrequently: true });
+  g.drawImage(img, sx, sy, sw, sh, 0, 0, A, B);
+  const px = g.getImageData(0, 0, A, B).data;
+  const lum = new Float32Array(A * B);
+  for (let i = 0; i < A * B; i++) lum[i] = (0.2126 * px[i * 4] + 0.7152 * px[i * 4 + 1] + 0.0722 * px[i * 4 + 2]) / 255;
+
+  const T = tensor(boxBlur(lum, A, B, 1), A, B, 2);
+  // weak edges (background grids, soft gradients) would read as noise: only clear edges draw
+  const EDGE = 0.1;
+  const dens = new Float32Array(A * B);
+  let top = 0;
+  for (let i = 0; i < A * B; i++) {
+    dens[i] = Math.max(0, T.mag[i] - EDGE);
+    top = Math.max(top, T.mag[i]);
+  }
+  const { rowCdf, colCdf } = cdfOf(dens, A, B);
+
+  const pos = new Float32Array(N * 4), dir = new Float32Array(N * 4);
+  const s = o.w / A; // world units per analysis pixel
+  for (let i = 0; i < N; i++) {
+    const row = searchCdf(rowCdf, halton(i, 2));
+    const col = searchCdf(colCdf, halton(i, 3), row * A, row * A + A - 1) - row * A;
+    const idx = row * A + clamp(col, 0, A - 1);
+    const { ang, k } = orient(T, idx, 0, rand); // no structure → horizontal, so lines of text read as lines
+    const strength = clamp(T.mag[idx] / (top * 0.5 + 1e-6), 0, 1);
+    const len = s * (1.6 + 2.2 * k * (0.6 + 0.4 * rand()));
+    pos[i * 4] = ((col + rand()) / A - 0.5) * o.w;
+    pos[i * 4 + 1] = (0.5 - (row + rand()) / B) * o.h;
+    pos[i * 4 + 2] = (rand() - 0.5) * 0.03;
+    pos[i * 4 + 3] = 0.45 + 0.7 * strength;
+    dir[i * 4] = Math.cos(ang) * len;
+    dir[i * 4 + 1] = -Math.sin(ang) * len; // image y points down
+    dir[i * 4 + 3] = 0.1 + 0.28 * strength + (rand() - 0.5) * 0.06; // cobalt, edging towards ice on the strongest lines
+  }
+  const order = [...Array(N).keys()].sort((a, b) => pos[b * 4 + 3] - pos[a * 4 + 3]);
+  const P = new Float32Array(N * 4), D = new Float32Array(N * 4);
+  order.forEach((from, i) => {
+    P.set(pos.subarray(from * 4, from * 4 + 4), i * 4);
+    D.set(dir.subarray(from * 4, from * 4 + 4), i * 4);
+  });
+  return { pos: P, dir: D };
+}
+
 /**
  * @param {CanvasImageSource & {width:number,height:number}} img
  * @param {number} N number of strokes
@@ -80,16 +186,7 @@ export function portraitForm(img, N, o = {}) {
   const soft = boxBlur(ink, W, H, 2);
 
   // structure tensor → orientation field
-  const jxx = new Float32Array(n), jxy = new Float32Array(n), jyy = new Float32Array(n);
-  for (let y = 1; y < H - 1; y++) {
-    for (let x = 1; x < W - 1; x++) {
-      const i = y * W + x;
-      const gx = soft[i + 1] - soft[i - 1] + 0.5 * (soft[i - W + 1] - soft[i - W - 1] + soft[i + W + 1] - soft[i + W - 1]);
-      const gy = soft[i + W] - soft[i - W] + 0.5 * (soft[i + W - 1] - soft[i - W - 1] + soft[i + W + 1] - soft[i - W + 1]);
-      jxx[i] = gx * gx; jxy[i] = gx * gy; jyy[i] = gy * gy;
-    }
-  }
-  const bxx = boxBlur(jxx, W, H, 4), bxy = boxBlur(jxy, W, H, 4), byy = boxBlur(jyy, W, H, 4);
+  const T = tensor(soft, W, H, 4);
 
   // two populations: cobalt line-art that traces the ink, and warm light that fills what the drawing leaves lit
   const dInk = new Float32Array(n), dLit = new Float32Array(n);
@@ -102,24 +199,7 @@ export function portraitForm(img, N, o = {}) {
     dInk[i] = (accent[i] ? 2.2 : detail * 2.8 + ink[i] * 0.03) * (accent[i] ? 1 : fade);
     dLit[i] = accent[i] ? 0 : a * Math.pow(lum[i], 2.2) * Math.max(0.04, 1 - 1.5 * soft[i] - 0.5 * ink[i]) * fade;
   }
-  const cdfOf = (density) => {
-    const rowCdf = new Float32Array(H);
-    const colCdf = new Float32Array(n);
-    let racc = 0;
-    for (let y = 0; y < H; y++) {
-      let cacc = 0;
-      for (let x = 0; x < W; x++) {
-        cacc += density[y * W + x];
-        colCdf[y * W + x] = cacc;
-      }
-      if (cacc > 0) for (let x = 0; x < W; x++) colCdf[y * W + x] /= cacc;
-      racc += cacc;
-      rowCdf[y] = racc;
-    }
-    for (let y = 0; y < H; y++) rowCdf[y] /= racc;
-    return { rowCdf, colCdf };
-  };
-  const cInk = cdfOf(dInk), cLit = cdfOf(dLit);
+  const cInk = cdfOf(dInk, W, H), cLit = cdfOf(dLit, W, H);
 
   const pos = new Float32Array(N * 4);
   const dir = new Float32Array(N * 4);
@@ -138,16 +218,7 @@ export function portraitForm(img, N, o = {}) {
     const fx = col + rand(), fy = row + rand();
 
     // orientation: along the drawn lines where the structure is clear, hatch angle elsewhere
-    const c2 = bxx[idx] - byy[idx], s2 = 2 * bxy[idx];
-    const mag = Math.hypot(c2, s2);
-    const tr = bxx[idx] + byy[idx] + 1e-6;
-    const coh = clamp(mag / tr, 0, 1);
-    const gradAngle = 0.5 * Math.atan2(s2, c2);
-    let ang = gradAngle + Math.PI / 2;
-    const k = clamp(coh * 1.6, 0, 1);
-    const cx = Math.cos(2 * ang) * k + Math.cos(2 * hatch) * (1 - k);
-    const cy = Math.sin(2 * ang) * k + Math.sin(2 * hatch) * (1 - k);
-    ang = 0.5 * Math.atan2(cy, cx) + (rand() - 0.5) * 0.35;
+    const { ang, k } = orient(T, idx, hatch, rand);
 
     const len = (0.05 + 0.13 * k * (0.6 + 0.4 * rand())) * (worldH / 6.6);
     const dx = Math.cos(ang) * len;

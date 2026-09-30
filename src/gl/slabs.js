@@ -1,5 +1,5 @@
-// The nine live sites as textured slabs hanging in the corridor, inside the frames the strokes draw.
-// They read their images and links from the DOM. Reveal is either ink (noise front) or scan (a sweeping line).
+// The selected work as textured slabs hanging in the corridor. Each one develops over the sketch the strokes drew of
+// it, as it arrives. Images and links come from the DOM. The develop is either ink (noise front) or scan (a sweep).
 import { Mesh, PlaneGeometry, Raycaster, ShaderMaterial, SRGBColorSpace, TextureLoader, Vector2, LinearMipmapLinearFilter } from 'three';
 import { CORRIDOR } from './forms/others.js';
 import { LAYER, LAYER_Z } from './scenes.js';
@@ -49,10 +49,7 @@ void main() {
   // hover: split the channels and push the image a touch
   vec2 off = vec2(.006, 0.) * uHover;
   vec3 img = vec3(texture2D(uTex, uv + off).r, texture2D(uTex, uv).g, texture2D(uTex, uv - off).b);
-
-  vec3 ink = vec3(.02, .03, .07);
   vec3 sig = vec3(1., .82, .25);
-  vec3 cob = vec3(.28, .4, 1.);
 
   float vis, edge;
   if (uMode < .5) {
@@ -64,18 +61,17 @@ void main() {
     float x = vUv.x;
     vis = smoothstep(uReveal - .004, uReveal - .03, x);
     edge = exp(-pow((x - uReveal) * 40., 2.)) * step(.001, uReveal) * step(uReveal, .999);
-    // horizontal scanlines while it resolves
-    img *= 1. - (1. - vis) * 0.;
   }
-  vec3 hatch = ink + cob * (.06 + .05 * step(.5, fract(vUv.y * 60. + vUv.x * 12.)));
-  vec3 col = mix(hatch, img, vis * uLoaded);
-  col += sig * edge * 1.4;
+  // not developed yet: nothing at all, and no depth either, so the sketch drawn just behind the slab shows through
+  float a = max(vis * uLoaded, edge) * smoothstep(0., .3, uFade);
+  if (a < .1) discard;
+  vec3 col = img * vis * uLoaded * .76; // a white page stays under the bloom threshold instead of glaring
   // slabs that are not the focus sink into blue; passed ones are already faded out
   float lum = dot(col, vec3(.3, .59, .11));
   col = mix(vec3(lum) * vec3(.45, .6, 1.), col, smoothstep(.2, 1., uFade));
   col *= .18 + .82 * uFade;
-  col += sig * uHover * .04;
-  gl_FragColor = vec4(col, smoothstep(0., .3, uFade));
+  col += sig * (edge * 1.4 + uHover * .04);
+  gl_FragColor = vec4(col, a);
 }`;
 
 export class Slabs {
@@ -104,6 +100,7 @@ export class Slabs {
       const mesh = new Mesh(new PlaneGeometry(W, H, 28, 14), mat);
       const cx = k % 2 === 0 ? -x : x, cy = Math.sin(k * 1.7) * 0.18;
       mesh.position.set(cx, cy, z0 - k * dz - 0.03);
+      mesh.renderOrder = -1; // before the strokes, so a developed slab hides the sketch behind it
       mesh.visible = false;
       mesh.userData.k = k;
       this.stage.scene.add(mesh);
@@ -132,7 +129,7 @@ export class Slabs {
     if (near) {
       this.ndc.set(ptr.tx, ptr.ty);
       this.ray.setFromCamera(this.ndc, cam);
-      const vis = this.items.filter((i) => i.mesh.visible).map((i) => i.mesh);
+      const vis = this.items.filter((i) => i.mesh.visible && i.reveal > 0.05).map((i) => i.mesh); // undeveloped = nothing to click
       const h = this.ray.intersectObjects(vis, false)[0];
       if (h) hit = h.object.userData.k;
     }
@@ -146,9 +143,9 @@ export class Slabs {
       if (near && rel < 2.6) this.load(k);
       if (it.mesh.visible) {
         const u = it.mat.uniforms;
-        it.reveal += (smooth(-1.9, -0.2, -rel) - it.reveal) * (1 - Math.exp(-dt * 3.2));
+        it.reveal += (smooth(-0.8, -0.05, -rel) - it.reveal) * (1 - Math.exp(-dt * 3.2)); // develops as it arrives
         // in focus: 1. Ahead: dimmer. Passed: fades away before it can cover the next frame
-        const fadeT = rel >= 0 ? lerp(1, 0.28, smooth(0, 2.4, rel)) : lerp(1, 0, smooth(0.15, 1, -rel));
+        const fadeT = rel >= 0 ? lerp(1, 0.28, smooth(0, 2.4, rel)) : lerp(1, 0, smooth(0.05, 0.45, -rel));
         it.fade += ((want ? fadeT : 0) - it.fade) * (1 - Math.exp(-dt * 5));
         it.hover += ((hit === k ? 1 : 0) - it.hover) * (1 - Math.exp(-dt * 8));
         u.uReveal.value = it.reveal;

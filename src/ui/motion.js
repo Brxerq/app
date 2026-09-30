@@ -130,35 +130,6 @@ export function initMotion({ calm, fine }) {
       });
     }
 
-    // ---------- screenshots: plates that tilt with the pointer and scan/ink themselves into view
-    document.querySelectorAll('.shot').forEach((fig) => {
-      const img = fig.querySelector('img');
-      const mode = fig.dataset.slab === 'scan' ? 'scan' : 'ink';
-      const line = document.createElement('i');
-      line.className = 'shot__scan';
-      fig.appendChild(line);
-      const from = mode === 'scan' ? 'inset(0 100% 0 0)' : 'circle(0% at 50% 50%)';
-      const to = mode === 'scan' ? 'inset(0 0% 0 0)' : 'circle(80% at 50% 50%)';
-      gsap.set(img, { clipPath: from });
-      ScrollTrigger.create({
-        trigger: fig, start: 'top 80%', once: true,
-        onEnter: () => {
-          gsap.to(img, { clipPath: to, duration: 1.4, ease: 'power3.inOut' });
-          if (mode === 'scan') gsap.fromTo(line, { left: '0%', opacity: 1 }, { left: '100%', duration: 1.4, ease: 'power3.inOut', onComplete: () => gsap.to(line, { opacity: 0, duration: 0.3 }) });
-        },
-      });
-      if (fine) {
-        const rx = gsap.quickTo(img, 'rotationX', { duration: 0.6, ease: 'power3.out' });
-        const ry = gsap.quickTo(img, 'rotationY', { duration: 0.6, ease: 'power3.out' });
-        fig.addEventListener('pointermove', (e) => {
-          const r = fig.getBoundingClientRect();
-          ry(((e.clientX - r.left) / r.width - 0.5) * 12);
-          rx(-((e.clientY - r.top) / r.height - 0.5) * 9);
-        });
-        fig.addEventListener('pointerleave', () => { rx(0); ry(0); });
-      }
-    });
-
     // ---------- everything else eases in once
     const rise = (targets, trigger, start = 'top 82%') =>
       gsap.from(targets, { opacity: 0, y: 34, duration: 1, ease: 'power3.out', stagger: 0.07, scrollTrigger: { trigger, start, once: true } });
@@ -167,8 +138,8 @@ export function initMotion({ calm, fine }) {
       const kids = [...step.children].filter((k) => !k.classList.contains('display'));
       if (kids.length) rise(kids, step, step.classList.contains('step--intro') ? 'top 60%' : 'top 62%');
     });
-    document.querySelectorAll('.web__head > :not(.display), .career__head > :not(.display), .toolbox__head > :not(.display), .commits__copy > :not(.display), .contact__head > :not(.display), .archive > :not(.display)').forEach((el) => rise(el, el, 'top 90%'));
-    document.querySelectorAll('.role, .archive__row, .creds__list li, .ring, .toolbox__aside > *, .note, .contact__side > *, .method__label').forEach((el) => rise(el, el, 'top 90%'));
+    document.querySelectorAll('.web__head > :not(.display), .career__head > :not(.display), .toolbox__head > :not(.display), .commits__copy > :not(.display), .contact__head > :not(.display), .also > .eyebrow, .lab > .eyebrow').forEach((el) => rise(el, el, 'top 90%'));
+    document.querySelectorAll('.role, .also .site, .archive__row, .creds__list li, .ring, .toolbox__aside > *, .note, .contact__side > *, .method__label').forEach((el) => rise(el, el, 'top 90%'));
 
     return () => {
       cleanupWeight();

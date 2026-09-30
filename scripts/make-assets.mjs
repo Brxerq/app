@@ -2,8 +2,10 @@
 //   npm run assets
 // Produces:
 //   assets/img/hassaan.webp   – downscaled portrait (DOM fallback + source for the stroke sampler)
-//   assets/img/earth.png      – 1024x512 equirectangular mask: R = land, G = the six markets, B = Pakistan
+//   assets/img/earth.png      – 1024x512 equirectangular mask: R = land, G = client countries, B = Pakistan
 //   assets/img/favicon-*.png  – icons
+//   assets/img/og.jpg         – social card
+// The client countries are the page's own list (data-country on the #clients rows), so run this after changing it.
 import { createCanvas, loadImage, GlobalFonts } from '@napi-rs/canvas';
 import { geoEquirectangular, geoPath } from 'd3-geo';
 import { feature } from 'topojson-client';
@@ -16,6 +18,9 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const out = (p) => resolve(root, 'assets/img', p);
 const require = createRequire(import.meta.url);
 mkdirSync(resolve(root, 'assets/img'), { recursive: true });
+// sorted by name: the mask stores each country as (index + 1) * 20, and src/gl/forms/globe.js sorts the same way
+const clients = [...new Set([...readFileSync(resolve(root, 'index.html'), 'utf8').matchAll(/data-country="([^"]+)"/g)].map((m) => m[1]))].sort();
+if (!clients.length || clients.length > 12) throw new Error(`need 1–12 client countries in index.html, found ${clients.length}`);
 
 // ---------- portrait ----------
 {
@@ -93,7 +98,7 @@ mkdirSync(resolve(root, 'assets/img'), { recursive: true });
   o.fillText('not demos.', 64, 494);
   o.fillStyle = 'rgba(236,232,223,0.6)';
   o.font = '400 15px "Martian Mono"';
-  o.fillText('SHIPPED IN 6 COUNTRIES · 4,500+ LIVE AUTOMATIONS', 64, 566);
+  o.fillText(`CLIENTS IN ${clients.length} COUNTRIES · CO-FOUNDER OF JORDY`, 64, 566);
   writeFileSync(out('og.jpg'), c.toBuffer('image/jpeg', 88));
   console.log('og.jpg', W, H);
 }
@@ -119,12 +124,16 @@ mkdirSync(resolve(root, 'assets/img'), { recursive: true });
     return g.getImageData(0, 0, W, H).data;
   };
 
-  const six = ['Ireland', 'Portugal', 'Spain', 'Czechia', 'Romania', 'Brazil'];
-  const found = pick(six).map((f) => f.properties.name);
-  if (found.length !== six.length) throw new Error('missing markets: ' + six.filter((n) => !found.includes(n)));
+  const found = new Set(pick(clients).map((f) => f.properties.name));
+  if (found.size !== clients.length) throw new Error('not in world-atlas countries-110m (use its exact name): ' + clients.filter((n) => !found.has(n)));
 
   const R = layer(feature(land, land.objects.land).features);
-  const G = layer(pick(six));
+  // one binary layer per country, so antialiased borders can never decode as a neighbour's index
+  const G = new Uint8Array(W * H);
+  clients.forEach((name, k) => {
+    const L = layer(pick([name]));
+    for (let i = 0; i < W * H; i++) if (L[i * 4] > 127) G[i] = (k + 1) * 20;
+  });
   const B = layer(pick(['Pakistan']));
 
   const c = createCanvas(W, H);
@@ -132,11 +141,11 @@ mkdirSync(resolve(root, 'assets/img'), { recursive: true });
   const id = g.createImageData(W, H);
   for (let i = 0; i < W * H; i++) {
     id.data[i * 4] = R[i * 4];
-    id.data[i * 4 + 1] = G[i * 4];
+    id.data[i * 4 + 1] = G[i];
     id.data[i * 4 + 2] = B[i * 4];
     id.data[i * 4 + 3] = 255;
   }
   g.putImageData(id, 0, 0);
   writeFileSync(out('earth.png'), c.toBuffer('image/png'));
-  console.log('earth.png', W, H, 'markets:', found.join(', '));
+  console.log('earth.png', W, H, 'client countries:', clients.join(', '));
 }

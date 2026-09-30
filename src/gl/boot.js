@@ -5,8 +5,7 @@ import { Director } from './director.js';
 import { LAYER, LAYER_Z } from './scenes.js';
 import { portraitForm } from './forms/portrait.js';
 import { globeForm, loadMask } from './forms/globe.js';
-import { waveForm, fieldForm, funnelForm, corridorForm, rulerForm, skylineForm, orreryForm, calmForm } from './forms/others.js';
-import { shelfForm, livenessForm, speciesForm } from './forms/vision.js';
+import { corridorForm, skylineForm, calmForm } from './forms/others.js';
 import { Slabs } from './slabs.js';
 import { Hud } from './hud.js';
 
@@ -48,22 +47,16 @@ export async function boot({ canvas, tier, strokes, mobile, onProgress = () => {
   stage.strokes.setForm(LAYER.portrait2, portrait2);
   onProgress(0.7);
   await tick();
-  stage.strokes.setForm(LAYER.globe, timed('globe', () => globeForm(loadMask(mimg), N)));
+  // the client countries come from the page: one row each in #clients
+  const places = [...document.querySelectorAll('#clients [data-country]')].map((el) => ({ country: el.dataset.country, lat: +el.dataset.lat, lon: +el.dataset.lon }));
+  stage.strokes.setForm(LAYER.globe, timed('globe', () => globeForm(loadMask(mimg), N, places)));
   onProgress(0.75);
   await tick();
-  const sec = (id) => document.getElementById(id);
   const forms = [
-    [LAYER.wave, () => waveForm(N)],
-    [LAYER.shelf, () => shelfForm(N)],
-    [LAYER.liveness, () => livenessForm(N)],
-    [LAYER.species, () => speciesForm(N)],
-    [LAYER.funnel, () => funnelForm(N)],
-    [LAYER.corridor, () => corridorForm(N, document.querySelectorAll('#web .site').length || 9)],
-    [LAYER.field, () => fieldForm(N, { runs: +(sec('reliability')?.dataset.runs || 4500), rate: +(sec('reliability')?.dataset.failRate || 0.4) })],
-    [LAYER.ruler, () => rulerForm(N)],
-    [LAYER.skyline, () => skylineForm(N, null)],
+    [LAYER.corridor, () => corridorForm(N, document.querySelectorAll('#work .site').length || 5)],
     [LAYER.calm, () => calmForm(N)],
-    [LAYER.orrery, () => orreryForm(N, [...document.querySelectorAll('#toolbox .ring')].map((r) => r.querySelectorAll('li').length))],
+    [LAYER.skyline, () => skylineForm(N, null)],
+    [LAYER.calm2, () => calmForm(N, 98)],
   ];
   for (let k = 0; k < forms.length; k++) {
     stage.strokes.setForm(forms[k][0], timed('form ' + forms[k][0], forms[k][1]));
@@ -83,8 +76,8 @@ export async function boot({ canvas, tier, strokes, mobile, onProgress = () => {
   dir.eye = portrait.eye;
   dir.introEase = 0;
   dir.intro = { done: false, mix: 0 };
-  // the nine live sites become textured slabs in the corridor (images + links come from the DOM)
-  const sites = [...document.querySelectorAll('#web .site')].map((li) => ({
+  // the sites become textured slabs in the corridor (images + links come from the DOM)
+  const sites = [...document.querySelectorAll('#work .site')].map((li) => ({
     src: li.querySelector('.site__shot img')?.currentSrc || li.querySelector('.site__shot img')?.src,
     href: li.querySelector('a.stretch')?.href,
     mode: li.querySelector('.site__shot')?.dataset.slab === 'scan' ? 'scan' : 'ink',
@@ -97,22 +90,12 @@ export async function boot({ canvas, tier, strokes, mobile, onProgress = () => {
       if (dir.slabs.hover >= 0 && !e.target.closest('a, button, input, textarea, summary, dialog')) dir.slabs.open();
     });
     // hovering a site's text lights its slab too
-    document.querySelectorAll('#web .site').forEach((li, k) => {
+    document.querySelectorAll('#work .site').forEach((li, k) => {
       li.addEventListener('pointerenter', () => { dir.slabs.textHover = k; });
       li.addEventListener('pointerleave', () => { dir.slabs.textHover = -1; });
     });
   }
   dir.hud = new Hud(stage);
-  // hovering a tool lights its ring in the orrery
-  document.querySelectorAll('#toolbox .ring').forEach((el) => {
-    const k = +el.dataset.ring;
-    const on = () => { dir.orreryRing = k; };
-    const off = () => { dir.orreryRing = -5; };
-    el.addEventListener('pointerenter', on);
-    el.addEventListener('pointerleave', off);
-    el.addEventListener('focusin', on);
-    el.addEventListener('focusout', off);
-  });
   dir.measure();
   stage.onFrame((dt, t) => dir.update(dt, t));
 
@@ -170,11 +153,26 @@ export async function boot({ canvas, tier, strokes, mobile, onProgress = () => {
   stage.start();
   onProgress(1);
 
+  // the corridor's frames become sketches of their sites once the screenshots are decoded: after the intro, off the
+  // critical path, and never while the corridor is on screen (swapping a visible layer would pop)
+  const sketchCorridor = async () => {
+    const imgs = await Promise.all(sites.map((s) => (s.src ? loadImage(s.src).catch(() => null) : null)));
+    if (!imgs.length || !imgs.every(Boolean)) return;
+    const form = timed('corridor sketches', () => corridorForm(N, sites.length, imgs));
+    const swap = () => {
+      const f = u.uForms.value;
+      if (f.x === LAYER.corridor || f.y === LAYER.corridor) return void setTimeout(swap, 400);
+      stage.strokes.setForm(LAYER.corridor, form);
+    };
+    swap();
+  };
+
   const playIntro = () =>
     new Promise((resolve) => {
       const tl = gsap.timeline({
         onComplete: () => {
           dir.intro.done = true;
+          setTimeout(sketchCorridor, 150);
           resolve();
         },
       });

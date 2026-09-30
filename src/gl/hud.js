@@ -1,4 +1,4 @@
-// A handful of DOM labels pinned to points in the world (e.g. the shelf detections).
+// A handful of DOM labels pinned to points in the world (e.g. the country being read, above its pin on the globe).
 // They are decorative echoes of text that already exists on the page, so they stay aria-hidden.
 import { Vector3 } from 'three';
 

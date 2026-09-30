@@ -1,16 +1,7 @@
-// Hatch-engraved globe: land as strokes along the parallels, the six markets lit, arcs from Karachi.
+// Hatch-engraved globe: land as strokes along the parallels, the client countries lit, an arc from Karachi to each.
 import { mulberry32, halton, clamp } from '../util.js';
 
 export const KARACHI = { lat: 24.86, lon: 67.01 };
-// order matches the case study
-export const MARKETS = [
-  { name: 'Ireland', lat: 53.4, lon: -8.2 },
-  { name: 'Portugal', lat: 39.6, lon: -8.0 },
-  { name: 'Spain', lat: 40.2, lon: -3.7 },
-  { name: 'Czechia', lat: 49.8, lon: 15.5 },
-  { name: 'Romania', lat: 45.9, lon: 25.0 },
-  { name: 'Brazil', lat: -10.8, lon: -52.9 },
-];
 
 const D2R = Math.PI / 180;
 export const R = 2.55;
@@ -27,17 +18,18 @@ function tangents(lat, lon) {
   return { east, north };
 }
 
+/** the mask (scripts/make-assets.mjs): R = land, G = client country as (index + 1) * 20 in name order, B = Pakistan */
 export function loadMask(img) {
   const W = img.naturalWidth || img.width, H = img.naturalHeight || img.height;
   const cv = typeof OffscreenCanvas !== 'undefined' ? new OffscreenCanvas(W, H) : Object.assign(document.createElement('canvas'), { width: W, height: H });
   const g = cv.getContext('2d', { willReadFrequently: true });
   g.drawImage(img, 0, 0);
   const d = g.getImageData(0, 0, W, H).data;
-  const land = new Uint8Array(W * H), six = new Uint8Array(W * H), pk = new Uint8Array(W * H);
+  const land = new Uint8Array(W * H), lit = new Uint8Array(W * H), pk = new Uint8Array(W * H);
   for (let i = 0; i < W * H; i++) {
-    land[i] = d[i * 4]; six[i] = d[i * 4 + 1]; pk[i] = d[i * 4 + 2];
+    land[i] = d[i * 4]; lit[i] = d[i * 4 + 1]; pk[i] = d[i * 4 + 2];
   }
-  return { W, H, land, six, pk };
+  return { W, H, land, lit, pk };
 }
 
 const at = (m, arr, lat, lon) => {
@@ -46,7 +38,13 @@ const at = (m, arr, lat, lon) => {
   return arr[y * m.W + x];
 };
 
-export function globeForm(mask, N, seed = 11) {
+/**
+ * @param {ReturnType<typeof loadMask>} mask
+ * @param {number} N strokes
+ * @param {{country:string, lat:number, lon:number}[]} places client countries in page order; stroke group 1 + k is
+ *   place k (its arc draws on over param 0..0.8, its pin over 0.8..1, its fill is always on and glows with the group)
+ */
+export function globeForm(mask, N, places, seed = 11) {
   const rand = mulberry32(seed);
   const pos = new Float32Array(N * 4), dir = new Float32Array(N * 4), aux = new Float32Array(N * 4);
   let hk = 0; // halton counter for rejection sampling
@@ -57,17 +55,29 @@ export function globeForm(mask, N, seed = 11) {
   };
   const norm = (v, len) => { const l = Math.hypot(v[0], v[1], v[2]) || 1; return [v[0] / l * len, v[1] / l * len, v[2] / l * len]; };
 
-  // pre-compute market pixel lists
-  const sixPix = [], pkPix = [];
+  // pixel lists per client country (the mask indexes countries by their sorted names) and for Pakistan
+  const n = places.length;
+  const sorted = places.map((p) => p.country).sort();
+  const placeOf = sorted.map((name) => places.findIndex((p) => p.country === name));
+  const pix = places.map(() => []), pkPix = [];
   for (let y = 0; y < mask.H; y++) for (let x = 0; x < mask.W; x++) {
-    if (mask.six[y * mask.W + x] > 127) sixPix.push([x, y]);
+    const g = mask.lit[y * mask.W + x];
+    if (g > 10) pix[placeOf[Math.round(g / 20) - 1]]?.push([x, y]);
     if (mask.pk[y * mask.W + x] > 127) pkPix.push([x, y]);
   }
+  // fills are shared by √area, so Ireland stays as legible as the USA
+  const filled = pix.map((p, k) => (p.length ? k : -1)).filter((k) => k >= 0);
+  const fillCdf = [];
+  for (const k of filled) fillCdf.push((fillCdf.at(-1) ?? 0) + Math.sqrt(pix[k].length));
+  const pickFill = () => {
+    const x = rand() * fillCdf.at(-1);
+    return filled[fillCdf.findIndex((c) => c >= x)];
+  };
   const pixToLL = (px, jx = 0, jy = 0) => [90 - ((px[1] + jy) / mask.H) * 180, ((px[0] + jx) / mask.W) * 360 - 180];
 
   // arcs from Karachi
   const k = sph(KARACHI.lat, KARACHI.lon);
-  const arcs = MARKETS.map((m) => {
+  const arcs = places.map((m) => {
     const b = sph(m.lat, m.lon);
     const dot = clamp(k[0] * b[0] + k[1] * b[1] + k[2] * b[2], -1, 1);
     const om = Math.acos(dot);
@@ -82,8 +92,10 @@ export function globeForm(mask, N, seed = 11) {
     return [v[0] / l * r, v[1] / l * r, v[2] / l * r];
   };
 
+  let arcN = 0, pinN = 0;
   for (let i = 0; i < N; i++) {
-    const cls = i % 100;
+    let cls = i % 100;
+    if (!filled.length && cls >= 44 && cls < 66 && !(cls >= 52 && cls < 54)) cls = 0; // no client countries: more land
     if (cls < 44) {
       // land, sampled by rejection over the sphere
       let lat = 0, lon = 0, tries = 0;
@@ -98,14 +110,15 @@ export function globeForm(mask, N, seed = 11) {
       const d = norm([east[0] * Math.cos(a) + north[0] * Math.sin(a), east[1] * Math.cos(a) + north[1] * Math.sin(a), east[2] * Math.cos(a) + north[2] * Math.sin(a)], coastal ? 0.13 : 0.1);
       put(i, p, d, coastal ? 0.95 : 0.5 + rand() * 0.25, coastal ? 0.5 : 0.22 + rand() * 0.1);
     } else if (cls < 52) {
-      // the six markets, filled and bright
-      const px = sixPix[Math.floor(rand() * sixPix.length)];
+      // the client countries, filled and bright; each glows with its group while its row is read
+      const c = pickFill();
+      const px = pix[c][Math.floor(rand() * pix[c].length)];
       const [lat, lon] = pixToLL(px, rand(), rand());
       const p = sph(lat, lon, R * 1.004);
       const { east, north } = tangents(lat, lon);
       const a = (rand() - 0.5) * 1.4;
       const d = norm([east[0] * Math.cos(a) + north[0] * Math.sin(a), east[1] * Math.cos(a) + north[1] * Math.sin(a), east[2] * Math.cos(a) + north[2] * Math.sin(a)], 0.09);
-      put(i, p, d, 0.85, 0.9);
+      put(i, p, d, 0.85, 0.9, 1 + c, 0, 9);
     } else if (cls < 54) {
       // Pakistan, where it ships from
       const px = pkPix[Math.floor(rand() * pkPix.length)];
@@ -114,29 +127,29 @@ export function globeForm(mask, N, seed = 11) {
       const { east } = tangents(lat, lon);
       put(i, p, norm(east, 0.08), 0.6, 0.5);
     } else if (cls < 63) {
-      // arcs Karachi → market, drawn on by uReveal[1..6]
-      const which = (i * 7) % 6;
+      // an arc Karachi → each client country, drawn on by its group over param 0..0.8
+      const which = arcN++ % n;
       const s = rand();
       const a = arcs[which];
       const p = arcPoint(a, s), p2 = arcPoint(a, Math.min(1, s + 0.01));
       const d = norm([p2[0] - p[0], p2[1] - p[1], p2[2] - p[2]], 0.12);
-      put(i, p, d, 0.95, 0.55 + 0.4 * s, 1 + which, s, 9);
+      put(i, p, d, 0.95, 0.55 + 0.4 * s, 1 + which, s * 0.8, 9);
     } else if (cls < 66) {
-      // pins standing on each market + a ring at the top, group 7..12
-      const which = i % 6;
-      const m = MARKETS[which];
+      // a pin standing on each client country + a ring at the top: the arc's landing, param 0.8..1
+      const which = pinN++ % n;
+      const m = places[which];
       const up = sph(m.lat, m.lon);
       const { east, north } = tangents(m.lat, m.lon);
       if (rand() < 0.5) {
         const s = rand();
         const p = [up[0] * (R + s * 0.4), up[1] * (R + s * 0.4), up[2] * (R + s * 0.4)];
-        put(i, p, norm(up, 0.1), 1.0, 0.95, 7 + which, s, 9);
+        put(i, p, norm(up, 0.1), 1.0, 0.95, 1 + which, 0.8 + 0.2 * s, 9);
       } else {
         const t = rand() * Math.PI * 2, rr = 0.15;
         const c = [up[0] * (R + 0.4), up[1] * (R + 0.4), up[2] * (R + 0.4)];
         const p = [c[0] + (east[0] * Math.cos(t) + north[0] * Math.sin(t)) * rr, c[1] + (east[1] * Math.cos(t) + north[1] * Math.sin(t)) * rr, c[2] + (east[2] * Math.cos(t) + north[2] * Math.sin(t)) * rr];
         const d = norm([-east[0] * Math.sin(t) + north[0] * Math.cos(t), -east[1] * Math.sin(t) + north[1] * Math.cos(t), -east[2] * Math.sin(t) + north[2] * Math.cos(t)], 0.12);
-        put(i, p, d, 1.0, 1.0, 7 + which, 1, 9);
+        put(i, p, d, 1.0, 1.0, 1 + which, 1, 9);
       }
     } else if (cls < 68) {
       // Karachi ring
