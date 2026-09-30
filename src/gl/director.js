@@ -33,6 +33,7 @@ export class Director {
     this.slabs = null;
     this.hud = null;
     this._hudFrame = -1;
+    this.netLayer = -1; // the toolbox group under the pointer
   }
 
   // ---------- DOM measurement ----------
@@ -57,8 +58,13 @@ export class Director {
         box = { cx: fr.left + fr.width / 2, cy: fr.top - sr.top + fr.height / 2, w: Math.max(40, fr.width), h: Math.max(40, fr.height) };
       }
       const steps = [...el.querySelectorAll('.stage__copy .step, .step')].filter((s, i, a) => a.indexOf(s) === i);
+      // career rows: the thread's pen follows the one being read
+      const items = [...el.querySelectorAll('.role')].map((s) => {
+        const b = s.getBoundingClientRect();
+        return { el: s, c: b.top + sy + b.height / 2 };
+      });
       segs.push({
-        el, def, id: el.id, top, bottom: top + r.height, len: r.height, box,
+        el, def, id: el.id, top, bottom: top + r.height, len: r.height, box, items,
         steps: steps.map((s) => {
           const b = s.getBoundingClientRect();
           return { el: s, c: b.top + sy + b.height / 2, top: b.top + sy, h: b.height };

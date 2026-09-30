@@ -5,7 +5,7 @@ import { Director } from './director.js';
 import { LAYER, LAYER_Z } from './scenes.js';
 import { portraitForm } from './forms/portrait.js';
 import { globeForm, loadMask } from './forms/globe.js';
-import { corridorForm, skylineForm, calmForm } from './forms/others.js';
+import { corridorForm, skylineForm, calmForm, threadForm, networkForm } from './forms/others.js';
 import { Slabs } from './slabs.js';
 import { Hud } from './hud.js';
 
@@ -52,11 +52,14 @@ export async function boot({ canvas, tier, strokes, mobile, onProgress = () => {
   stage.strokes.setForm(LAYER.globe, timed('globe', () => globeForm(loadMask(mimg), N, places)));
   onProgress(0.75);
   await tick();
+  const groups = [...document.querySelectorAll('#toolbox .ring')];
   const forms = [
     [LAYER.corridor, () => corridorForm(N, document.querySelectorAll('#work .site').length || 5)],
     [LAYER.calm, () => calmForm(N)],
-    [LAYER.skyline, () => skylineForm(N, null)],
+    [LAYER.thread, () => threadForm(N, document.querySelectorAll('#career .role').length || 7)],
     [LAYER.calm2, () => calmForm(N, 98)],
+    [LAYER.skyline, () => skylineForm(N, null)],
+    [LAYER.network, () => networkForm(N, groups.length ? groups.map((g) => g.querySelectorAll('li').length) : [4, 4, 3, 2, 3])],
   ];
   for (let k = 0; k < forms.length; k++) {
     stage.strokes.setForm(forms[k][0], timed('form ' + forms[k][0], forms[k][1]));
@@ -96,6 +99,13 @@ export async function boot({ canvas, tier, strokes, mobile, onProgress = () => {
     });
   }
   dir.hud = new Hud(stage);
+  // hovering a tool group lights its layer of the network
+  groups.forEach((el, k) => {
+    const on = () => { dir.netLayer = k; };
+    const off = () => { dir.netLayer = -1; };
+    el.addEventListener('pointerenter', on);
+    el.addEventListener('pointerleave', off);
+  });
   dir.measure();
   stage.onFrame((dt, t) => dir.update(dt, t));
 

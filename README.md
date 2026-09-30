@@ -6,8 +6,9 @@ Live: <https://brxerq.github.io/app/> (GitHub Pages, served straight from the re
 chapter, and every subject is him or his real output: his ink portrait; a hatch-engraved globe that turns from Karachi
 to each client country, an arc drawing out to it as its row is read; a corridor of his selected work, where the same
 strokes that drew his face sketch each live site from its own screenshot before the screenshot develops over the sketch
-(hover and click it); a quiet starfield under the reading chapters; the GitHub graph as a night skyline; and back out of
-the pupil to the portrait. Stroke colour temperature means maturity: cobalt = sketch, white = built, yellow = shipped.
+(hover and click it); the career as one thread of light, painted a loop per role from today back into the past; the
+GitHub graph as a night skyline; the toolbox as a network of his tools with pulses running through it (hover a group to
+light its layer); quiet starfields under the reading chapters; and back out of the pupil to the portrait. Stroke colour temperature means maturity: cobalt = sketch, white = built, yellow = shipped.
 The spine is his own method: sketch the system, ship the ugly version, measure what happened, make it fast, then pretty.
 
 ## How it is put together
@@ -17,7 +18,7 @@ The spine is his own method: sketch the system, ship the ugly version, measure w
 | `index.html` | **All content lives here**, as plain semantic HTML. Every role, project, site, stat and link. It is the whole site when JS is off, when the visitor prefers reduced motion, or when WebGL is unavailable. |
 | `assets/site.css` | Hand-written stylesheet: static layout first, `html.gl` rules layer the sticky "stage" grid on top. |
 | `src/` | ES modules, bundled by esbuild into `assets/app-*.js` + `assets/chunks/` (committed — no CI needed). |
-| `src/gl/` | The world: `strokes.js` (one instanced mesh, forms live in data textures, morphing in the vertex shader), `forms/` (generators; `portrait.js` also holds `screenForm`, which sketches a screenshot), `scenes.js` (per-chapter camera + choreography), `director.js` (DOM + scroll → camera/morph), `slabs.js` (site screenshots as textured slabs that develop over their sketches), `hud.js` (the country label pinned to the globe), `stage.js` (renderer, bloom, quality governor). |
+| `src/gl/` | The world: `strokes.js` (one instanced mesh, forms live in data textures, morphing in the vertex shader), `forms/` (generators; `portrait.js` also holds `screenForm`, which sketches a screenshot), `scenes.js` (per-chapter camera + choreography), `director.js` (DOM + scroll → camera/morph), `slabs.js` (site screenshots as textured slabs that develop over their sketches), `hud.js` (labels pinned in the world: the country on the globe, the role on the career thread, the tools in the network), `stage.js` (renderer, bloom, quality governor). |
 | `src/ui/` | Navigation ruler + index, counters and reveals (GSAP inside `gsap.matchMedia()`), hero intro, pointer effects, contact form, GitHub data. |
 | `scripts/` | `build.mjs`, `make-assets.mjs` (portrait, globe mask, social card), `check.mjs` (pre-publish checks). |
 | `projects/`, `logos/` | Screenshots and favicons used by the page. |

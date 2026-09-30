@@ -23,7 +23,7 @@
   <link rel="preload" href="./assets/fonts/unbounded.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="./assets/fonts/geist.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="./assets/img/hassaan.webp" as="image" type="image/webp">
-  <link rel="stylesheet" href="./assets/site.css?v=64736892">
+  <link rel="stylesheet" href="./assets/site.css?v=3bf21468">
   <script>if ('noModule' in HTMLScriptElement.prototype) document.documentElement.className = 'js';</script>
   <script>
     /* start fetching the 3D chunk in parallel with the app script, unless this visitor will get the calm page anyway */
@@ -33,12 +33,12 @@
         if (!window.WebGL2RenderingContext || matchMedia('(prefers-reduced-motion: reduce)').matches || c.saveData || /(^|-)2g$/.test(c.effectiveType || '') || localStorage.getItem('smh:calm') === '1') return;
         var l = document.createElement('link');
         l.rel = 'modulepreload';
-        l.href = './assets/chunks/boot-KXHPL72A.js';
+        l.href = './assets/chunks/boot-23XSAK5R.js';
         document.head.appendChild(l);
       } catch (e) {}
     })();
   </script>
-  <script type="module" src="./assets/app-6BBVM5WY.js"></script>
+  <script type="module" src="./assets/app-TD2EUYZR.js"></script>
 
   <script type="application/ld+json">
   {
@@ -413,7 +413,9 @@
     </section>
 
     <!-- ============================== 03 · MEASURE ============================== -->
-    <section id="career" class="career" data-scene="calm" data-label="Career" aria-labelledby="career-title">
+    <section id="career" class="career case case--flip stage" data-scene="thread" data-label="Career" aria-labelledby="career-title">
+      <div class="stage__pin" aria-hidden="true"><div class="stage__subject"><i class="stage__frame"></i></div></div>
+      <div class="stage__copy">
       <header class="career__head">
         <p class="act-tag"><b>03</b> Measure <span>· where i've been</span></p>
         <h2 id="career-title" class="display">The long version.</h2>
@@ -530,9 +532,10 @@
           </div>
         </li>
       </ol>
+      </div>
     </section>
 
-    <section id="credentials" class="creds" data-scene="calm" data-label="School" aria-labelledby="creds-title">
+    <section id="credentials" class="creds" data-scene="calm2" data-label="School" aria-labelledby="creds-title">
       <h2 id="creds-title" class="display display--sm">School &amp; certificates</h2>
       <div class="creds__grid">
         <div>
@@ -598,7 +601,9 @@
     </section>
 
     <!-- ============================== 04 · REFINE ============================== -->
-    <section id="toolbox" class="toolbox" data-scene="calm2" data-label="Toolbox" aria-labelledby="toolbox-title">
+    <section id="toolbox" class="toolbox stage" data-scene="network" data-label="Toolbox" aria-labelledby="toolbox-title">
+      <div class="stage__pin" aria-hidden="true"><div class="stage__subject"><i class="stage__frame"></i></div></div>
+      <div class="stage__copy">
       <header class="toolbox__head">
         <p class="act-tag"><b>04</b> Make it fast, then pretty</p>
         <h2 id="toolbox-title" class="display">The toolbox.</h2>
@@ -628,6 +633,7 @@
           </ul>
         </div>
         <p class="toolbox__foot">25+ technologies · 3 core domains · zero fear of legacy code</p>
+      </div>
       </div>
     </section>
 

@@ -5,7 +5,7 @@ import { env, wantsCalm, setCalm, pickTier, strokeBudget } from './env.js';
 import { initNav } from './ui/nav.js';
 import { initMotion } from './ui/motion.js';
 import { initContact } from './ui/contact.js';
-import { initCursor } from './ui/cursor.js';
+import { initButtons } from './ui/buttons.js';
 import { fetchContributions, toGrid, heatmap } from './ui/github.js';
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
@@ -91,7 +91,7 @@ async function main() {
   initCalmToggle(calm);
   initNav({ calm });
   initContact();
-  if (env.fine && !calm) initCursor();
+  if (env.fine && !calm) initButtons();
   const motion = initMotion({ calm, fine: env.fine });
   initCommits(world);
 

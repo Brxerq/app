@@ -2,11 +2,11 @@
 // (world units, used to fit the DOM frame), how the camera behaves, and what to do each frame.
 import { clamp, lerp, smooth } from './util.js';
 import { KARACHI, R as GLOBE_R, faceTo, sph } from './forms/globe.js';
-import { CORRIDOR } from './forms/others.js';
+import { CORRIDOR, threadPoint, netNode } from './forms/others.js';
 import { Vector3 } from 'three';
 
 // in page order, so the camera always travels forward
-export const LAYER = { portrait: 0, globe: 1, corridor: 2, calm: 3, skyline: 4, calm2: 5, portrait2: 6 };
+export const LAYER = { portrait: 0, globe: 1, corridor: 2, calm: 3, thread: 4, calm2: 5, skyline: 6, network: 7, portrait2: 8 };
 export const LAYER_Z = {};
 for (const k of Object.values(LAYER)) LAYER_Z[k] = -16 * k;
 
@@ -15,9 +15,17 @@ export const NOM = {
   1: { w: 6.0, h: 6.0 },
   2: { w: 6.8, h: 3.8 },
   3: { w: 10, h: 6 },
-  4: { w: 10.6, h: 5 },
+  4: { w: 5.2, h: 8.0 },
   5: { w: 10, h: 6 },
-  6: { w: 6.4, h: 6.7 },
+  6: { w: 10.6, h: 5 },
+  7: { w: 5.6, h: 7.4 },
+  8: { w: 6.4, h: 6.7 },
+};
+// a heading without its favicon or letter mark, e.g. "Stackloom Technologies", "Endifaa | اندفاع"
+const plainText = (el) => {
+  const c = el.cloneNode(true);
+  c.querySelectorAll('.fav, .vh').forEach((n) => n.remove());
+  return c.textContent.replace(/\s+/g, ' ').trim();
 };
 
 // float index of the step whose centre the viewport centre is passing (0 … n-1)
@@ -183,6 +191,62 @@ export const SCENES = {
   // ---------------------------------------------------------------- quiet starfields for the reading chapters
   calm: { layer: LAYER.calm },
   calm2: { layer: LAYER.calm2 },
+
+  // ---------------------------------------------------------------- career: the pen paints a loop per role, today first
+  thread: {
+    layer: LAYER.thread,
+    update(seg, ctx) {
+      const u = ctx.u, items = seg.items || [];
+      const L = Math.max(1, items.length);
+      const ri = stepIndex(items, ctx.yc); // 0 = the newest role … L - 1 = the oldest
+      const q = 0.05 + 0.95 * clamp(ri / Math.max(1, L - 1), 0, 1);
+      u.uFx.value.x = q;
+      const yaw = Math.sin(ctx.t * 0.12) * 0.3 + q * 0.5, pitch = 0.1;
+      rot(u, LAYER.thread, yaw, pitch);
+      // the role being read rides on the pen tip
+      const hud = ctx.dir.hud;
+      if (hud) {
+        const it = items[clamp(Math.round(ri), 0, L - 1)];
+        if (it) {
+          // the Latin name only ("Endifaa", not "Endifaa | اندفاع"): mixed directions would reorder the year around it
+          it.label ||= [plainText(it.el.querySelector('h3')).split(' | ')[0], it.el.querySelector('time')?.textContent.match(/\d{4}/)?.[0]].filter(Boolean).join(' · ');
+          const w = rotYX(threadPoint(q, L), yaw, pitch);
+          w.z += LAYER_Z[LAYER.thread];
+          hud.place('thread', it.label, w, smooth(0.6, 0.96, ctx.fade ?? 1));
+        }
+        ctx.dir._hudFrame = ctx.frameId;
+      }
+    },
+  },
+
+  // ---------------------------------------------------------------- toolbox: the stack as a network; hovering a group lights its layer
+  network: {
+    layer: LAYER.network,
+    update(seg, ctx) {
+      const u = ctx.u;
+      const groups = (seg.groups ||= [...seg.el.querySelectorAll('.ring')].map((r) => [...r.querySelectorAll('li')].map((li) => li.textContent.trim())));
+      const counts = groups.map((g) => g.length);
+      const on = ctx.dir.netLayer;
+      const rv = u.uReveal.value;
+      for (let k = 0; k < groups.length && k < 15; k++) rv[1 + k] = k === on ? 2 : 1;
+      const yaw = Math.sin(ctx.t * 0.1) * 0.35 + (ctx.p - 0.5) * 0.5, pitch = 0.12;
+      rot(u, LAYER.network, yaw, pitch);
+      // the tools of the hovered group get their names beside their nodes
+      const hud = ctx.dir.hud;
+      if (hud) {
+        const alpha = smooth(0.6, 0.96, ctx.fade ?? 1);
+        for (let j = 0; j < 6; j++) {
+          const name = groups[on]?.[j];
+          if (!name) { hud.place('net' + j, '', _v, 0); continue; }
+          const p = netNode(on, j, counts);
+          const w = rotYX([p[0] + 0.28, p[1] + 0.34, p[2]], yaw, pitch);
+          w.z += LAYER_Z[LAYER.network];
+          hud.place('net' + j, name, w, alpha);
+        }
+        ctx.dir._hudFrame = ctx.frameId;
+      }
+    },
+  },
 
   // ---------------------------------------------------------------- commits: night skyline
   skyline: {
