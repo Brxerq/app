@@ -1,0 +1,21 @@
+{
+  "name": "hassaan-portfolio",
+  "private": true,
+  "type": "module",
+  "description": "Syed Muhammad Hassaan — portfolio. Static site: index.html + assets/site.css + assets/app.js (bundled from src/).",
+  "scripts": {
+    "dev": "node scripts/build.mjs --serve",
+    "build": "node scripts/build.mjs",
+    "assets": "node scripts/make-assets.mjs",
+    "check": "node scripts/check.mjs"
+  },
+  "devDependencies": {
+    "@napi-rs/canvas": "^0.1.80",
+    "d3-geo": "^3.1.1",
+    "esbuild": "^0.25.0",
+    "gsap": "^3.15.0",
+    "three": "^0.186.1",
+    "topojson-client": "^3.1.0",
+    "world-atlas": "^2.0.2"
+  }
+}
