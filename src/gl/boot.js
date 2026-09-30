@@ -5,7 +5,7 @@ import { Director } from './director.js';
 import { LAYER, LAYER_Z } from './scenes.js';
 import { portraitForm } from './forms/portrait.js';
 import { globeForm, loadMask } from './forms/globe.js';
-import { corridorForm, skylineForm, calmForm, timelineForm, toolsForm } from './forms/others.js';
+import { corridorForm, calmForm, timelineForm, toolsForm } from './forms/others.js';
 import { ICONS } from './forms/icons.js';
 import { Slabs } from './slabs.js';
 import { Hud } from './hud.js';
@@ -63,7 +63,7 @@ export async function boot({ canvas, tier, strokes, mobile, onProgress = () => {
     [LAYER.calm, () => calmForm(N)],
     [LAYER.timeline, () => timelineForm(N, roles)],
     [LAYER.calm2, () => calmForm(N, 98)],
-    [LAYER.skyline, () => skylineForm(N, null)],
+    [LAYER.skyline, () => calmForm(N, 71)],
     [LAYER.tools, () => toolsForm(N, tools)],
   ];
   for (let k = 0; k < forms.length; k++) {
@@ -198,11 +198,6 @@ export async function boot({ canvas, tier, strokes, mobile, onProgress = () => {
         .to(u.uWarm, { value: 0, duration: 2.2, ease: 'power2.inOut' }, 1.4);
     });
 
-  /** the GitHub graph arrives later: rebuild just that layer */
-  const setSkyline = (weeks) => {
-    stage.strokes.setForm(LAYER.skyline, skylineForm(N, weeks));
-  };
-
   /** a short flare when a note is sent */
   const burst = () => {
     gsap.timeline()
@@ -212,5 +207,5 @@ export async function boot({ canvas, tier, strokes, mobile, onProgress = () => {
   };
   window.addEventListener('smh:send', burst);
 
-  return { stage, dir, playIntro, setSkyline };
+  return { stage, dir, playIntro };
 }

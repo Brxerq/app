@@ -37,7 +37,7 @@ function initCalmToggle(calm) {
   });
 }
 
-/** the graph feeds the skyline in the world, or a flat heat-map on the calm page; failure hides the section */
+/** the graph renders as a heat-map card; failure hides the section */
 async function initCommits(world) {
   const sec = document.getElementById('commits');
   if (!sec) return;
@@ -46,16 +46,15 @@ async function initCommits(world) {
     const grid = toGrid(days);
     const label = sec.querySelector('[data-commits-total]');
     if (label) label.textContent = `${total.toLocaleString('en-US')} contributions in the last year`;
-    if (world) world.setSkyline(grid);
-    else {
-      const box = document.createElement('div');
-      box.className = 'commits__heat';
-      box.tabIndex = 0; // it can scroll sideways on narrow screens, so it must be reachable by keyboard
-      box.setAttribute('role', 'group');
-      box.setAttribute('aria-label', 'GitHub contribution heat map');
-      box.appendChild(heatmap(grid));
-      sec.querySelector('.commits__copy')?.appendChild(box);
-    }
+    // the 3D skyline read as noise, so both pages show the real heat map; the world keeps its flat floor
+    const box = document.createElement('div');
+    box.className = 'commits__heat';
+    box.tabIndex = 0; // it can scroll sideways on narrow screens, so it must be reachable by keyboard
+    box.setAttribute('role', 'group');
+    box.setAttribute('aria-label', 'GitHub contribution heat map');
+    box.appendChild(heatmap(grid));
+    sec.querySelector('.commits__copy')?.appendChild(box);
+    world?.dir.measure();
   } catch {
     sec.hidden = true;
     document.querySelector('[data-ruler] a[data-id="commits"]')?.parentElement?.remove();

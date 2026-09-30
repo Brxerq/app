@@ -21,30 +21,47 @@ export function toGrid(days) {
   return out;
 }
 
-/** flat SVG heat-map for the calm / no-WebGL page */
+/** SVG heat-map in GitHub's layout: month labels on top, Mon/Wed/Fri on the left, legend underneath */
 export function heatmap(grid) {
   const ns = 'http://www.w3.org/2000/svg';
-  const cell = 11, gap = 3;
+  const cell = 11, gap = 3, step = cell + gap, left = 30, top = 18;
+  const w = left + 53 * step, h = top + 7 * step + 26;
   const svg = document.createElementNS(ns, 'svg');
-  svg.setAttribute('viewBox', `0 0 ${53 * (cell + gap)} ${7 * (cell + gap)}`);
-  svg.setAttribute('width', String(53 * (cell + gap)));
+  svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
   svg.setAttribute('role', 'img');
   svg.setAttribute('aria-label', 'GitHub contributions over the last year, one square per day');
-  const ramp = ['#161a26', '#26407a', '#3f66d6', '#8aa2ff', '#ffd23f'];
+  const ramp = ['#1b2033', '#26407a', '#3f66d6', '#8aa2ff', '#ffd23f'];
+  const el = (tag, attrs, text) => {
+    const n = document.createElementNS(ns, tag);
+    for (const k in attrs) n.setAttribute(k, String(attrs[k]));
+    if (text) n.textContent = text;
+    svg.appendChild(n);
+    return n;
+  };
+  const label = { fill: '#8b91a7', 'font-size': 10, 'font-family': 'inherit' };
+  [['Mon', 1], ['Wed', 3], ['Fri', 5]].forEach(([t, r]) => el('text', { ...label, x: 0, y: top + r * step + 9 }, t));
+  let lastMonth = -1, lastLabel = null, lastCol = -9;
   grid.forEach((d, i) => {
-    const r = document.createElementNS(ns, 'rect');
-    r.setAttribute('x', String(Math.floor(i / 7) * (cell + gap)));
-    r.setAttribute('y', String((i % 7) * (cell + gap)));
-    r.setAttribute('width', String(cell));
-    r.setAttribute('height', String(cell));
-    r.setAttribute('rx', '2');
-    r.setAttribute('fill', ramp[Math.min(4, d.level ?? 0)]);
+    const col = Math.floor(i / 7), row = i % 7;
+    if (row === 0 && d.date) {
+      const m = new Date(d.date).getUTCMonth();
+      if (m !== lastMonth && col < 51) {
+        if (col - lastCol < 3) lastLabel?.remove(); // a stub month at the start would overlap the next label
+        lastLabel = el('text', { ...label, x: left + col * step, y: 11 }, new Date(d.date).toLocaleString('en-US', { month: 'short', timeZone: 'UTC' }));
+        lastCol = col;
+      }
+      lastMonth = m;
+    }
+    const r = el('rect', { x: left + col * step, y: top + row * step, width: cell, height: cell, rx: 2, fill: ramp[Math.min(4, d.level ?? 0)] });
     if (d.date) {
       const t = document.createElementNS(ns, 'title');
-      t.textContent = `${d.count} on ${d.date}`;
+      t.textContent = `${d.count} contribution${d.count === 1 ? '' : 's'} on ${d.date}`;
       r.appendChild(t);
     }
-    svg.appendChild(r);
   });
+  const ly = top + 7 * step + 10, lx = w - 5 * step - 34;
+  el('text', { ...label, x: lx - 28, y: ly + 9 }, 'Less');
+  ramp.forEach((c, k) => el('rect', { x: lx + k * step, y: ly, width: cell, height: cell, rx: 2, fill: c }));
+  el('text', { ...label, x: lx + 5 * step + 4, y: ly + 9 }, 'More');
   return svg;
 }

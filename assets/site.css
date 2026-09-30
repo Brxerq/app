@@ -307,10 +307,10 @@ section[id] { position: relative; }
 .creds__list > li > p:not(.creds__deg):not(.creds__id) { margin-top: 8px; color: rgba(236, 232, 223, 0.78); font-size: 0.95em; }
 
 /* commits */
-.commits__copy { max-width: 720px; }
+.commits__copy { max-width: 900px; }
 .commits__total { margin: 22px 0; color: var(--signal); }
-.commits__heat { margin-top: 28px; overflow-x: auto; padding-bottom: 8px; }
-.commits__heat svg { height: auto; max-width: none; }
+.commits__heat { margin-top: 28px; overflow-x: auto; padding: 20px 22px 14px; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; background: rgba(10, 12, 20, 0.72); backdrop-filter: blur(6px); }
+.commits__heat svg { display: block; width: 100%; min-width: 640px; height: auto; max-width: none; }
 .note.is-sent .btn--solid { background: var(--signal); border-color: var(--signal); }
 
 /* toolbox */

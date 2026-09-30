@@ -46,34 +46,6 @@ export function corridorForm(N, count = 9, imgs = null, seed = 51) {
   return f;
 }
 
-// ---------------------------------------------------------------- commits: a night skyline from the contribution graph
-export function skylineForm(N, weeks, seed = 71) {
-  const f = makeForm(N), rand = mulberry32(seed);
-  const cols = 53, rows = 7, sp = 0.19;
-  const max = Math.max(1, ...(weeks || []).map((d) => d.count));
-  let i = 0;
-  const base = -1.2;
-  // ground grid
-  for (let j = 0; j < 2600 && i < N; j++, i++) {
-    const row = j % rows;
-    put(f, i, (halton(j, 2) - 0.5) * cols * sp, base, (row - 3) * sp, 0.2, 0, 0, 0.32, 0.12, 0, 0, 0);
-  }
-  for (let d = 0; d < cols * rows && i < N; d++) {
-    const w = Math.floor(d / rows), day = d % rows;
-    const c = weeks?.[d]?.count ?? 0;
-    const h = 0.05 + Math.pow(c / max, 0.7) * 3.1;
-    const n = 4 + Math.round(h * 46);
-    const x = (w - (cols - 1) / 2) * sp, z = (day - 3) * sp;
-    for (let j = 0; j < n && i < N; j++, i++) {
-      const y = base + (j / n) * h;
-      const wx = (rand() - 0.5) * 0.1;
-      put(f, i, x + wx, y, z, 0, 0.09, 0, 0.4 + (c ? 0.5 : 0) + rand() * 0.2, c ? 0.35 + (c / max) * 0.6 : 0.1, 0, w / cols, 5, rand());
-    }
-  }
-  dust(f, i, rand, { r0: 5, r1: 12, w: 0.14, sx: 1.6, sy: 0.6 });
-  return f;
-}
-
 // ---------------------------------------------------------------- career: the roles as a timeline drawn in light
 // Time runs left to right and each role is a trail of light from its start to its end, one row per role, newest at
 // the top like the list beside it. Current roles run warm up to the "now" line; past ones cool.
