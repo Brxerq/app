@@ -82,7 +82,8 @@ function orient({ bxx, bxy, byy }, idx, fallback, rand) {
  * low quality tiers only draw the first part of a form, and that part should hold the lines that carry the page.
  * @param {CanvasImageSource & {width:number,height:number}} img
  * @param {number} N number of strokes
- * @param {{w:number, h:number, seed?:number}} o world size of the frame
+ * @param {{w:number, h:number, seed?:number, fill?:number, len?:number}} o world size of the frame; `fill` also hatches
+ *   the bright areas (for filled logos, 0 for screenshots), `len` scales the stroke length (for small subjects)
  */
 export function screenForm(img, N, o) {
   const rand = mulberry32(o.seed ?? 5);
@@ -103,8 +104,9 @@ export function screenForm(img, N, o) {
   const EDGE = 0.1;
   const dens = new Float32Array(A * B);
   let top = 0;
+  const fill = o.fill ?? 0;
   for (let i = 0; i < A * B; i++) {
-    dens[i] = Math.max(0, T.mag[i] - EDGE);
+    dens[i] = Math.max(0, T.mag[i] - EDGE) + fill * lum[i];
     top = Math.max(top, T.mag[i]);
   }
   const { rowCdf, colCdf } = cdfOf(dens, A, B);
@@ -117,7 +119,7 @@ export function screenForm(img, N, o) {
     const idx = row * A + clamp(col, 0, A - 1);
     const { ang, k } = orient(T, idx, 0, rand); // no structure → horizontal, so lines of text read as lines
     const strength = clamp(T.mag[idx] / (top * 0.5 + 1e-6), 0, 1);
-    const len = s * (1.6 + 2.2 * k * (0.6 + 0.4 * rand()));
+    const len = s * (1.6 + 2.2 * k * (0.6 + 0.4 * rand())) * (o.len ?? 1);
     pos[i * 4] = ((col + rand()) / A - 0.5) * o.w;
     pos[i * 4 + 1] = (0.5 - (row + rand()) / B) * o.h;
     pos[i * 4 + 2] = (rand() - 0.5) * 0.03;

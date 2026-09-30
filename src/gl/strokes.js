@@ -38,7 +38,7 @@ uniform vec2  uFormRot[16];
 uniform vec3  uFormOff[16];
 uniform float uFormScale[16];
 uniform float uReveal[16];
-uniform vec4  uFx;             // x: how far the career thread is painted, w: how far the skyline has grown
+uniform vec4  uFx;             // w: how far the skyline has grown
 uniform vec3  uFocus;          // focus plane z, focus range, fog k
 attribute float aId;
 
@@ -99,18 +99,6 @@ void applyFx(int layer, inout vec3 p, inout vec3 d, inout float w, inout float h
     p.y = -1.2 + (p.y + 1.2) * g;
     d *= g;
     w *= .25 + .75 * g;
-    return;
-  }
-  if (fx == 11) {           // thread: painted on by uFx.x, today first, and the pen tip burns bright
-    float head = exp(-pow((aux.y - uFx.x) * 40., 2.));
-    w *= smoothstep(aux.y - .012, aux.y, uFx.x) * (1. + 3.2 * head);
-    heat += .5 * head;
-    return;
-  }
-  if (fx == 12) {           // network: a pulse runs down every edge, each edge on its own beat
-    float pulse = exp(-pow((aux.y - fract(t * .3 + aux.w)) * 11., 2.));
-    w *= .5 + 2.4 * pulse;
-    heat += .5 * pulse;
     return;
   }
   if (fx == 8) {            // tunnel dust drifts towards the camera

@@ -6,9 +6,9 @@ Live: <https://brxerq.github.io/app/> (GitHub Pages, served straight from the re
 chapter, and every subject is him or his real output: his ink portrait; a hatch-engraved globe that turns from Karachi
 to each client country, an arc drawing out to it as its row is read; a corridor of his selected work, where the same
 strokes that drew his face sketch each live site from its own screenshot before the screenshot develops over the sketch
-(hover and click it); the career as one thread of light, painted a loop per role from today back into the past; the
-GitHub graph as a night skyline; the toolbox as a network of his tools with pulses running through it (hover a group to
-light its layer); quiet starfields under the reading chapters; and back out of the pupil to the portrait. Stroke colour temperature means maturity: cobalt = sketch, white = built, yellow = shipped.
+(hover and click it); the career as a timeline drawn in light, a trail per role up to the "now" line, the one being read
+lit; the GitHub graph as a night skyline; the toolbox as the logos of his tools drawn in strokes (hover a group to light
+its row); quiet starfields under the reading chapters; and back out of the pupil to the portrait. Stroke colour temperature means maturity: cobalt = sketch, white = built, yellow = shipped.
 The spine is his own method: sketch the system, ship the ugly version, measure what happened, make it fast, then pretty.
 
 ## How it is put together
@@ -18,16 +18,16 @@ The spine is his own method: sketch the system, ship the ugly version, measure w
 | `index.html` | **All content lives here**, as plain semantic HTML. Every role, project, site, stat and link. It is the whole site when JS is off, when the visitor prefers reduced motion, or when WebGL is unavailable. |
 | `assets/site.css` | Hand-written stylesheet: static layout first, `html.gl` rules layer the sticky "stage" grid on top. |
 | `src/` | ES modules, bundled by esbuild into `assets/app-*.js` + `assets/chunks/` (committed — no CI needed). |
-| `src/gl/` | The world: `strokes.js` (one instanced mesh, forms live in data textures, morphing in the vertex shader), `forms/` (generators; `portrait.js` also holds `screenForm`, which sketches a screenshot), `scenes.js` (per-chapter camera + choreography), `director.js` (DOM + scroll → camera/morph), `slabs.js` (site screenshots as textured slabs that develop over their sketches), `hud.js` (labels pinned in the world: the country on the globe, the role on the career thread, the tools in the network), `stage.js` (renderer, bloom, quality governor). |
+| `src/gl/` | The world: `strokes.js` (one instanced mesh, forms live in data textures, morphing in the vertex shader), `forms/` (generators; `portrait.js` also holds `screenForm`, which sketches a screenshot), `scenes.js` (per-chapter camera + choreography), `director.js` (DOM + scroll → camera/morph), `slabs.js` (site screenshots as textured slabs that develop over their sketches), `hud.js` (labels pinned in the world: the country on the globe, the roles and years on the timeline, the tool names under their logos), `stage.js` (renderer, bloom, quality governor). |
 | `src/ui/` | Navigation ruler + index, counters and reveals (GSAP inside `gsap.matchMedia()`), hero intro, pointer effects, contact form, GitHub data. |
 | `scripts/` | `build.mjs`, `make-assets.mjs` (portrait, globe mask, social card), `check.mjs` (pre-publish checks). |
 | `projects/`, `logos/` | Screenshots and favicons used by the page. |
 
 The renderer reads the page rather than duplicating it: the sections say which scene they are (`data-scene`), where the
 subject sits (`.stage__frame`), which countries the globe lights (`data-country`, `data-lat`, `data-lon` on the
-`#clients` rows) and which sites the corridor sketches (the `#work .site` screenshots and links). Change the HTML and the
-3D follows. One exception: adding or removing a client country changes the land mask, so run `npm run assets` after
-(reordering the rows does not need it).
+`#clients` rows), when each role ran (`data-start`, `data-end`), which logo each tool gets (`data-icon`, a simple-icons slug) and which sites the corridor sketches (the `#work .site` screenshots and links). Change the HTML and the
+3D follows. Two exceptions: adding or removing a client country changes the land mask, and adding a tool logo changes
+`src/gl/forms/icons.js`, so run `npm run assets` after either (reordering does not need it).
 
 ## Working on it
 
@@ -59,5 +59,5 @@ Every URL is relative because the site lives under `/app/`.
 
 ## Credits
 
-Three.js, GSAP (ScrollTrigger, SplitText). Fonts (SIL OFL): Unbounded, Geist, Martian Mono. Land mask from Natural Earth
+Three.js, GSAP (ScrollTrigger, SplitText). Tool logos: simple-icons (CC0; the logos stay their owners' trademarks). Fonts (SIL OFL): Unbounded, Geist, Martian Mono. Land mask from Natural Earth
 via `world-atlas`. Contribution data from `github-contributions-api.jogruber.de`.

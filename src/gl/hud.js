@@ -26,9 +26,13 @@ export class Hud {
     return l;
   }
 
-  /** put the label at a world position; `alpha` 0 hides it */
-  place(id, text, world, alpha) {
+  /** put the label at a world position; `alpha` 0 hides it; `variant` 'dim' is a quiet text label instead of a pill */
+  place(id, text, world, alpha, variant = '') {
     const l = this.label(id, text);
+    if (l.variant !== variant) {
+      l.el.className = variant ? `hud__tag hud__tag--${variant}` : 'hud__tag';
+      l.variant = variant;
+    }
     if (alpha < 0.02) {
       if (l.on) { l.el.style.opacity = '0'; l.on = false; }
       return;

@@ -201,6 +201,7 @@ html.js .loader.is-done { opacity: 0; visibility: hidden; pointer-events: none; 
 /* labels pinned to points in the world */
 .hud { position: fixed; inset: 0; z-index: 2; pointer-events: none; overflow: hidden; }
 .hud__tag { position: absolute; left: 0; top: 0; margin: -26px 0 0 -2px; padding: 3px 7px; font: 500 10px / 1 var(--f-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink); background: var(--signal); border-radius: 3px; opacity: 0; transition: opacity 0.25s; white-space: nowrap; will-change: transform; }
+.hud__tag--dim { margin-top: -20px; padding: 0; background: none; color: var(--dim); font-weight: 400; text-shadow: 0 0 10px rgba(5, 6, 10, 0.9); }
 
 @media (hover: none), (pointer: coarse) { .veil::after { animation: none; } }
 
@@ -428,7 +429,7 @@ html.gl .commits .stage__pin { position: absolute; inset: 0; }
 html.gl .commits .stage__frame { inset: 44% 0 4% 0; }
 html.gl .commits__copy { position: sticky; top: calc(16 * var(--vh)); }
 html.gl .career .stage__copy, html.gl .toolbox .stage__copy, html.gl .contact .stage__copy { padding-block: calc(14 * var(--vh)) calc(12 * var(--vh)); }
-/* career and toolbox share their half of the screen with the thread and the network */
+/* career and toolbox share their half of the screen with the timeline and the tool logos */
 html.gl .career__head { margin-bottom: calc(4 * var(--vh)); }
 html.gl .role { grid-template-columns: 1fr; gap: 14px; }
 html.gl .toolbox .stage__frame { inset: 6% 0 6% 0; }

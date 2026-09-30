@@ -1,6 +1,6 @@
 // Procedural forms for the middle of the journey. Each returns { pos, dir, aux } for N strokes.
 // Anything that comes from the page (sites, commits) is read from the DOM or passed in, never duplicated here.
-import { mulberry32, halton, searchCdf } from '../util.js';
+import { mulberry32, halton } from '../util.js';
 import { makeForm, put, hide, dust, rectEdge } from './kit.js';
 import { screenForm } from './portrait.js';
 
@@ -74,75 +74,94 @@ export function skylineForm(N, weeks, seed = 71) {
   return f;
 }
 
-// ---------------------------------------------------------------- career: one thread of light, painted like a long exposure
-// A loop per role, today at the top (s = 0) and the oldest role at the bottom (s = 1), so the pen paints downwards in the
-// same direction the newest-first list is read. Each loop dips up and back like handwriting, so it reads as loops, not a coil.
-export function threadPoint(s, loops) {
-  const ph = Math.PI * 2 * loops * s;
-  const r = 1.35 + 0.35 * Math.sin(Math.PI * 2 * 1.7 * s + 0.6);
-  return [r * Math.sin(ph) + 0.35 * Math.sin(Math.PI * 2 * 1.3 * s), 3.4 - 6.8 * s + 0.45 * Math.sin(ph), r * 0.55 * Math.cos(ph)];
+// ---------------------------------------------------------------- career: the roles as a timeline drawn in light
+// Time runs left to right and each role is a trail of light from its start to its end, one row per role, newest at
+// the top like the list beside it. Current roles run warm up to the "now" line; past ones cool.
+const monthOf = (s) => {
+  const [y, m] = s.split('-').map(Number);
+  return y * 12 + m - 1;
+};
+export function timelineLayout(roles, now = new Date()) {
+  const nowM = now.getFullYear() * 12 + now.getMonth();
+  const m0 = Math.min(...roles.map((r) => monthOf(r.start))) - 2, m1 = nowM + 2;
+  const W = 6.4, rowH = 0.82;
+  const x = (m) => -W / 2 + (W * (m - m0)) / (m1 - m0);
+  const y = (k) => ((roles.length - 1) / 2 - k) * rowH + 0.35;
+  const bars = roles.map((r, k) => ({ x0: x(monthOf(r.start)), x1: x(r.end === 'present' ? nowM : monthOf(r.end) + 1), y: y(k), present: r.end === 'present' }));
+  const years = [];
+  for (let yr = Math.ceil(m0 / 12); yr * 12 <= m1; yr++) years.push({ year: yr, x: x(yr * 12) });
+  return { m0, m1, x, bars, years, now: x(nowM), axisY: y(roles.length - 1) - 0.75, top: y(0) + 0.5 };
 }
-export function threadForm(N, loops = 7, seed = 67) {
+export function timelineForm(N, roles, seed = 61) {
   const f = makeForm(N), rand = mulberry32(seed);
-  // sample by arc length, so the wide loops are as dense as the tight ones
-  const BINS = 2048, cdf = new Float32Array(BINS);
-  let acc = 0, prev = threadPoint(0, loops);
-  for (let b = 0; b < BINS; b++) {
-    const p = threadPoint((b + 1) / BINS, loops);
-    acc += Math.hypot(p[0] - prev[0], p[1] - prev[1], p[2] - prev[2]);
-    cdf[b] = acc;
-    prev = p;
-  }
-  for (let b = 0; b < BINS; b++) cdf[b] /= acc;
-  const T = Math.floor(N * 0.72);
+  const L = timelineLayout(roles);
+  const n = L.bars.length;
   let i = 0;
-  for (; i < T; i++) {
-    const s = (searchCdf(cdf, halton(i, 2)) + rand()) / BINS;
-    const p = threadPoint(s, loops), q = threadPoint(Math.min(1, s + 0.001), loops);
-    const tl = Math.hypot(q[0] - p[0], q[1] - p[1], q[2] - p[2]) || 1;
-    const len = 0.07 + rand() * 0.05, j = 0.025;
-    // today burns warm, the past cools to cobalt: the site's own colour code for shipped vs sketched
-    put(f, i, p[0] + (rand() - 0.5) * j, p[1] + (rand() - 0.5) * j, p[2] + (rand() - 0.5) * j, (q[0] - p[0]) / tl * len, (q[1] - p[1]) / tl * len, (q[2] - p[2]) / tl * len, 0.55 + rand() * 0.45, 0.95 - 0.8 * s + (rand() - 0.5) * 0.08, 0, s, 11, rand());
+  // the trails, interleaved role by role so low tiers keep every bar; param = how far along, so a bar draws left to right
+  const T = Math.floor(N * 0.3);
+  for (; i < T && n; i++) {
+    const k = i % n, j = Math.floor(i / n), b = L.bars[k];
+    const u = halton(j, 2), v = halton(j, 3);
+    const edge = j % 5 === 0; // brighter edges keep the bar crisp
+    const head = b.present ? Math.exp(-Math.pow((1 - u) * 9, 2)) : 0; // a current role burns brightest at "now"
+    put(f, i, b.x0 + (b.x1 - b.x0) * u, b.y + (edge ? (j % 10 === 0 ? 0.075 : -0.075) : (v - 0.5) * 0.15), (rand() - 0.5) * 0.04,
+      0.1 + rand() * 0.12, 0, 0, (edge ? 0.8 : 0.32) + head * 0.6, (b.present ? 0.75 : 0.28) + head * 0.25 + (rand() - 0.5) * 0.06, 1 + k, u, 0);
   }
-  dust(f, i, rand, { r0: 4.5, r1: 12, w: 0.14, sx: 1.1, sy: 1.2 });
+  const line = (x0, y0, x1, y1, count, w, heat) => {
+    for (let j = 0; j < count && i < N; j++, i++) {
+      const u = halton(j, 2);
+      const dx = x1 - x0, dy = y1 - y0, dl = Math.hypot(dx, dy) || 1;
+      put(f, i, x0 + dx * u, y0 + dy * u, 0, (dx / dl) * 0.08, (dy / dl) * 0.08, 0, w, heat);
+    }
+  };
+  // the axis, a tick a month (taller each January), a faint gridline each year, and the "now" line
+  line(L.x(L.m0), L.axisY, L.x(L.m1), L.axisY, 1200, 0.55, 0.2);
+  for (let m = L.m0; m <= L.m1; m++) line(L.x(m), L.axisY, L.x(m), L.axisY + (m % 12 === 0 ? 0.2 : 0.07), m % 12 === 0 ? 24 : 8, 0.7, 0.3);
+  for (const yr of L.years) line(yr.x, L.axisY, yr.x, L.top, 260, 0.22, 0.14);
+  line(L.now, L.axisY, L.now, L.top, 520, 0.9, 0.95);
+  dust(f, i, rand, { r0: 5, r1: 12, w: 0.13, sx: 1.2, sy: 0.9 });
   return f;
 }
 
-// ---------------------------------------------------------------- toolbox: the stack as a network, pulses running through it
-// One layer per tool group (top to bottom, in page order), one node per tool, every node wired to the next layer.
-const NET = { dy: 1.55, dx: 1.25 };
-export function netNode(k, j, counts) {
+// ---------------------------------------------------------------- toolbox: the logos of the tools, drawn in light
+// One row per tool group (in page order), one logo per tool. The logos are simple-icons paths (icons.js, generated from
+// the page's data-icon slugs); a tool without one gets its name as a wordmark instead.
+export const TOOL = { cell: 1.45, size: 1.0 };
+export function toolCell(k, j, counts) {
   const n = counts[k] || 1;
-  return [(j - (n - 1) / 2) * NET.dx, ((counts.length - 1) / 2 - k) * NET.dy, 0.35 * Math.sin(k * 1.3 + j * 0.9)];
+  return [(j - (n - 1) / 2) * TOOL.cell, ((counts.length - 1) / 2 - k) * TOOL.cell, 0.1 * Math.sin(k * 1.7 + j * 2.1)];
 }
-export function networkForm(N, counts, seed = 83) {
+function glyph(tool) {
+  const S = 256;
+  const cv = typeof OffscreenCanvas !== 'undefined' ? new OffscreenCanvas(S, S) : Object.assign(document.createElement('canvas'), { width: S, height: S });
+  const g = cv.getContext('2d');
+  g.fillStyle = '#000';
+  g.fillRect(0, 0, S, S);
+  g.fillStyle = '#fff';
+  if (tool.path) {
+    g.setTransform((S * 0.84) / 24, 0, 0, (S * 0.84) / 24, S * 0.08, S * 0.08);
+    g.fill(new Path2D(tool.path));
+  } else {
+    g.font = `800 ${Math.round(S * (tool.mark.length > 3 ? 0.24 : 0.3))}px Unbounded, system-ui, sans-serif`;
+    g.textAlign = 'center';
+    g.textBaseline = 'middle';
+    g.fillText(tool.mark, S / 2, S / 2);
+  }
+  return cv;
+}
+/** @param {{k:number, j:number, path?:string, mark:string}[]} tools group k, place j in the group, logo path or wordmark */
+export function toolsForm(N, tools, seed = 83) {
   const f = makeForm(N), rand = mulberry32(seed);
+  const counts = [];
+  for (const t of tools) counts[t.k] = (counts[t.k] || 0) + 1;
+  const L = tools.length ? Math.floor(N * 0.7) : 0, per = Math.ceil(L / Math.max(1, tools.length));
+  const sk = tools.map((t, n) => screenForm(glyph(t), per, { w: TOOL.size, h: TOOL.size, seed: 30 + n, fill: 0.2, len: 6 }));
   let i = 0;
-  // nodes first: low tiers draw only a prefix of the form, and every node must survive that
-  counts.forEach((n, k) => {
-    for (let j = 0; j < n; j++) {
-      const [x, y, z] = netNode(k, j, counts);
-      for (let m = 0; m < 300 && i < N; m++, i++) {
-        if (m < 240) {
-          const a = (m / 240) * TAU, r = 0.2;
-          put(f, i, x + Math.cos(a) * r, y + Math.sin(a) * r, z, -Math.sin(a) * 0.07, Math.cos(a) * 0.07, 0, 0.9, 0.55, 1 + k);
-        } else {
-          const a = rand() * TAU, r = 0.07 * rand();
-          put(f, i, x + Math.cos(a) * r, y + Math.sin(a) * r, z, Math.cos(a) * 0.04, Math.sin(a) * 0.04, 0, 1.1, 0.8, 1 + k);
-        }
-      }
-    }
-  });
-  // edges, interleaved one stroke at a time for the same reason; each bows out of the plane and has its own beat
-  const edges = [];
-  for (let k = 0; k + 1 < counts.length; k++) for (let a = 0; a < counts[k]; a++) for (let b = 0; b < counts[k + 1]; b++) edges.push([k, a, b, rand()]);
-  const E = Math.min(N - i, Math.floor(N * 0.52));
-  for (let e = 0; e < E && edges.length; e++, i++) {
-    const [k, a, b, beat] = edges[e % edges.length];
-    const A = netNode(k, a, counts), B = netNode(k + 1, b, counts);
-    const t = halton(Math.floor(e / edges.length), 2), bow = Math.sin(Math.PI * t) * 0.3;
-    const d = [B[0] - A[0], B[1] - A[1], B[2] - A[2]], dl = Math.hypot(d[0], d[1], d[2]) || 1;
-    put(f, i, A[0] + d[0] * t, A[1] + d[1] * t, A[2] + d[2] * t + bow, (d[0] / dl) * 0.09, (d[1] / dl) * 0.09, (d[2] / dl) * 0.09, 0.35 + rand() * 0.15, 0.18, 1 + k, t, 12, beat);
+  // interleaved logo by logo, each strongest-edges first, so low tiers still draw every logo's outline
+  for (; i < L; i++) {
+    const n = i % tools.length, q = Math.floor(i / tools.length) * 4, t = tools[n], s = sk[n];
+    const [cx, cy, cz] = toolCell(t.k, t.j, counts);
+    put(f, i, cx + s.pos[q], cy + s.pos[q + 1], cz + s.pos[q + 2], s.dir[q], s.dir[q + 1], 0, s.pos[q + 3], s.dir[q + 3], 1 + t.k);
   }
   dust(f, i, rand, { r0: 5, r1: 12, w: 0.14 });
   return f;

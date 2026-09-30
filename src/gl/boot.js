@@ -5,7 +5,8 @@ import { Director } from './director.js';
 import { LAYER, LAYER_Z } from './scenes.js';
 import { portraitForm } from './forms/portrait.js';
 import { globeForm, loadMask } from './forms/globe.js';
-import { corridorForm, skylineForm, calmForm, threadForm, networkForm } from './forms/others.js';
+import { corridorForm, skylineForm, calmForm, timelineForm, toolsForm } from './forms/others.js';
+import { ICONS } from './forms/icons.js';
 import { Slabs } from './slabs.js';
 import { Hud } from './hud.js';
 
@@ -52,14 +53,18 @@ export async function boot({ canvas, tier, strokes, mobile, onProgress = () => {
   stage.strokes.setForm(LAYER.globe, timed('globe', () => globeForm(loadMask(mimg), N, places)));
   onProgress(0.75);
   await tick();
+  // the career rows and the tool groups come from the page too
+  const roles = [...document.querySelectorAll('#career .role')].map((el) => ({ start: el.dataset.start, end: el.dataset.end })).filter((r) => r.start && r.end);
   const groups = [...document.querySelectorAll('#toolbox .ring')];
+  const tools = groups.flatMap((g, k) => [...g.querySelectorAll('li')].map((li, j) => ({ k, j, path: ICONS[li.dataset.icon], mark: li.textContent.split(' /')[0].trim() })));
+  await document.fonts?.load('800 64px Unbounded').catch(() => {}); // the tools without a logo are drawn as wordmarks in it
   const forms = [
     [LAYER.corridor, () => corridorForm(N, document.querySelectorAll('#work .site').length || 5)],
     [LAYER.calm, () => calmForm(N)],
-    [LAYER.thread, () => threadForm(N, document.querySelectorAll('#career .role').length || 7)],
+    [LAYER.timeline, () => timelineForm(N, roles)],
     [LAYER.calm2, () => calmForm(N, 98)],
     [LAYER.skyline, () => skylineForm(N, null)],
-    [LAYER.network, () => networkForm(N, groups.length ? groups.map((g) => g.querySelectorAll('li').length) : [4, 4, 3, 2, 3])],
+    [LAYER.tools, () => toolsForm(N, tools)],
   ];
   for (let k = 0; k < forms.length; k++) {
     stage.strokes.setForm(forms[k][0], timed('form ' + forms[k][0], forms[k][1]));
@@ -99,10 +104,10 @@ export async function boot({ canvas, tier, strokes, mobile, onProgress = () => {
     });
   }
   dir.hud = new Hud(stage);
-  // hovering a tool group lights its layer of the network
+  // hovering a tool group lights its row of logos
   groups.forEach((el, k) => {
-    const on = () => { dir.netLayer = k; };
-    const off = () => { dir.netLayer = -1; };
+    const on = () => { dir.toolGroup = k; };
+    const off = () => { dir.toolGroup = -1; };
     el.addEventListener('pointerenter', on);
     el.addEventListener('pointerleave', off);
   });

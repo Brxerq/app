@@ -2,11 +2,11 @@
 // (world units, used to fit the DOM frame), how the camera behaves, and what to do each frame.
 import { clamp, lerp, smooth } from './util.js';
 import { KARACHI, R as GLOBE_R, faceTo, sph } from './forms/globe.js';
-import { CORRIDOR, threadPoint, netNode } from './forms/others.js';
+import { CORRIDOR, timelineLayout, toolCell } from './forms/others.js';
 import { Vector3 } from 'three';
 
 // in page order, so the camera always travels forward
-export const LAYER = { portrait: 0, globe: 1, corridor: 2, calm: 3, thread: 4, calm2: 5, skyline: 6, network: 7, portrait2: 8 };
+export const LAYER = { portrait: 0, globe: 1, corridor: 2, calm: 3, timeline: 4, calm2: 5, skyline: 6, tools: 7, portrait2: 8 };
 export const LAYER_Z = {};
 for (const k of Object.values(LAYER)) LAYER_Z[k] = -16 * k;
 
@@ -15,10 +15,10 @@ export const NOM = {
   1: { w: 6.0, h: 6.0 },
   2: { w: 6.8, h: 3.8 },
   3: { w: 10, h: 6 },
-  4: { w: 5.2, h: 8.0 },
+  4: { w: 7.6, h: 7.0 },
   5: { w: 10, h: 6 },
   6: { w: 10.6, h: 5 },
-  7: { w: 5.6, h: 7.4 },
+  7: { w: 6.2, h: 7.4 },
   8: { w: 6.4, h: 6.7 },
 };
 // a heading without its favicon or letter mark, e.g. "Stackloom Technologies", "Endifaa | اندفاع"
@@ -192,56 +192,69 @@ export const SCENES = {
   calm: { layer: LAYER.calm },
   calm2: { layer: LAYER.calm2 },
 
-  // ---------------------------------------------------------------- career: the pen paints a loop per role, today first
-  thread: {
-    layer: LAYER.thread,
+  // ---------------------------------------------------------------- career: the roles as a timeline; the one being read glows
+  timeline: {
+    layer: LAYER.timeline,
     update(seg, ctx) {
       const u = ctx.u, items = seg.items || [];
-      const L = Math.max(1, items.length);
-      const ri = stepIndex(items, ctx.yc); // 0 = the newest role … L - 1 = the oldest
-      const q = 0.05 + 0.95 * clamp(ri / Math.max(1, L - 1), 0, 1);
-      u.uFx.value.x = q;
-      const yaw = Math.sin(ctx.t * 0.12) * 0.3 + q * 0.5, pitch = 0.1;
-      rot(u, LAYER.thread, yaw, pitch);
-      // the role being read rides on the pen tip
+      const roles = (seg.roles ||= items.map((it) => ({
+        start: it.el.dataset.start,
+        end: it.el.dataset.end,
+        // the Latin name only ("Endifaa", not "Endifaa | اندفاع"), without its favicon or letter mark
+        name: plainText(it.el.querySelector('h3')).split(' | ')[0],
+      })));
+      if (!roles.length || roles.some((r) => !r.start || !r.end)) return;
+      const L = (seg.layout ||= timelineLayout(roles));
+      // the bars draw on left to right as the chapter arrives, then the role being read glows
+      const draw = smooth(0, 0.06, ctx.p); // quick: on a phone the list covers the chart soon after
+      const on = Math.round(stepIndex(items, ctx.yc));
+      const rv = u.uReveal.value;
+      for (let k = 0; k < roles.length && k < 15; k++) rv[1 + k] = draw + (k === on ? draw * 0.5 : 0);
+      const yaw = Math.sin(ctx.t * 0.1) * 0.12, pitch = 0.06;
+      rot(u, LAYER.timeline, yaw, pitch);
+      // company names at the start of their bars (the one being read as a pill), years under the axis
       const hud = ctx.dir.hud;
       if (hud) {
-        const it = items[clamp(Math.round(ri), 0, L - 1)];
-        if (it) {
-          // the Latin name only ("Endifaa", not "Endifaa | اندفاع"): mixed directions would reorder the year around it
-          it.label ||= [plainText(it.el.querySelector('h3')).split(' | ')[0], it.el.querySelector('time')?.textContent.match(/\d{4}/)?.[0]].filter(Boolean).join(' · ');
-          const w = rotYX(threadPoint(q, L), yaw, pitch);
-          w.z += LAYER_Z[LAYER.thread];
-          hud.place('thread', it.label, w, smooth(0.6, 0.96, ctx.fade ?? 1));
-        }
+        const alpha = smooth(0.6, 0.96, ctx.fade ?? 1) * draw;
+        const at = (x, y) => {
+          const w = rotYX([x, y, 0], yaw, pitch);
+          w.z += LAYER_Z[LAYER.timeline];
+          return w;
+        };
+        roles.forEach((r, k) => hud.place('role' + k, r.name, at(L.bars[k].x0, L.bars[k].y + 0.14), alpha, k === on ? '' : 'dim'));
+        L.years.forEach((y, k) => hud.place('year' + k, String(y.year), at(y.x - 0.12, L.axisY - 0.32), alpha, 'dim'));
+        hud.place('now', 'now', at(L.now - 0.12, L.top + 0.22), alpha, 'dim');
         ctx.dir._hudFrame = ctx.frameId;
       }
     },
   },
 
-  // ---------------------------------------------------------------- toolbox: the stack as a network; hovering a group lights its layer
-  network: {
-    layer: LAYER.network,
+  // ---------------------------------------------------------------- toolbox: the tools' logos; hovering a group lights its row
+  tools: {
+    layer: LAYER.tools,
     update(seg, ctx) {
       const u = ctx.u;
       const groups = (seg.groups ||= [...seg.el.querySelectorAll('.ring')].map((r) => [...r.querySelectorAll('li')].map((li) => li.textContent.trim())));
       const counts = groups.map((g) => g.length);
-      const on = ctx.dir.netLayer;
+      const on = ctx.dir.toolGroup;
       const rv = u.uReveal.value;
-      for (let k = 0; k < groups.length && k < 15; k++) rv[1 + k] = k === on ? 2 : 1;
-      const yaw = Math.sin(ctx.t * 0.1) * 0.35 + (ctx.p - 0.5) * 0.5, pitch = 0.12;
-      rot(u, LAYER.network, yaw, pitch);
-      // the tools of the hovered group get their names beside their nodes
+      for (let k = 0; k < groups.length && k < 15; k++) rv[1 + k] = k === on ? 1.4 : 1;
+      const yaw = Math.sin(ctx.t * 0.1) * 0.22, pitch = 0.08;
+      rot(u, LAYER.tools, yaw, pitch);
+      // the hovered group's tools get their names under their logos
       const hud = ctx.dir.hud;
       if (hud) {
         const alpha = smooth(0.6, 0.96, ctx.fade ?? 1);
         for (let j = 0; j < 6; j++) {
           const name = groups[on]?.[j];
-          if (!name) { hud.place('net' + j, '', _v, 0); continue; }
-          const p = netNode(on, j, counts);
-          const w = rotYX([p[0] + 0.28, p[1] + 0.34, p[2]], yaw, pitch);
-          w.z += LAYER_Z[LAYER.network];
-          hud.place('net' + j, name, w, alpha);
+          if (!name) {
+            hud.place('tool' + j, '', _v, 0);
+            continue;
+          }
+          const p = toolCell(on, j, counts);
+          const w = rotYX([p[0] - 0.45, p[1] - 0.8, p[2]], yaw, pitch);
+          w.z += LAYER_Z[LAYER.tools];
+          hud.place('tool' + j, name, w, alpha);
         }
         ctx.dir._hudFrame = ctx.frameId;
       }

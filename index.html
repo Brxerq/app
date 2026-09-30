@@ -23,7 +23,7 @@
   <link rel="preload" href="./assets/fonts/unbounded.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="./assets/fonts/geist.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="./assets/img/hassaan.webp" as="image" type="image/webp">
-  <link rel="stylesheet" href="./assets/site.css?v=f47f96f1">
+  <link rel="stylesheet" href="./assets/site.css?v=56af66f7">
   <script>if ('noModule' in HTMLScriptElement.prototype) document.documentElement.className = 'js';</script>
   <script>
     /* start fetching the 3D chunk in parallel with the app script, unless this visitor will get the calm page anyway */
@@ -33,12 +33,12 @@
         if (!window.WebGL2RenderingContext || matchMedia('(prefers-reduced-motion: reduce)').matches || c.saveData || /(^|-)2g$/.test(c.effectiveType || '') || localStorage.getItem('smh:calm') === '1') return;
         var l = document.createElement('link');
         l.rel = 'modulepreload';
-        l.href = './assets/chunks/boot-23XSAK5R.js';
+        l.href = './assets/chunks/boot-UJVGPYFA.js';
         document.head.appendChild(l);
       } catch (e) {}
     })();
   </script>
-  <script type="module" src="./assets/app-TD2EUYZR.js"></script>
+  <script type="module" src="./assets/app-KHDTICO3.js"></script>
 
   <script type="application/ld+json">
   {
@@ -413,7 +413,7 @@
     </section>
 
     <!-- ============================== 03 · MEASURE ============================== -->
-    <section id="career" class="career case case--flip stage" data-scene="thread" data-label="Career" aria-labelledby="career-title">
+    <section id="career" class="career case case--flip stage" data-scene="timeline" data-label="Career" aria-labelledby="career-title">
       <div class="stage__pin" aria-hidden="true"><div class="stage__subject"><i class="stage__frame"></i></div></div>
       <div class="stage__copy">
       <header class="career__head">
@@ -423,7 +423,7 @@
       </header>
 
       <ol class="timeline">
-        <li class="role" data-end="present">
+        <li class="role" data-start="2026-03" data-end="present">
           <div class="role__when"><time>Mar 2026 - Present</time><span>Dubai, UAE (Hybrid)</span></div>
           <div class="role__what">
             <h3><img class="fav" src="./logos/hirejordy-com.png" alt="" width="22" height="22" loading="lazy"> Jordy</h3>
@@ -433,7 +433,7 @@
             <p class="role__more"><a href="#work">The product, in Work ↑</a></p>
           </div>
         </li>
-        <li class="role" data-end="present">
+        <li class="role" data-start="2025-12" data-end="present">
           <div class="role__when"><time>Dec 2025 - Present</time><span>County Dublin, Ireland (Remote)</span></div>
           <div class="role__what">
             <h3><img class="fav" src="./logos/myglobalhealth-online.png" alt="" width="22" height="22" loading="lazy"> Global Health</h3>
@@ -453,7 +453,7 @@
             <p class="role__more"><a href="#work">The platform, in Work ↑</a></p>
           </div>
         </li>
-        <li class="role" data-end="present">
+        <li class="role" data-start="2025-11" data-end="present">
           <div class="role__when"><time>Nov 2025 - Present</time><span>Dubai, UAE (Remote)</span></div>
           <div class="role__what">
             <h3><img class="fav" src="./logos/aertonic-com.svg" alt="" width="22" height="20" loading="lazy"> Aertonic</h3>
@@ -463,7 +463,7 @@
             <p class="role__more"><a href="#work">The product, in Work ↑</a></p>
           </div>
         </li>
-        <li class="role" data-end="2026-06">
+        <li class="role" data-start="2025-10" data-end="2026-06">
           <div class="role__when"><time>Oct 2025 - Jun 2026</time><span>Saudi Arabia (Remote)</span></div>
           <div class="role__what">
             <h3><img class="fav" src="./logos/endifaa-com.png" alt="" width="22" height="14" loading="lazy"> Endifaa | <bdi lang="ar" dir="rtl" class="ar">اندفاع</bdi></h3>
@@ -481,7 +481,7 @@
             <p class="role__more"><a href="#work">The platform, in Work ↑</a></p>
           </div>
         </li>
-        <li class="role" data-end="2025-09">
+        <li class="role" data-start="2025-01" data-end="2025-09">
           <div class="role__when"><time>Jan 2025 - Sep 2025</time><span>Riyadh, Saudi Arabia (Remote)</span></div>
           <div class="role__what">
             <h3><span class="fav fav--letter" aria-hidden="true">S</span> Stackloom Technologies</h3>
@@ -497,7 +497,7 @@
             <ul class="chips" aria-label="Stack"><li>FastAPI</li><li>MySQL</li><li>LLMs</li><li>Prompt Engineering</li><li>Voice AI</li></ul>
           </div>
         </li>
-        <li class="role" data-end="present">
+        <li class="role" data-start="2024-07" data-end="present">
           <div class="role__when"><time>Jul 2024 - Present</time><span>Remote</span></div>
           <div class="role__what">
             <h3><span class="fav fav--letter" aria-hidden="true">F</span> Freelance</h3>
@@ -514,7 +514,7 @@
             <ul class="chips" aria-label="Stack"><li>Python</li><li>LLMs</li><li>RAG</li><li>Docker</li><li>RabbitMQ</li><li>Technical SEO</li></ul>
           </div>
         </li>
-        <li class="role" data-end="2024-12">
+        <li class="role" data-start="2024-03" data-end="2024-12">
           <div class="role__when"><time>Mar 2024 - Dec 2024</time><span>Kuching, Malaysia (On-site)</span></div>
           <div class="role__what">
             <h3><span class="fav fav--letter" aria-hidden="true">Q</span> Quest Marketing Kuching</h3>
@@ -601,7 +601,7 @@
     </section>
 
     <!-- ============================== 04 · REFINE ============================== -->
-    <section id="toolbox" class="toolbox stage" data-scene="network" data-label="Toolbox" aria-labelledby="toolbox-title">
+    <section id="toolbox" class="toolbox stage" data-scene="tools" data-label="Toolbox" aria-labelledby="toolbox-title">
       <div class="stage__pin" aria-hidden="true"><div class="stage__subject"><i class="stage__frame"></i></div></div>
       <div class="stage__copy">
       <header class="toolbox__head">
@@ -611,11 +611,11 @@
       </header>
 
       <div class="toolbox__rings">
-        <section class="ring" aria-labelledby="t-lang"><h3 id="t-lang" class="eyebrow">Languages</h3><ul><li>Python</li><li>TypeScript</li><li>C++</li><li>Dart</li></ul></section>
-        <section class="ring" aria-labelledby="t-ai"><h3 id="t-ai" class="eyebrow">AI / Data</h3><ul><li>TensorFlow</li><li>PyTorch</li><li>OpenCV</li><li>LLMs / NLP</li></ul></section>
-        <section class="ring" aria-labelledby="t-fw"><h3 id="t-fw" class="eyebrow">Frameworks</h3><ul><li>React</li><li>Django / DRF</li><li>Flutter</li></ul></section>
-        <section class="ring" aria-labelledby="t-be"><h3 id="t-be" class="eyebrow">Backend</h3><ul><li>PostgreSQL</li><li>MySQL</li></ul></section>
-        <section class="ring" aria-labelledby="t-tools"><h3 id="t-tools" class="eyebrow">Tools</h3><ul><li>Docker</li><li>AWS</li><li>Hugging Face</li></ul></section>
+        <section class="ring" aria-labelledby="t-lang"><h3 id="t-lang" class="eyebrow">Languages</h3><ul><li data-icon="python">Python</li><li data-icon="typescript">TypeScript</li><li data-icon="cplusplus">C++</li><li data-icon="dart">Dart</li></ul></section>
+        <section class="ring" aria-labelledby="t-ai"><h3 id="t-ai" class="eyebrow">AI / Data</h3><ul><li data-icon="tensorflow">TensorFlow</li><li data-icon="pytorch">PyTorch</li><li data-icon="opencv">OpenCV</li><li>LLMs / NLP</li></ul></section>
+        <section class="ring" aria-labelledby="t-fw"><h3 id="t-fw" class="eyebrow">Frameworks</h3><ul><li data-icon="react">React</li><li data-icon="django">Django / DRF</li><li data-icon="flutter">Flutter</li></ul></section>
+        <section class="ring" aria-labelledby="t-be"><h3 id="t-be" class="eyebrow">Backend</h3><ul><li data-icon="postgresql">PostgreSQL</li><li data-icon="mysql">MySQL</li></ul></section>
+        <section class="ring" aria-labelledby="t-tools"><h3 id="t-tools" class="eyebrow">Tools</h3><ul><li data-icon="docker">Docker</li><li>AWS</li><li data-icon="huggingface">Hugging Face</li></ul></section>
       </div>
 
       <div class="toolbox__aside">
