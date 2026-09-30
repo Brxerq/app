@@ -22,15 +22,17 @@ export function initContact() {
         body: JSON.stringify({ name: d.name, email: d.email, message: d.message, _subject: `Portfolio: message from ${d.name}`, _replyto: d.email, _template: 'table' }),
       });
       const out = await res.json().catch(() => ({}));
-      if (!res.ok || String(out.success) !== 'true') throw new Error(out.message || res.status);
+      if (!res.ok || String(out.success) !== 'true') throw new Error(out.message || '');
       form.reset();
       form.classList.add('is-sent');
       label.textContent = 'sent';
       status.textContent = 'Thanks, your message is on its way. I reply within a day.';
       window.dispatchEvent(new Event('smh:send'));
-    } catch {
+    } catch (err) {
       label.textContent = 'send message';
-      status.innerHTML = `Couldn’t send just now. Please email me at <a href="mailto:${TO}">${TO}</a>.`;
+      // FormSubmit explains itself (e.g. the one-time activation), so show its words when it gives any
+      const why = /activat/i.test(err.message) ? 'This form is waiting for its one-time activation. ' : '';
+      status.innerHTML = `${why}Couldn’t send just now. Please email me at <a href="mailto:${TO}">${TO}</a>.`;
     } finally {
       button.disabled = false;
       setTimeout(() => { form.classList.remove('is-sent'); if (label.textContent === 'sent') label.textContent = 'send message'; }, 6000);
