@@ -18,7 +18,7 @@ export function initContact() {
       window.location.href = `mailto:sm.hassaan99@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     }, 650);
     setTimeout(() => {
-      label.textContent = 'send it';
+      label.textContent = 'send message';
       form.classList.remove('is-sent');
     }, 6000);
   });
