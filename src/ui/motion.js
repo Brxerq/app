@@ -30,7 +30,8 @@ export function initMotion({ calm, fine }) {
     const tl = gsap.timeline({ paused: true, defaults: { ease: 'power3.out' } });
     const h1 = document.querySelector('.hero__title');
     h1.setAttribute('aria-label', h1.textContent.replace(/\s+/g, ' ').trim()); // the split spans below are aria-hidden
-    const split = SplitText.create('.hero__line', { type: 'words,chars', mask: 'chars', aria: 'hidden' });
+    // inline spans, not divs: copying the name (or pasting it anywhere) gives the text, not one letter per line
+    const split = SplitText.create('.hero__line', { type: 'words,chars', mask: 'chars', aria: 'hidden', tag: 'span' });
     tl.from('.bar', { opacity: 0, y: -14, duration: 0.9 }, 0.6)
       .from('.hero__status', { opacity: 0, x: -18, duration: 0.9 }, 0.5)
       .from(split.chars, { yPercent: 115, rotate: 5, duration: 1.15, stagger: { each: 0.03, from: 'start' }, ease: 'power4.out' }, 0.55)
@@ -120,7 +121,7 @@ export function initMotion({ calm, fine }) {
       });
       method.querySelectorAll('.method__t').forEach((el, i) => {
         const text = el.textContent;
-        const s = SplitText.create(el, { type: 'words,chars', aria: 'hidden' });
+        const s = SplitText.create(el, { type: 'words,chars', aria: 'hidden', tag: 'span' });
         methodSplits.push(s);
         const sr = document.createElement('span'); // the letters are aria-hidden, so screen readers get the sentence here
         sr.className = 'vh';

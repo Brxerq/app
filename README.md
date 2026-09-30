@@ -9,7 +9,7 @@ strokes that drew his face sketch each live site from its own screenshot before 
 (hover and click it); the career as a timeline drawn in light, a trail per role up to the "now" line, the one being read
 lit; the GitHub graph as a night skyline; the toolbox as the logos of his tools drawn in strokes (hover a group to light
 its row); quiet starfields under the reading chapters; and back out of the pupil to the portrait. Stroke colour temperature means maturity: cobalt = sketch, white = built, yellow = shipped.
-The spine is his own method: sketch the system, ship the ugly version, measure what happened, make it fast, then pretty.
+Between the portrait and the globe, the dive into the eye spells out what he builds.
 
 ## How it is put together
 

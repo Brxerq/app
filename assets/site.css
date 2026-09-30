@@ -57,7 +57,7 @@ button { cursor: pointer; background: none; border: 0; padding: 0; }
 ::selection { background: var(--signal); color: var(--ink); }
 :focus-visible { outline: 2px solid var(--signal); outline-offset: 3px; border-radius: 2px; }
 
-.vh { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+.vh { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; user-select: none; } /* read aloud, never copied twice */
 .skip { position: fixed; left: 12px; top: -60px; z-index: 200; padding: 10px 16px; background: var(--signal); color: var(--ink); font: 500 12px var(--f-mono); text-transform: uppercase; letter-spacing: 0.1em; border-radius: 4px; transition: top 0.2s var(--ease); }
 .skip:focus { top: 12px; }
 
@@ -243,7 +243,6 @@ section[id] { position: relative; }
 .method__steps { display: grid; gap: clamp(6px, 1.4vh, 16px); }
 .method__step { display: flex; align-items: baseline; gap: clamp(14px, 2.4vw, 40px); font: 300 clamp(2rem, 6.4vw, 6.4rem) / 1.02 var(--f-display); letter-spacing: -0.045em; }
 .method__n { font: 400 clamp(11px, 1vw, 14px) var(--f-mono); letter-spacing: 0.12em; min-width: 3ch; color: var(--signal); transform: translateY(-0.9em); }
-.method__step[data-tone="sketch"] .method__n { color: var(--cobalt); }
 
 /* client countries (numbered by CSS, so rows can be added or removed freely) */
 .countries { display: grid; counter-reset: country; }
