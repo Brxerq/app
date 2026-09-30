@@ -54,7 +54,7 @@ Every URL is relative because the site lives under `/app/`.
 * On phones the subject stays pinned in the top half and the copy arrives as sheets that slide up over it.
 * Canvas is `aria-hidden`; all text is real DOM. Skip link, focus rings, `<dialog>` index, ruler nav, keyboard-reachable
   everything, no scroll-jacking (native scroll, damped in the renderer only). axe-core: 0 violations.
-* The contact form is a `mailto:` on purpose — nothing is stored.
+* The contact form posts to FormSubmit (formsubmit.co), which emails the note to the inbox; if that fails the visitor is shown the address.
 * The GitHub graph comes from a public third-party endpoint; if it fails the section hides itself.
 
 ## Credits
