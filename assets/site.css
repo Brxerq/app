@@ -90,9 +90,9 @@ button { cursor: pointer; background: none; border: 0; padding: 0; }
 
 .btn { display: inline-flex; align-items: center; gap: 10px; padding: 13px 22px; border: 1px solid var(--line); border-radius: 999px; font: 500 11.5px / 1 var(--f-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--paper); }
 .btn svg { width: 15px; height: 15px; flex: none; }
-.btn:hover { border-color: rgba(255, 210, 63, 0.35); background: rgba(255, 210, 63, 0.09); }
+.btn:hover, .btn:focus-visible { border-color: rgba(255, 210, 63, 0.35); background: rgba(255, 210, 63, 0.09); }
 .btn--solid { background: var(--paper); color: var(--ink); border-color: var(--paper); }
-.btn--solid:hover { background: var(--signal); border-color: var(--signal); color: var(--ink); }
+.btn--solid:hover, .btn--solid:focus-visible { background: var(--signal); border-color: var(--signal); color: var(--ink); }
 .btn--wide { width: 100%; justify-content: center; }
 
 /* buttons answer the pointer: lit where it touches them, a comet of light runs the edge, the arrow launches, a press dips.
@@ -165,7 +165,7 @@ html.js .loader.is-done { opacity: 0; visibility: hidden; pointer-events: none; 
 .bar__calm[aria-pressed="true"] .bar__calm-dot { background: transparent; }
 .bar__cta { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border: 1px solid var(--line); border-radius: 999px; color: var(--paper); }
 .bar__cta svg { width: 13px; height: 13px; }
-.bar__cta:hover { background: var(--signal); border-color: var(--signal); color: var(--ink); }
+.bar__cta:hover, .bar__cta:focus-visible { background: var(--signal); border-color: var(--signal); color: var(--ink); }
 [hidden] { display: none !important; }
 
 .index { border: 0; padding: 0; margin: 0; width: 100%; max-width: none; height: calc(100 * var(--vh)); max-height: none; background: rgba(5, 6, 10, 0.94); color: var(--paper); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
