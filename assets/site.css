@@ -76,7 +76,8 @@ button { cursor: pointer; background: none; border: 0; padding: 0; }
 .meta time { font: inherit; }
 
 .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px; }
-.chips li { font: 400 10.5px / 1 var(--f-mono); letter-spacing: 0.08em; text-transform: uppercase; padding: 6px 10px; border: 1px solid var(--line); border-radius: 999px; color: var(--dim); }
+.chips li { font: 400 10.5px / 1 var(--f-mono); letter-spacing: 0.08em; text-transform: uppercase; padding: 6px 11px 5px; border: 1px solid rgba(236, 232, 223, 0.14); border-radius: 999px; color: rgba(236, 232, 223, 0.74); background: rgba(236, 232, 223, 0.04); white-space: nowrap; transition: border-color 0.25s, color 0.25s; }
+.chips li:hover { border-color: rgba(255, 210, 63, 0.45); color: var(--paper); }
 
 .ticks { display: grid; gap: 10px; margin-top: 16px; }
 .ticks li { position: relative; padding-left: 26px; color: rgba(236, 232, 223, 0.86); text-wrap: pretty; }
@@ -298,12 +299,12 @@ section[id] { position: relative; }
 /* credentials */
 .creds__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(24px, 5vw, 90px); margin-top: clamp(28px, 5vh, 56px); }
 .creds__list { margin-top: 16px; border-top: 1px solid var(--line); }
-.creds__list li { padding: 20px 0; border-bottom: 1px solid var(--faint); }
+.creds__list > li { padding: 20px 0; border-bottom: 1px solid var(--faint); }
 .creds__list time { font: 400 11px var(--f-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--signal); }
 .creds__list h4 { margin: 8px 0 4px; font: 400 clamp(1.05rem, 1.4vw, 1.3rem) / 1.25 var(--f-display); letter-spacing: -0.025em; }
 .creds__deg { font: 400 11px / 1.5 var(--f-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--dim); }
 .creds__id { margin-top: 4px; font: 400 10.5px var(--f-mono); letter-spacing: 0.1em; text-transform: uppercase; color: rgba(236, 232, 223, 0.45); }
-.creds__list li > p:not(.creds__deg):not(.creds__id) { margin-top: 8px; color: rgba(236, 232, 223, 0.78); font-size: 0.95em; }
+.creds__list > li > p:not(.creds__deg):not(.creds__id) { margin-top: 8px; color: rgba(236, 232, 223, 0.78); font-size: 0.95em; }
 
 /* commits */
 .commits__copy { max-width: 720px; }

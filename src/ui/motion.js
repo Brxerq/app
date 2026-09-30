@@ -140,7 +140,7 @@ export function initMotion({ calm, fine }) {
       if (kids.length) rise(kids, step, step.classList.contains('step--intro') ? 'top 60%' : 'top 62%');
     });
     document.querySelectorAll('.web__head > :not(.display), .career__head > :not(.display), .toolbox__head > :not(.display), .commits__copy > :not(.display), .contact__head > :not(.display), .also > .eyebrow, .lab > .eyebrow').forEach((el) => rise(el, el, 'top 90%'));
-    document.querySelectorAll('.role, .also .site, .archive__row, .creds__list li, .ring, .toolbox__aside > *, .note, .contact__side > *, .method__label').forEach((el) => rise(el, el, 'top 90%'));
+    document.querySelectorAll('.role, .also .site, .archive__row, .creds__list > li, .ring, .toolbox__aside > *, .note, .contact__side > *, .method__label').forEach((el) => rise(el, el, 'top 90%'));
 
     return () => {
       cleanupWeight();
