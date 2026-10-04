@@ -70,6 +70,12 @@ button { cursor: pointer; background: none; border: 0; padding: 0; }
 .display { font: 300 clamp(2.3rem, 5.6vw, 5.8rem) / 0.98 var(--f-display); letter-spacing: -0.04em; text-wrap: balance; }
 .display--sm { font-size: clamp(1.7rem, 3.6vw, 3.4rem); line-height: 1.02; }
 .display--xl { font-size: clamp(3.4rem, 12.5vw, 13rem); line-height: 0.88; letter-spacing: -0.055em; }
+/* SplitText clips each headline line at its line box, which cuts the tails of p, y and g: let them hang out without moving the layout */
+.display > div { padding-bottom: 0.12em; margin-bottom: -0.12em; }
+/* short labels and titles break evenly instead of leaving a lone word or a dangling "·"; running text avoids orphans */
+.eyebrow, .meta, .site__tag, .role__title, .archive__sub, .creds__deg, .step h3, .role h3, .country h3, .archive__row h4, .creds__list h4, .hero__role, .hero__portrait figcaption { text-wrap: balance; }
+p, li, dd { text-wrap: pretty; }
+[data-count] { font-variant-numeric: tabular-nums; }
 .lede { font: 300 clamp(1.05rem, 0.7vw + 0.95rem, 1.4rem) / 1.5 var(--f-body); color: rgba(236, 232, 223, 0.82); max-width: 44ch; margin-top: clamp(16px, 2.4vh, 26px); text-wrap: pretty; }
 .meta { display: flex; flex-wrap: wrap; gap: 4px 0; margin: 14px 0; font: 400 11px / 1.6 var(--f-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--dim); }
 .meta > * + *::before { content: "·"; margin: 0 0.8em; opacity: 0.6; }
@@ -86,7 +92,8 @@ button { cursor: pointer; background: none; border: 0; padding: 0; }
 .readouts { display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); margin-top: 22px; border-top: 1px solid var(--line); }
 .readout { display: flex; flex-direction: column; padding: 14px 14px 6px 0; }
 .readout dt { order: 2; margin-top: 8px; font: 400 10.5px / 1.4 var(--f-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); }
-.readout dd { order: 1; font: 300 clamp(1.5rem, 2.4vw, 2.3rem) / 1 var(--f-display); letter-spacing: -0.035em; font-variant-numeric: tabular-nums; }
+.readouts:not(.hero__stats) { grid-template-columns: repeat(2, minmax(0, 1fr)); } /* four big figures never fit one row of a half-width column: 2 x 2 */
+.readout dd { order: 1; white-space: nowrap; font: 300 clamp(1.5rem, 2.4vw, 2.3rem) / 1 var(--f-display); letter-spacing: -0.035em; font-variant-numeric: tabular-nums; }
 .readout dd i { font-style: normal; color: var(--signal); }
 
 .btn { display: inline-flex; align-items: center; gap: 10px; padding: 13px 22px; border: 1px solid var(--line); border-radius: 999px; font: 500 11.5px / 1 var(--f-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--paper); }
@@ -229,7 +236,11 @@ html.js .loader.is-done { opacity: 0; visibility: hidden; pointer-events: none; 
   html.js .ruler { display: block; }
   /* the current chapter's name stays lit on the ruler: keep full-width content clear of it */
   html.js .also, html.js .career, html.js .creds, html.js .toolbox { padding-right: calc(var(--gutter) + 110px); }
-  html.js.gl .case--flip .stage__copy { padding-right: 110px; }
+  html.js.gl .case--flip .stage__copy { padding-right: 140px; }
+  /* "Experience." is one unbreakable word in a half-width column: size it to the column so it stops short of the ruler label */
+  html.gl .career .display { font-size: min(5.8rem, calc(7.2vw - 30px)); }
+  /* the longest method line ("Web apps & platforms.") would run under the ruler's current label */
+  html.js .method__step { font-size: clamp(2rem, 5.9vw, 6.4rem); }
 }
 
 /* labels pinned to points in the world */
@@ -422,6 +433,8 @@ section[id] { position: relative; }
 }
 
 /* ---------- static, narrow ---------- */
+@media (max-width: 380px) { .hero__title { font-size: 2.5rem; } } /* "Muhammad" is one unbreakable line: 2.9rem runs past a 320px screen */
+
 @media (max-width: 899px) {
   .bar__nav > a:not(.bar__cta) { display: none; }
   .bar__name { font-size: 10px; letter-spacing: 0.1em; }
