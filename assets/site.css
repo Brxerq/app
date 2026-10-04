@@ -154,6 +154,13 @@ html.js .loader.is-done { opacity: 0; visibility: hidden; pointer-events: none; 
 /* ---------- 3 · chrome ---------- */
 .bar { position: fixed; z-index: 50; top: 0; left: 0; right: 0; height: var(--bar-h); display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 0 var(--gutter); }
 .bar::before { content: ""; position: absolute; inset: 0 0 -26px 0; z-index: -1; pointer-events: none; background: linear-gradient(to bottom, rgba(5, 6, 10, 0.9) 30%, rgba(5, 6, 10, 0)); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); -webkit-mask-image: linear-gradient(#000 45%, transparent); mask-image: linear-gradient(#000 45%, transparent); }
+/* a hairline at the very top fills as the page is read (scroll-driven, so only where the browser supports it) */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: scroll()) {
+    html:not(.calm) .bar::after { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 2px; background: linear-gradient(90deg, var(--cobalt), var(--signal)); box-shadow: 0 0 12px rgba(255, 210, 63, 0.5); transform: scaleX(0); transform-origin: 0 50%; animation: read linear both; animation-timeline: scroll(root); }
+  }
+}
+@keyframes read { to { transform: scaleX(1); } }
 .bar__brand { display: flex; align-items: center; gap: 12px; }
 .bar__mark { display: grid; place-items: center; width: 38px; height: 38px; border: 1px solid var(--line); border-radius: 50%; font: 500 10px var(--f-display); letter-spacing: 0; }
 .bar__name { font: 400 11px var(--f-mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); }
@@ -256,7 +263,7 @@ section[id] { position: relative; }
 .web .stage__copy { max-width: none; }
 .sites { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 22px; }
 .also .sites { margin-top: clamp(28px, 5vh, 56px); }
-.site { position: relative; margin: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: rgba(255, 255, 255, 0.025); transition: border-color 0.3s, transform 0.4s var(--ease); }
+.site { position: relative; margin: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015)); transition: border-color 0.3s, transform 0.4s var(--ease); }
 .site:hover, .site:focus-within { border-color: var(--signal); }
 .site__shot img { width: 100%; height: auto; aspect-ratio: 1200 / 630; object-fit: cover; object-position: top; }
 .site__body { padding: 18px 20px 22px; }
@@ -344,9 +351,11 @@ section[id] { position: relative; }
 .elsewhere a i { margin-left: auto; font-style: normal; color: var(--dim); transition: transform 0.3s var(--ease), color 0.2s; }
 .elsewhere a:hover { padding-left: 10px; color: var(--signal); }
 .elsewhere a:hover i { transform: translate(3px, -3px); color: var(--signal); }
-.note { grid-area: form; display: grid; gap: 22px; padding: clamp(22px, 3vw, 40px); border: 1px solid var(--line); border-radius: 14px; background: rgba(9, 11, 18, 0.62); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+.note { grid-area: form; display: grid; gap: 22px; padding: clamp(22px, 3vw, 40px); border: 1px solid var(--line); border-radius: 14px; background: rgba(9, 11, 18, 0.62); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); transition: border-color 0.35s var(--ease), box-shadow 0.35s var(--ease); }
+.note:focus-within { border-color: rgba(255, 210, 63, 0.4); box-shadow: 0 30px 80px -40px rgba(255, 210, 63, 0.4); }
 .field { display: grid; gap: 8px; }
-.field span { font: 400 10.5px var(--f-mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); }
+.field span { font: 400 10.5px var(--f-mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); transition: color 0.25s; }
+.field:focus-within span { color: var(--signal); }
 .field input, .field textarea { width: 100%; padding: 10px 0 12px; background: transparent; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; font: 300 1.2rem / 1.4 var(--f-body); color: var(--paper); resize: vertical; transition: border-color 0.25s; }
 .field input::placeholder, .field textarea::placeholder { color: rgba(236, 232, 223, 0.32); }
 .field input:focus, .field textarea:focus { outline: none; border-bottom-color: var(--signal); }
@@ -358,6 +367,32 @@ section[id] { position: relative; }
 .foot { position: relative; z-index: 3; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px 30px; padding: 28px var(--gutter) calc(28px + env(safe-area-inset-bottom)); border-top: 1px solid var(--faint); font: 400 11px var(--f-mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); }
 .foot__name { color: var(--paper); font-family: var(--f-display); font-weight: 400; letter-spacing: -0.01em; font-size: 12px; }
 .foot__top:hover { color: var(--signal); }
+
+/* cards, rows and roles answer the pointer like the buttons do: a light follows it (--x/--y/--nx/--ny come from src/ui/buttons.js,
+   fine pointers only), a card lifts, its screenshot zooms and drifts against the pointer, the rest of the grid steps back.
+   Everything sits behind the text or beside it, nothing is hidden. GSAP owns transform/translate/scale on these elements, so a card lifts with `top`. */
+@media (hover: hover) and (pointer: fine) {
+  html:not(.calm) :is(.also .site, .archive__row, .creds__list > li, .role, .ring) { position: relative; isolation: isolate; }
+  html:not(.calm) :is(.also .site, .archive__row, .creds__list > li, .role, .ring)::after { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: radial-gradient(380px circle at var(--x, 50%) var(--y, 50%), var(--glow, rgba(255, 210, 63, 0.1)), transparent 70%); opacity: 0; transition: opacity 0.4s var(--ease); }
+  html:not(.calm) :is(.archive__row, .creds__list > li, .role, .ring) { --glow: rgba(255, 244, 214, 0.065); }
+  html:not(.calm) :is(.archive__row, .creds__list > li, .ring)::after { inset: 0 -14px; }
+  /* rows also draw a yellow stroke along their rule, like the link underline (replaces the flat hover wash on the lab rows) */
+  html:not(.calm) :is(.archive__row, .creds__list > li, .role) { background: linear-gradient(var(--signal), var(--signal)) 0 100% / 0 1px no-repeat border-box; transition: background-size 0.7s var(--ease); }
+  html:not(.calm) :is(.archive__row, .creds__list > li, .role):hover { background-size: 100% 1px; }
+  html:not(.calm) :is(.also .site, .archive__row, .creds__list > li, .role, .ring):hover::after { opacity: 1; }
+  html:not(.calm) .ring .eyebrow { transition: color 0.3s; }
+  html:not(.calm) .ring:hover .eyebrow { color: var(--signal); }
+
+  /* the card edge catches the light where the pointer is */
+  html:not(.calm) .also .site { top: 0; overflow: visible; transition: border-color 0.3s, top 0.45s var(--ease), box-shadow 0.45s var(--ease), filter 0.4s var(--ease); }
+  html:not(.calm) .also .site::before { content: ""; position: absolute; inset: -1px; z-index: 2; border-radius: inherit; padding: 1px; pointer-events: none; background: radial-gradient(260px circle at var(--x, 50%) var(--y, 50%), var(--signal), transparent 70%); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude; opacity: 0; transition: opacity 0.4s var(--ease); }
+  html:not(.calm) .also .site:hover::before { opacity: 1; }
+  html:not(.calm) .also .site:hover { top: -5px; border-color: rgba(255, 210, 63, 0.3); box-shadow: 0 26px 60px -30px rgba(255, 210, 63, 0.35); }
+  html:not(.calm) .also .sites:hover .site:not(:hover) { filter: brightness(0.72); }
+  html:not(.calm) .also .site__shot { overflow: hidden; border-radius: 9px 9px 0 0; }
+  html:not(.calm) .also .site__shot img { transition: scale 0.9s var(--ease), translate 0.5s var(--ease); }
+  html:not(.calm) .also .site:hover .site__shot img { scale: 1.07; translate: calc(var(--nx, 0) * -2.4%) calc(var(--ny, 0) * -2.4%); }
+}
 
 /* ---------- static, narrow ---------- */
 @media (max-width: 899px) {

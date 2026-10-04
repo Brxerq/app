@@ -12,3 +12,17 @@ export function initButtons() {
     el.addEventListener('pointerleave', () => { el.style.translate = ''; });
   }
 }
+
+// Cards and rows are lit the same way: CSS draws the light from --x/--y and drifts the card screenshot against --nx/--ny (-0.5..0.5).
+export function initLight() {
+  for (const el of document.querySelectorAll('.also .site, .archive__row, .creds__list > li, .role, .ring')) {
+    el.addEventListener('pointermove', (e) => {
+      const r = el.getBoundingClientRect();
+      const x = e.clientX - r.left, y = e.clientY - r.top;
+      el.style.setProperty('--x', `${x.toFixed(0)}px`);
+      el.style.setProperty('--y', `${y.toFixed(0)}px`);
+      el.style.setProperty('--nx', (x / r.width - 0.5).toFixed(2));
+      el.style.setProperty('--ny', (y / r.height - 0.5).toFixed(2));
+    });
+  }
+}
