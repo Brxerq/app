@@ -101,13 +101,20 @@ button { cursor: pointer; background: none; border: 0; padding: 0; }
 @property --spin { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
 .btn, .bar__cta, .site__go { position: relative; isolation: isolate; overflow: hidden; transition: background 0.3s var(--ease), border-color 0.3s var(--ease), color 0.3s var(--ease), box-shadow 0.35s var(--ease), translate 0.45s var(--ease), scale 0.15s var(--ease); }
 .btn::before, .bar__cta::before, .site__go::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none; background: radial-gradient(140px circle at var(--x, 50%) var(--y, 50%), rgba(255, 210, 63, 0.32), transparent 70%); opacity: 0; transition: opacity 0.35s var(--ease); }
-.btn::after, .bar__cta::after, .site__go::after { content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 2px; pointer-events: none; background: conic-gradient(from var(--spin), transparent 0 62%, rgba(255, 210, 63, 0.95) 80%, #fff 86%, transparent 92%); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude; opacity: 0; transition: opacity 0.35s var(--ease); }
+.btn::after, .bar__cta::after, .site__go::after { content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 2px; pointer-events: none; background: conic-gradient(from var(--spin), transparent 0 62%, var(--c1, rgba(255, 210, 63, 0.95)) 80%, var(--c2, #fff) 86%, transparent 92%); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude; opacity: var(--rest, 0); transition: opacity 0.35s var(--ease); }
 .btn:hover::before, .btn:focus-visible::before, .bar__cta:hover::before, .bar__cta:focus-visible::before, .site:hover .site__go::before, .site:focus-within .site__go::before { opacity: 1; }
 .btn:hover::after, .btn:focus-visible::after, .bar__cta:hover::after, .bar__cta:focus-visible::after, .site:hover .site__go::after, .site:focus-within .site__go::after { opacity: 1; animation: comet 1.8s linear infinite; }
 .btn:hover, .btn:focus-visible, .bar__cta:hover, .bar__cta:focus-visible, .site:hover .site__go, .site:focus-within .site__go { box-shadow: 0 0 0 1px rgba(255, 210, 63, 0.4), 0 0 22px rgba(255, 210, 63, 0.28); }
 .btn:active, .bar__cta:active, .site__go:active { scale: 0.96; }
 .btn:hover svg, .bar__cta:hover svg, .link:hover svg, .site:hover .site__go svg { animation: launch 0.55s var(--ease); }
 .btn:hover svg:has(> use[href="#i-down"]) { animation-name: drop; }
+/* at rest the comet already circles every button (full motion only); on cream buttons it is gold so it shows, and hover turns it bright again */
+.btn--solid, .site__go { --c1: #d99a00; --c2: #7a4d00; }
+.btn--solid:hover, .btn--solid:focus-visible, .site:hover .site__go, .site:focus-within .site__go { --c1: rgba(255, 210, 63, 0.95); --c2: #fff; }
+@media (prefers-reduced-motion: no-preference) {
+  html:not(.calm) :is(.btn, .bar__cta, .site__go) { --rest: 0.8; }
+  html:not(.calm) :is(.btn, .bar__cta, .site__go)::after { animation: comet 2.6s linear infinite; }
+}
 @keyframes comet { to { --spin: 360deg; } }
 @keyframes launch { 45% { translate: 110% -110%; opacity: 0; } 46% { translate: -110% 110%; opacity: 0; } 100% { translate: 0 0; opacity: 1; } }
 @keyframes drop { 45% { translate: 0 110%; opacity: 0; } 46% { translate: 0 -110%; opacity: 0; } 100% { translate: 0 0; opacity: 1; } }
