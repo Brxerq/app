@@ -99,11 +99,12 @@ button { cursor: pointer; background: none; border: 0; padding: 0; }
 /* buttons answer the pointer: lit where it touches them, a comet of light runs the edge, the arrow launches, a press dips.
    The lean towards the pointer and the --x/--y light position come from src/ui/buttons.js (fine pointers only). */
 @property --spin { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
-.btn, .bar__cta { position: relative; isolation: isolate; overflow: hidden; transition: background 0.3s var(--ease), border-color 0.3s var(--ease), color 0.3s var(--ease), translate 0.45s var(--ease), scale 0.15s var(--ease); }
+.btn, .bar__cta { position: relative; isolation: isolate; overflow: hidden; transition: background 0.3s var(--ease), border-color 0.3s var(--ease), color 0.3s var(--ease), box-shadow 0.35s var(--ease), translate 0.45s var(--ease), scale 0.15s var(--ease); }
 .btn::before, .bar__cta::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none; background: radial-gradient(140px circle at var(--x, 50%) var(--y, 50%), rgba(255, 210, 63, 0.32), transparent 70%); opacity: 0; transition: opacity 0.35s var(--ease); }
-.btn::after, .bar__cta::after { content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none; background: conic-gradient(from var(--spin), transparent 0 62%, rgba(255, 210, 63, 0.95) 80%, #fff 86%, transparent 92%); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude; opacity: 0; transition: opacity 0.35s var(--ease); }
+.btn::after, .bar__cta::after { content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 2px; pointer-events: none; background: conic-gradient(from var(--spin), transparent 0 62%, rgba(255, 210, 63, 0.95) 80%, #fff 86%, transparent 92%); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude; opacity: 0; transition: opacity 0.35s var(--ease); }
 .btn:hover::before, .btn:focus-visible::before, .bar__cta:hover::before, .bar__cta:focus-visible::before { opacity: 1; }
 .btn:hover::after, .btn:focus-visible::after, .bar__cta:hover::after, .bar__cta:focus-visible::after { opacity: 1; animation: comet 1.8s linear infinite; }
+.btn:hover, .btn:focus-visible, .bar__cta:hover, .bar__cta:focus-visible { box-shadow: 0 0 0 1px rgba(255, 210, 63, 0.4), 0 0 22px rgba(255, 210, 63, 0.28); }
 .btn:active, .bar__cta:active { scale: 0.96; }
 .btn:hover svg, .bar__cta:hover svg, .link:hover svg { animation: launch 0.55s var(--ease); }
 .btn:hover svg:has(> use[href="#i-down"]) { animation-name: drop; }
