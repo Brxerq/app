@@ -2,6 +2,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SplitText } from 'gsap/SplitText';
 import { env, wantsCalm, setCalm, pickTier, strokeBudget } from './env.js';
+import { initLoader, STAGES } from './ui/loader.js';
 import { initNav } from './ui/nav.js';
 import { initMotion } from './ui/motion.js';
 import { initContact } from './ui/contact.js';
@@ -15,12 +16,18 @@ const root = document.documentElement;
 const loader = document.querySelector('[data-loader]');
 const pct = document.querySelector('[data-loader-pct]');
 let shown = 0;
+let fx = { live: false, set() {}, release: () => Promise.resolve() }; // the canvas loader on full-motion desktops (src/ui/loader.js)
+const label = document.querySelector('.loader__label');
 const progress = (v) => {
   shown = Math.max(shown, v);
+  fx.set(shown);
+  const s = STAGES.filter(([t]) => shown >= t).length - 1;
+  if (!fx.live && label && loader.dataset.stage !== String(s)) { loader.dataset.stage = s; label.textContent = STAGES[s][1]; }
   if (pct) pct.textContent = String(Math.round(shown * 100)).padStart(3, '0');
   loader?.style.setProperty('--p', shown.toFixed(3));
 };
-const finishLoader = () => {
+const finishLoader = async () => {
+  await fx.release(); // the strokes burst while this resolves, then the fade overlaps the end of the burst
   loader?.classList.add('is-done');
   setTimeout(() => loader?.remove(), 1200);
 };
@@ -64,9 +71,10 @@ async function initCommits(world) {
 }
 
 async function main() {
-  progress(0.05);
   const calm = wantsCalm();
   root.classList.toggle('calm', calm);
+  if (loader) fx = initLoader({ calm });
+  progress(0.05);
   let world = null;
 
   if (!calm && env.webgl2) {
@@ -103,7 +111,7 @@ async function main() {
   if (landing) window.scrollTo({ top: landing.getBoundingClientRect().top + window.scrollY, behavior: 'instant' });
   progress(1);
   await new Promise((r) => setTimeout(r, 200));
-  finishLoader();
+  await finishLoader();
   motion.start();
   if (world) await world.playIntro();
   root.classList.add('ready');
