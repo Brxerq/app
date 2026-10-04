@@ -204,6 +204,11 @@ html.js .loader.is-done { opacity: 0; visibility: hidden; pointer-events: none; 
 .bar__calm:hover, .bar__calm:focus-visible { border-color: rgba(255, 210, 63, 0.35); background: rgba(255, 210, 63, 0.09); }
 .bar__calm-dot { width: 8px; height: 8px; border-radius: 50%; border: 1px solid currentColor; background: var(--signal); border-color: var(--signal); transition: background 0.2s; }
 .bar__calm[aria-pressed="true"] .bar__calm-dot { background: transparent; }
+.bar__calm { transition-property: color, border-color, background, scale; }
+.bar__calm:active { scale: 0.96; }
+/* small text links reach a 40px+ target without moving the layout */
+.bar__index, .foot__top, .role__more a { position: relative; }
+.bar__index::after, .foot__top::after, .role__more a::after { content: ""; position: absolute; inset: -14px -6px; }
 .bar__cta { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border: 1px solid var(--line); border-radius: 999px; color: var(--paper); }
 .bar__cta svg { width: 13px; height: 13px; }
 .bar__cta:hover, .bar__cta:focus-visible { background: rgba(255, 210, 63, 0.09); border-color: rgba(255, 210, 63, 0.35); }
@@ -302,6 +307,8 @@ section[id] { position: relative; }
 .also .sites { margin-top: clamp(28px, 5vh, 56px); }
 .site { position: relative; margin: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015)); transition: border-color 0.3s, transform 0.4s var(--ease); }
 .site:hover, .site:focus-within { border-color: var(--signal); }
+.also .site__shot { position: relative; }
+.also .site__shot::after { content: ""; position: absolute; inset: 0; border-radius: inherit; outline: 1px solid oklch(1 0 0 / 0.1); outline-offset: -1px; pointer-events: none; }
 .site__shot img { width: 100%; height: auto; aspect-ratio: 1200 / 630; object-fit: cover; object-position: top; }
 .site__body { padding: 18px 20px 22px; }
 .site__n { font: 400 11px var(--f-mono); letter-spacing: 0.12em; color: var(--signal); }
