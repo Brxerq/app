@@ -32,8 +32,9 @@ export const env = {
   store,
 };
 
-/** true when the user (or their OS) wants the quiet version */
+/** true when the user (or their OS) wants the quiet version; phones and touch screens always get it */
 export function wantsCalm() {
+  if (env.mobile) return true;
   const saved = store.get('smh:calm');
   if (saved === '1') return true;
   if (saved === '0') return false;

@@ -51,7 +51,7 @@ Every URL is relative because the site lives under `/app/`.
   the header persists in `localStorage` (`smh:calm`).
 * **Quality governor**: starts from device hints (cores, memory, pointer type), drops high → medium → low if frames stay
   slow (bloom goes first, then stroke count and resolution). It never climbs back, so it cannot oscillate.
-* On phones the subject stays pinned in the top half and the copy arrives as sheets that slide up over it.
+* Phones and touch-first devices (narrower than 900px, or a coarse pointer) always get the static page: no 3D, no motion toggle. The phone sheet layout in `site.css` and `src/gl` is kept but no longer reached.
 * Canvas is `aria-hidden`; all text is real DOM. Skip link, focus rings, `<dialog>` index, ruler nav, keyboard-reachable
   everything, no scroll-jacking (native scroll, damped in the renderer only). axe-core: 0 violations.
 * The contact form posts to Web3Forms (api.web3forms.com), which emails the note to the inbox; if that fails the visitor gets prefilled Gmail and mail-app links.

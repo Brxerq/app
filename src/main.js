@@ -27,7 +27,7 @@ const finishLoader = () => {
 
 function initCalmToggle(calm) {
   const btn = document.querySelector('[data-calm]');
-  if (!btn) return;
+  if (!btn || env.mobile) return; // phones are always calm, so there is nothing to toggle
   btn.hidden = false;
   btn.querySelector('[data-calm-label]').textContent = calm ? 'Motion: calm' : 'Motion: full';
   btn.title = calm ? 'Turn the 3D world and motion back on' : 'Turn the 3D world and motion down';
