@@ -6,7 +6,7 @@ import { initLoader, STAGES } from './ui/loader.js';
 import { initNav } from './ui/nav.js';
 import { initMotion } from './ui/motion.js';
 import { initContact } from './ui/contact.js';
-import { initButtons, initLight } from './ui/buttons.js';
+import { initButtons, initComets, initLight } from './ui/buttons.js';
 import { fetchContributions, toGrid, heatmap } from './ui/github.js';
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
@@ -98,6 +98,7 @@ async function main() {
   initCalmToggle(calm);
   initNav({ calm });
   initContact();
+  initComets();
   if (env.fine && !calm) { initButtons(); initLight(); }
   const motion = initMotion({ calm, fine: env.fine });
   initCommits(world);

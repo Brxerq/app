@@ -3,6 +3,19 @@
 // Touch gets the CSS press and the centred light.
 const REACH = 70; // px outside a button where the pull starts
 const clamp = (v, m) => Math.max(-m, Math.min(m, v));
+// The comet outline: an empty <i> per button, styled and rotated by CSS (rotating it is compositor-only; animating a gradient angle was not)
+export function initComets() {
+  // off-screen comets sit paused: every running animation costs a style pass per frame
+  const io = new IntersectionObserver((es) => es.forEach((e) => e.target.classList.toggle('is-off', !e.isIntersecting)));
+  for (const el of document.querySelectorAll('.btn, .bar__cta, .site__go')) {
+    const i = document.createElement('i');
+    i.className = 'comet';
+    i.setAttribute('aria-hidden', 'true');
+    el.appendChild(i);
+    io.observe(el);
+  }
+}
+
 export function initButtons() {
   const btns = [...document.querySelectorAll('.btn, .bar__cta, .site__go')];
   let ev = null;

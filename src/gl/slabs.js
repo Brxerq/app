@@ -117,9 +117,15 @@ export class Slabs {
       tex.minFilter = LinearMipmapLinearFilter;
       tex.anisotropy = 4;
       it.mat.uniforms.uTex.value = tex;
+      this.stage.renderer.initTexture(tex); // upload + mipmaps now rather than on the first frame it is drawn
       it.mat.uniforms.uAspect.value = tex.image.width / tex.image.height;
       it.loaded = true;
     });
+  }
+
+  /** load every screenshot one at a time, so the uploads never land on the same frame */
+  preload() {
+    this.items.forEach((_, k) => setTimeout(() => this.load(k), k * 400));
   }
 
   /** called each frame by the corridor scene */

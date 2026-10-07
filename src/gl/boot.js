@@ -160,7 +160,13 @@ export async function boot({ canvas, tier, strokes, mobile, onProgress = () => {
   u.uIntro.value = 0;
   u.uLight.value = 0;
   u.uWarm.value = -0.3;
+  // compileAsync skips invisible objects, and the post chain draws into a render target (other program variants than the canvas):
+  // show the slabs and draw one real frame, so every shader is built now and not when the corridor first scrolls in
+  const slabMeshes = dir.slabs ? dir.slabs.items.map((i) => i.mesh) : [];
+  slabMeshes.forEach((m) => (m.visible = true));
   await stage.renderer.compileAsync(stage.scene, stage.camera);
+  stage.render();
+  slabMeshes.forEach((m) => (m.visible = false));
   if (shaderFailed) {
     stage.dispose();
     throw new Error('shader compile failed');
@@ -171,6 +177,7 @@ export async function boot({ canvas, tier, strokes, mobile, onProgress = () => {
   // the corridor's frames become sketches of their sites once the screenshots are decoded: after the intro, off the
   // critical path, and never while the corridor is on screen (swapping a visible layer would pop)
   const sketchCorridor = async () => {
+    dir.slabs?.preload(); // textures decode and upload now, spread out, not mid-scroll
     const imgs = await Promise.all(sites.map((s) => (s.src ? loadImage(s.src).catch(() => null) : null)));
     if (!imgs.length || !imgs.every(Boolean)) return;
     const form = timed('corridor sketches', () => corridorForm(N, sites.length, imgs));
